@@ -74,47 +74,47 @@
   --elevate-2: rgba(0,0,0, .06);
 
   --background: 0 0% 100%;
-  --foreground: 230 25% 10%;
-  --border: 230 10% 88%;
+  --foreground: 220 20% 8%;
+  --border: 220 8% 88%;
 
   --card: 0 0% 100%;
-  --card-foreground: 235 15% 12%;
-  --card-border: 230 10% 88%;
+  --card-foreground: 220 20% 8%;
+  --card-border: 220 8% 88%;
 
   --sidebar: 0 0% 100%;
-  --sidebar-foreground: 235 15% 12%;
-  --sidebar-border: 230 10% 88%;
-  --sidebar-primary: 237 100% 50%;
+  --sidebar-foreground: 220 20% 8%;
+  --sidebar-border: 220 8% 88%;
+  --sidebar-primary: 230 80% 56%;
   --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 237 100% 96%;
-  --sidebar-accent-foreground: 237 100% 50%;
-  --sidebar-ring: 237 100% 50%;
+  --sidebar-accent: 230 80% 96%;
+  --sidebar-accent-foreground: 230 80% 56%;
+  --sidebar-ring: 230 80% 56%;
 
   --popover: 0 0% 100%;
-  --popover-foreground: 235 15% 12%;
-  --popover-border: 230 10% 88%;
+  --popover-foreground: 220 20% 8%;
+  --popover-border: 220 8% 88%;
 
-  --primary: 237 100% 50%;
+  --primary: 230 80% 56%;
   --primary-foreground: 0 0% 100%;
 
-  --secondary: 230 10% 94%;
-  --secondary-foreground: 237 100% 50%;
+  --secondary: 220 8% 95%;
+  --secondary-foreground: 230 80% 56%;
 
-  --muted: 230 10% 95%;
-  --muted-foreground: 230 8% 50%;
+  --muted: 220 8% 96%;
+  --muted-foreground: 220 8% 46%;
 
-  --accent: 237 100% 50%;
+  --accent: 230 80% 56%;
   --accent-foreground: 0 0% 100%;
 
-  --destructive: 0 85% 50%;
+  --destructive: 0 72% 51%;
   --destructive-foreground: 0 0% 100%;
 
-  --input: 230 10% 90%;
-  --ring: 237 100% 50%;
+  --input: 220 8% 90%;
+  --ring: 230 80% 56%;
 
-  --chart-1: 237 100% 50%;
+  --chart-1: 230 80% 56%;
   --chart-2: 200 100% 45%;
-  --chart-3: 0 85% 50%;
+  --chart-3: 0 72% 51%;
   --chart-4: 45 100% 45%;
   --chart-5: 160 80% 40%;
 
@@ -148,6 +148,9 @@
   }
   body {
     @apply font-sans antialiased bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
 }
 
@@ -175,40 +178,66 @@
 }
 
 @keyframes fade-up {
-  from { opacity: 0; transform: translateY(12px); }
+  from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
 }
 .animate-fade-up {
-  animation: fade-up 0.5s ease-out forwards;
-}
-
-@keyframes count-tick {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-  100% { transform: scale(1); }
+  animation: fade-up 0.4s ease-out forwards;
 }
 
 @keyframes feed-slide {
-  from { opacity: 0; transform: translateX(-8px); }
+  from { opacity: 0; transform: translateX(-6px); }
   to { opacity: 1; transform: translateX(0); }
 }
 .animate-feed-slide {
-  animation: feed-slide 0.3s ease-out forwards;
+  animation: feed-slide 0.25s ease-out forwards;
 }
 
-.gradient-text {
-  background: linear-gradient(135deg, hsl(237, 100%, 50%) 0%, hsl(200, 100%, 45%) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+.bento-card {
+  border: 1px solid hsl(220 8% 88%);
+  background: hsl(0 0% 100%);
+  transition: border-color 0.2s, background-color 0.2s;
+}
+.bento-card:hover {
+  border-color: hsl(220 8% 80%);
+}
+.bento-card-dark {
+  border: 1px solid hsl(220 20% 12%);
+  background: hsl(220 20% 8%);
+  color: hsl(0 0% 100%);
+}
+.bento-card-primary {
+  border: 1px solid hsl(230 80% 56%);
+  background: hsl(230 80% 56%);
+  color: hsl(0 0% 100%);
 }
 
-.glass-card {
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(12px);
-  border: 1px solid hsl(230, 10%, 90%);
+.epoch-progress-track {
+  background: hsl(220 8% 92%);
+  height: 6px;
+  overflow: hidden;
+  position: relative;
+}
+.epoch-progress-fill {
+  height: 100%;
+  background: hsl(230 80% 56%);
+  transition: width 1s ease;
+  position: relative;
+}
+.epoch-progress-fill::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: -2px;
+  bottom: -2px;
+  width: 2px;
+  background: hsl(230 80% 56%);
 }
 
-.metric-glow {
-  text-shadow: 0 0 40px hsla(237, 100%, 50%, 0.15);
+.section-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: hsl(220 8% 46%);
 }

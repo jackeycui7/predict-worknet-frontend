@@ -1,214 +1,230 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import {
   useGetFeedStats,
   useGetFeedLive,
   useGetCurrentEpoch,
   useGetActiveMarkets,
 } from "@/lib/api";
-import { formatNumber, formatPct, formatChips, relativeTime, personaLabel, truncateAddress } from "@/lib/format";
+import { formatNumber, formatPct, formatChips, relativeTime, personaLabel } from "@/lib/format";
 import { AgentLink, MarketLink } from "@/components/address-link";
 import { Link } from "wouter";
 
-function EpochBar() {
+function EpochCard() {
   const { data: epoch } = useGetCurrentEpoch();
   if (!epoch) return null;
   const progress = (epoch.hours_elapsed / 24) * 100;
+  const hoursLeft = Math.max(0, 24 - epoch.hours_elapsed);
 
   return (
-    <div className="animate-fade-up">
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-3">
-          <span className="text-xs font-semibold text-foreground tracking-wide">EPOCH {epoch.date}</span>
-          <span className={`text-[10px] font-medium px-2 py-0.5 ${epoch.status === "in_progress" ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>
+    <div className="bento-card-dark p-6 col-span-2 row-span-1 flex flex-col justify-between">
+      <div>
+        <div className="section-label" style={{ color: "hsl(220 8% 60%)" }}>CURRENT EPOCH</div>
+        <div className="text-3xl font-bold tracking-tight mt-2 text-white">{epoch.date}</div>
+        <div className="flex items-center gap-2 mt-2">
+          <span className="text-[10px] font-semibold px-2 py-0.5 bg-white/10 text-white/80 tracking-[0.06em]">
             {epoch.status === "in_progress" ? "IN PROGRESS" : epoch.status.toUpperCase()}
           </span>
+          <span className="text-[11px] text-white/50 font-mono">{hoursLeft.toFixed(1)}h remaining</span>
         </div>
-        <span className="text-xs font-mono text-muted-foreground">{epoch.hours_elapsed.toFixed(1)}h / 24h</span>
       </div>
-      <div className="w-full h-[3px] bg-muted overflow-hidden">
-        <div
-          className="h-full bg-gradient-to-r from-primary to-blue-400 transition-all duration-1000"
-          style={{ width: `${Math.min(100, progress)}%` }}
-        />
-      </div>
-      <div className="flex items-center gap-6 mt-3 text-[11px] text-muted-foreground">
-        <span>Markets: <span className="text-foreground font-medium">{epoch.markets_resolved}/{epoch.markets_created}</span></span>
-        <span>Predictions: <span className="text-foreground font-medium">{formatNumber(epoch.total_predictions)}</span></span>
-        <span>Accuracy: <span className="text-primary font-medium">{formatPct(epoch.resolved_stats.global_accuracy)}</span></span>
-        {epoch.live_top3[0] && (
-          <span>Leader: <AgentLink address={epoch.live_top3[0].address} /> <span className="text-primary font-medium">+{epoch.live_top3[0].excess}</span></span>
-        )}
+      <div className="mt-5">
+        <div className="w-full h-[6px] bg-white/10 overflow-hidden">
+          <div
+            className="h-full bg-white transition-all duration-1000"
+            style={{ width: `${Math.min(100, progress)}%` }}
+          />
+        </div>
+        <div className="flex items-center justify-between mt-3 text-[11px] text-white/40">
+          <span>Markets {epoch.markets_resolved}/{epoch.markets_created}</span>
+          <span>{formatNumber(epoch.total_predictions)} predictions</span>
+          <span>{formatPct(epoch.resolved_stats.global_accuracy)} accuracy</span>
+        </div>
       </div>
     </div>
   );
 }
 
-function MetricCard({ label, value, sub }: { label: string; value: string | number; sub?: string }) {
+function HeroCard() {
   return (
-    <div className="animate-fade-up">
-      <div className="text-[11px] font-medium text-muted-foreground tracking-wide mb-1">{label}</div>
-      <div className="text-4xl font-extrabold text-foreground tracking-tight metric-glow leading-none">
-        {typeof value === "number" ? formatNumber(value) : value}
+    <div className="bento-card p-8 col-span-2 row-span-2 flex flex-col justify-between">
+      <div>
+        <div className="section-label">PREDICTION MARKET NETWORK</div>
       </div>
-      {sub && <div className="text-[11px] text-muted-foreground mt-1">{sub}</div>}
+      <div>
+        <h1 className="text-[56px] font-black tracking-[-0.03em] text-foreground leading-[1] uppercase">
+          Predict<br/>WorkNet.
+        </h1>
+        <p className="text-[13px] text-muted-foreground mt-4 max-w-sm leading-[1.6]">
+          A CLOB-based prediction market network where autonomous agents submit directional predictions on crypto assets and earn $PRED rewards based on accuracy and excess performance.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function MetricBentoCard({ label, value, sub, variant }: { label: string; value: string | number; sub?: string; variant?: "primary" }) {
+  const isPrimary = variant === "primary";
+  return (
+    <div className={`${isPrimary ? "bento-card-primary" : "bento-card"} p-5 flex flex-col justify-between`}>
+      <div className="section-label" style={isPrimary ? { color: "rgba(255,255,255,0.6)" } : undefined}>{label}</div>
+      <div>
+        <div className={`text-[40px] font-black tracking-[-0.02em] leading-[1] mt-3 ${isPrimary ? "text-white" : "text-foreground"}`}>
+          {typeof value === "number" ? formatNumber(value) : value}
+        </div>
+        {sub && <div className={`text-[11px] mt-1.5 ${isPrimary ? "text-white/60" : "text-muted-foreground"}`}>{sub}</div>}
+      </div>
+    </div>
+  );
+}
+
+function LeaderCard() {
+  const { data: epoch } = useGetCurrentEpoch();
+  if (!epoch?.live_top3?.[0]) return null;
+  const leader = epoch.live_top3[0];
+
+  return (
+    <div className="bento-card p-5 flex flex-col justify-between">
+      <div className="section-label">EPOCH LEADER</div>
+      <div className="mt-3">
+        <AgentLink address={leader.address} />
+        <div className="text-[11px] text-muted-foreground mt-1">{personaLabel(leader.persona)}</div>
+        <div className="text-2xl font-bold text-primary mt-2">+{leader.excess}</div>
+        <div className="text-[11px] text-muted-foreground">excess score</div>
+      </div>
     </div>
   );
 }
 
 export default function Dashboard() {
   const { data: stats } = useGetFeedStats();
-  const { data: feed } = useGetFeedLive({ limit: 40 });
+  const { data: feed } = useGetFeedLive({ limit: 30 });
   const { data: epoch } = useGetCurrentEpoch();
   const { data: markets } = useGetActiveMarkets();
 
-  const [seenKeys, setSeenKeys] = useState<Set<string>>(new Set());
   const prevKeys = useRef<string[]>([]);
-
   useEffect(() => {
     if (feed) {
-      const keys = feed.map((f) => `${f.agent_address}-${f.market_id}-${f.submitted_at}`);
-      const prevSet = new Set(prevKeys.current);
-      const newK = keys.filter((k) => !prevSet.has(k));
-      if (newK.length > 0) {
-        setSeenKeys((prev) => { const n = new Set(prev); newK.forEach((k) => n.add(k)); return n; });
-      }
-      prevKeys.current = keys;
+      prevKeys.current = feed.map((f) => `${f.agent_address}-${f.market_id}-${f.submitted_at}`);
     }
   }, [feed]);
 
-  const topMarkets = markets?.slice(0, 4) ?? [];
+  const topMarkets = markets?.slice(0, 3) ?? [];
 
   return (
-    <div className="px-8 py-8 space-y-10">
-      <section className="pb-6 border-b border-border/40">
-        <EpochBar />
-      </section>
+    <div className="p-4 space-y-4">
+      <div className="grid grid-cols-4 gap-[1px] bg-border animate-fade-up">
+        <HeroCard />
+        <EpochCard />
+        <MetricBentoCard
+          label="ACTIVE AGENTS 24H"
+          value={stats?.active_agents_24h ?? 0}
+          sub={`${stats?.active_agents_1h ?? 0} in the last hour`}
+        />
+        <MetricBentoCard
+          label="REGISTERED"
+          value={stats?.total_agents_all_time ?? 0}
+          sub="total agents"
+        />
+        <MetricBentoCard
+          label="OPEN MARKETS"
+          value={stats?.open_markets ?? 0}
+          sub={`${stats?.resolved_today ?? 0} resolved today`}
+          variant="primary"
+        />
+        <LeaderCard />
+      </div>
 
-      <section className="animate-fade-up" style={{ animationDelay: "0.1s" }}>
-        <div className="mb-10">
-          <h1 className="text-6xl font-black tracking-tight text-foreground leading-[1.05]">
-            Predict<br />
-            <span className="gradient-text">WorkNet.</span>
-          </h1>
-          <p className="text-sm text-muted-foreground mt-3 max-w-md leading-relaxed">
-            A CLOB-based prediction market network. Agents submit directional predictions on crypto assets and earn $PRED rewards based on accuracy and excess performance.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-4 gap-10">
-          <MetricCard
-            label="Active Agents (24h)"
-            value={stats?.active_agents_24h ?? 0}
-            sub={`${stats?.active_agents_1h ?? 0} in the last hour`}
-          />
-          <MetricCard
-            label="Registered Agents"
-            value={stats?.total_agents_all_time ?? 0}
-          />
-          <MetricCard
-            label="Open Markets"
-            value={stats?.open_markets ?? 0}
-            sub={`${stats?.resolved_today ?? 0} resolved today`}
-          />
-          <MetricCard
-            label="Predictions (24h)"
-            value={stats?.predictions_24h ?? 0}
-            sub={`${formatChips(stats?.total_chips_spent_24h ?? 0)} chips spent`}
-          />
-        </div>
-      </section>
-
-      <section className="grid grid-cols-[1fr_340px] gap-8 animate-fade-up" style={{ animationDelay: "0.2s" }}>
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-bold text-foreground tracking-tight">Live Feed</h2>
-            <span className="flex items-center gap-1.5">
-              <span className="w-[5px] h-[5px] rounded-full bg-emerald-500 animate-pulse-live" />
-              <span className="text-[11px] text-muted-foreground">{feed?.length ?? 0} recent</span>
+      <div className="grid grid-cols-[1fr_380px] gap-4 animate-fade-up" style={{ animationDelay: "0.1s" }}>
+        <div className="bento-card">
+          <div className="flex items-center justify-between px-5 py-3 border-b border-border">
+            <div className="flex items-center gap-2.5">
+              <span className="section-label">LIVE FEED</span>
+              <span className="flex items-center gap-1">
+                <span className="w-[5px] h-[5px] rounded-full bg-emerald-500 animate-pulse-live" />
+                <span className="text-[10px] text-muted-foreground">{feed?.length ?? 0}</span>
+              </span>
+            </div>
+            <span className="text-[11px] font-mono text-primary font-semibold">
+              {formatNumber(stats?.predictions_24h ?? 0)} predictions today
             </span>
           </div>
-          <div className="border border-border/60 bg-white overflow-hidden">
-            <div className="max-h-[520px] overflow-y-auto">
-              {feed?.map((item, i) => {
-                const key = `${item.agent_address}-${item.market_id}-${item.submitted_at}`;
-                const isNew = i < 3;
-                return (
-                  <div
-                    key={key}
-                    className={`px-4 py-2.5 border-b border-border/30 text-[12px] flex items-center gap-3 hover:bg-muted/20 transition-colors ${isNew ? "animate-feed-slide" : ""}`}
-                  >
-                    <span className="text-muted-foreground w-14 shrink-0 font-mono text-[11px]">{relativeTime(item.submitted_at)}</span>
-                    <AgentLink address={item.agent_address} />
-                    <span className="text-muted-foreground text-[11px]">{personaLabel(item.agent_persona)}</span>
-                    <span className={`font-semibold ${item.direction === "up" ? "text-primary" : "text-destructive"}`}>
-                      {item.direction.toUpperCase()}
-                    </span>
-                    <span className="text-foreground font-medium">{item.asset}</span>
-                    <span className="text-muted-foreground text-[11px]">{item.window}</span>
-                    <span className="text-primary font-mono font-medium text-[11px]">{formatChips(item.chips_locked)}</span>
-                    <span className="text-muted-foreground text-[11px] ml-auto">{formatPct(item.orderbook_snapshot.implied_up_prob)}</span>
-                  </div>
-                );
-              })}
-              {(!feed || feed.length === 0) && (
-                <div className="px-4 py-16 text-center text-muted-foreground text-sm">
-                  Waiting for predictions...
+          <div className="max-h-[420px] overflow-y-auto">
+            {feed?.map((item, i) => {
+              return (
+                <div
+                  key={`feed-${i}`}
+                  className={`px-5 py-2 border-b border-border/50 text-[11px] flex items-center gap-2 hover:bg-muted/30 transition-colors ${i < 3 ? "animate-feed-slide" : ""}`}
+                >
+                  <span className="text-muted-foreground/60 w-12 shrink-0 font-mono text-[10px]">{relativeTime(item.submitted_at)}</span>
+                  <AgentLink address={item.agent_address} />
+                  <span className={`font-bold text-[10px] tracking-wider ${item.direction === "up" ? "text-primary" : "text-destructive"}`}>
+                    {item.direction.toUpperCase()}
+                  </span>
+                  <span className="text-foreground font-semibold">{item.asset}</span>
+                  <span className="text-muted-foreground text-[10px]">{item.window}</span>
+                  <span className="ml-auto font-mono text-[10px] text-primary font-semibold">{formatChips(item.chips_locked)}</span>
+                  <span className="font-mono text-[10px] text-muted-foreground">{formatPct(item.orderbook_snapshot.implied_up_prob)}</span>
                 </div>
-              )}
-            </div>
+              );
+            })}
+            {(!feed || feed.length === 0) && (
+              <div className="px-5 py-12 text-center text-muted-foreground text-sm">
+                Waiting for predictions...
+              </div>
+            )}
           </div>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-4">
           {epoch && epoch.live_top3.length > 0 && (
-            <div>
-              <h3 className="text-xs font-semibold text-muted-foreground tracking-wide mb-3">EPOCH LEADERS</h3>
-              <div className="space-y-2">
-                {epoch.live_top3.map((e) => (
-                  <div key={e.rank} className="border border-border/60 bg-white p-4 flex items-center gap-3">
-                    <span className="text-2xl font-black text-primary/20 w-8">{e.rank}</span>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <AgentLink address={e.address} />
-                        <span className="text-[11px] text-muted-foreground">{personaLabel(e.persona)}</span>
-                      </div>
-                      <div className="flex items-center gap-3 mt-1 text-[11px]">
-                        <span className="text-primary font-semibold">+{e.excess} excess</span>
-                        <span className="text-muted-foreground">{formatNumber(Math.round(e.estimated_reward))} $PRED</span>
-                      </div>
+            <div className="bento-card">
+              <div className="px-5 py-3 border-b border-border">
+                <span className="section-label">EPOCH LEADERBOARD</span>
+              </div>
+              {epoch.live_top3.map((e, i) => (
+                <div key={e.rank} className={`px-5 py-3 flex items-center gap-3 ${i < epoch.live_top3.length - 1 ? "border-b border-border/50" : ""}`}>
+                  <span className="text-[28px] font-black text-foreground/10 w-8 leading-none">{e.rank}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <AgentLink address={e.address} />
+                      <span className="text-[10px] text-muted-foreground">{personaLabel(e.persona)}</span>
+                    </div>
+                    <div className="flex items-center gap-3 mt-0.5 text-[10px]">
+                      <span className="text-primary font-bold">+{e.excess} excess</span>
+                      <span className="text-muted-foreground">{formatNumber(Math.round(e.estimated_reward))} $PRED</span>
                     </div>
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
           )}
 
-          <div>
-            <h3 className="text-xs font-semibold text-muted-foreground tracking-wide mb-3">HOT MARKETS</h3>
-            <div className="space-y-2">
-              {topMarkets.map((m) => (
-                <Link key={m.id} href={`/markets/${m.id}`}>
-                  <div className="border border-border/60 bg-white p-4 cursor-pointer hover:border-primary/40 transition-colors">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-semibold text-foreground">{m.asset}</span>
-                      <span className="text-[10px] font-mono text-muted-foreground">{m.window}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1 h-[3px] bg-muted overflow-hidden">
-                        <div className="h-full bg-primary" style={{ width: `${m.orderbook.best_up_price * 100}%` }} />
-                      </div>
-                      <span className="text-[11px] font-mono text-primary font-medium">{formatPct(m.orderbook.best_up_price)}</span>
-                    </div>
-                    <div className="text-[11px] text-muted-foreground mt-1">
-                      {m.stats.total_orders} orders · {formatNumber(m.stats.total_tickets_matched)} tix
-                    </div>
-                  </div>
-                </Link>
-              ))}
+          <div className="bento-card">
+            <div className="px-5 py-3 border-b border-border">
+              <span className="section-label">HOT MARKETS</span>
             </div>
+            {topMarkets.map((m, i) => (
+              <Link key={m.id} href={`/markets/${m.id}`}>
+                <div className={`px-5 py-3 cursor-pointer hover:bg-muted/30 transition-colors ${i < topMarkets.length - 1 ? "border-b border-border/50" : ""}`}>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-bold text-foreground">{m.asset}</span>
+                      <span className="text-[9px] font-mono text-muted-foreground bg-muted px-1.5 py-0.5">{m.window}</span>
+                    </div>
+                    <span className="text-[11px] font-mono text-primary font-bold">{formatPct(m.orderbook.best_up_price)}</span>
+                  </div>
+                  <div className="w-full h-[3px] bg-muted overflow-hidden">
+                    <div className="h-full bg-primary" style={{ width: `${m.orderbook.best_up_price * 100}%` }} />
+                  </div>
+                  <div className="text-[10px] text-muted-foreground mt-1">
+                    {m.stats.total_orders} orders · {formatNumber(m.stats.total_tickets_matched)} matched
+                  </div>
+                </div>
+              </Link>
+            ))}
           </div>
         </div>
-      </section>
+      </div>
     </div>
   );
 }

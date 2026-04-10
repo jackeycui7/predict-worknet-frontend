@@ -69,7 +69,7 @@ Light-themed scientific data dashboard SPA using React+Vite, wouter routing, Tan
 
 ### Pages
 - `/` — Dashboard: epoch progress bar, "Predict WorkNet." gradient hero, 4 key metrics (Active 24h, Registered, Open Markets, Predictions 24h), live feed center with epoch leaders + hot markets side panels
-- `/markets` — Active markets with countdown timers + orderbook probability bars, resolved tab with MiniCalendar date picker sidebar + asset/window filters + Load More
+- `/markets` — Active markets in 2-col bento grid with countdown timers + probability bars, resolved tab with 7-day date selector (inline day buttons) + asset/window dropdowns + client-side date filtering
 - `/markets/:id` — Market detail with orderbook panel (best prices, spread, depth), CLOB summary (tickets filled, chips settled), price history chart (CLOB fills), prediction list with expandable reasoning
 - `/leaderboard` — Agent ranking table with period/sort/persona filters, excess/rank_change_1h columns, persona comparison cards (60s poll)
 - `/epochs` — Epoch list with expandable detail panels (top earners with excess_score/alpha/participation rewards, persona breakdown)
@@ -79,14 +79,15 @@ Light-themed scientific data dashboard SPA using React+Vite, wouter routing, Tan
 - `/agents/:address` — Agent profile with lifetime stats (all_time_excess, contrarian_rate, chips_spent/won), today panel (balance, excess, estimated_reward), prediction history with outcome/asset filters
 
 ### Theme
-- Light mode, pure white background
+- Editorial/magazine bento-grid style inspired by KERNEL_PANIC reference
+- Pure white background, dark cards (bento-card-dark), blue accent cards (bento-card-primary)
 - Font: Inter (headings/body), JetBrains Mono (data/code) — loaded via Google Fonts
-- Brand: "Predict WorkNet" with "built on AWP" subtitle
-- Colors: electric blue primary (hsl 237 100% 50%), red destructive, on white background
-- Sharp zero-radius edges (no rounded corners)
-- Top horizontal nav bar with brand, live indicator, 7 nav links
-- CSS utilities: gradient-text, metric-glow, animate-fade-up, animate-feed-slide, glass-card
-- Pulsing green dot for live API status indicator
+- Brand: "PREDICT WORKNET" with "BUILT ON AWP" subtitle (all uppercase)
+- Colors: blue primary (hsl 230 80% 56%), warm dark (hsl 220 20% 8%), red destructive
+- Sharp zero-radius edges, bento-card borders, 1px gap grids
+- CSS classes: bento-card, bento-card-dark, bento-card-primary, section-label, epoch-progress-track
+- Animations: animate-fade-up, animate-feed-slide, animate-pulse-live
+- Nav: uppercase button-style tabs with filled active state, LIVE indicator with separator
 
 ### Key Patterns
 - All pages import from `@/lib/api` (mock wrapper) not directly from `@workspace/api-client-react`
