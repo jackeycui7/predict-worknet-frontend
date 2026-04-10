@@ -2,17 +2,13 @@ import { useState, useEffect } from "react";
 import {
   useGetEpochs,
   useGetEpochById,
-  getGetEpochsQueryKey,
-  getGetEpochByIdQueryKey,
-} from "@workspace/api-client-react";
+} from "@/lib/api";
 import type { EpochSummary } from "@workspace/api-client-react";
-import { formatNumber, formatPct, formatPred, personaLabel } from "@/lib/format";
+import { formatNumber, formatPct, formatPred, personaLabel, formatChips } from "@/lib/format";
 import { AgentLink } from "@/components/address-link";
 
 function EpochRow({ epochId, isExpanded }: { epochId: number; isExpanded: boolean }) {
-  const { data: detail } = useGetEpochById(epochId, {
-    query: { enabled: isExpanded, queryKey: getGetEpochByIdQueryKey(epochId) },
-  });
+  const { data: detail } = useGetEpochById(epochId);
 
   return (
     <>
@@ -44,6 +40,7 @@ function EpochRow({ epochId, isExpanded }: { epochId: number; isExpanded: boolea
                     <th className="px-2 py-2 text-left">Persona</th>
                     <th className="px-2 py-2 text-right">Subs</th>
                     <th className="px-2 py-2 text-right">Accuracy</th>
+                    <th className="px-2 py-2 text-right">Excess</th>
                     <th className="px-2 py-2 text-right">Part.</th>
                     <th className="px-2 py-2 text-right">Alpha</th>
                     <th className="px-2 py-2 text-right">Total</th>
@@ -57,6 +54,7 @@ function EpochRow({ epochId, isExpanded }: { epochId: number; isExpanded: boolea
                       <td className="px-2 py-1.5 text-muted-foreground">{personaLabel(e.persona)}</td>
                       <td className="px-2 py-1.5 text-right">{e.valid_submissions}</td>
                       <td className="px-2 py-1.5 text-right">{formatPct(e.accuracy)}</td>
+                      <td className="px-2 py-1.5 text-right font-bold">{e.excess_score}</td>
                       <td className="px-2 py-1.5 text-right">{formatPred(e.participation_reward)}</td>
                       <td className="px-2 py-1.5 text-right">{formatPred(e.alpha_reward)}</td>
                       <td className="px-2 py-1.5 text-right text-primary font-bold">{formatPred(e.total_reward)}</td>
@@ -74,7 +72,7 @@ function EpochRow({ epochId, isExpanded }: { epochId: number; isExpanded: boolea
                 {detail.persona_breakdown.map((p) => (
                   <div key={p.persona} className="border border-border bg-card p-3">
                     <div className="font-bold text-foreground text-sm mb-1">{personaLabel(p.persona)}</div>
-                    <div className="text-xs font-mono text-muted-foreground">{p.agent_count} agents · {formatPct(p.accuracy)} · {formatPred(p.total_earned)}</div>
+                    <div className="text-xs font-mono text-muted-foreground">{p.agent_count} agents · {formatPct(p.accuracy)} · excess: {formatChips(p.total_excess)} · {formatPred(p.total_earned)}</div>
                   </div>
                 ))}
               </div>
@@ -92,7 +90,7 @@ export default function Epochs() {
   const [expanded, setExpanded] = useState<Set<number>>(new Set());
   const limit = 20;
 
-  const { data } = useGetEpochs({ limit, offset }, { query: { queryKey: getGetEpochsQueryKey({ limit, offset }) } });
+  const { data } = useGetEpochs({ limit, offset });
 
   useEffect(() => {
     if (data?.data) {

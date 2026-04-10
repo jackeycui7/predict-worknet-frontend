@@ -3,11 +3,9 @@ import { Link } from "wouter";
 import {
   useGetActiveMarkets,
   useGetResolvedMarkets,
-  getGetActiveMarketsQueryKey,
-  getGetResolvedMarketsQueryKey,
-} from "@workspace/api-client-react";
+} from "@/lib/api";
 import type { MarketItem } from "@workspace/api-client-react";
-import { formatPct, formatPrice, countdownStr } from "@/lib/format";
+import { formatPct, formatPrice, countdownStr, formatNumber } from "@/lib/format";
 
 function CountdownTimer({ closesAt }: { closesAt: string }) {
   const [display, setDisplay] = useState(countdownStr(closesAt));
@@ -32,10 +30,9 @@ export default function Markets() {
   const filterKey = useRef("");
   const limit = 20;
 
-  const { data: active } = useGetActiveMarkets({ query: { refetchInterval: 15000, queryKey: getGetActiveMarketsQueryKey() } });
+  const { data: active } = useGetActiveMarkets();
   const { data: resolved } = useGetResolvedMarkets(
-    { limit, offset, asset: asset || undefined, window: window || undefined },
-    { query: { enabled: tab === "resolved", queryKey: getGetResolvedMarketsQueryKey({ limit, offset, asset: asset || undefined, window: window || undefined }) } }
+    { limit, offset, asset: asset || undefined, window: window || undefined }
   );
 
   const currentFilterKey = `${asset}-${window}`;
@@ -48,7 +45,7 @@ export default function Markets() {
   }, [currentFilterKey]);
 
   useEffect(() => {
-    if (resolved?.data) {
+    if (tab === "resolved" && resolved?.data) {
       if (offset === 0) {
         setAccumulated(resolved.data);
       } else {
@@ -59,7 +56,7 @@ export default function Markets() {
         });
       }
     }
-  }, [resolved?.data, offset]);
+  }, [resolved?.data, offset, tab]);
 
   const resetFilters = useCallback((newAsset: string, newWindow: string) => {
     setAsset(newAsset);
@@ -113,15 +110,19 @@ export default function Markets() {
                     <span className="text-foreground font-bold">{formatPrice(m.open_price)}</span>
                   </div>
                   <div>
-                    <span className="text-muted-foreground uppercase tracking-wider">Preds </span>
-                    <span className="text-foreground font-bold">{m.stats.total_predictions}</span>
+                    <span className="text-muted-foreground uppercase tracking-wider">Orders </span>
+                    <span className="text-foreground font-bold">{m.stats.total_orders}</span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground uppercase tracking-wider">Filled </span>
+                    <span className="text-foreground font-bold">{formatNumber(m.stats.total_tickets_matched)} tix</span>
                   </div>
                   <div className="flex items-center gap-2 flex-1">
-                    <span className="text-primary font-bold">{formatPct(m.amm.up_price)} UP</span>
+                    <span className="text-primary font-bold">{formatPct(m.orderbook.best_up_price)} UP</span>
                     <div className="flex-1 h-1.5 bg-muted overflow-hidden">
-                      <div className="h-full bg-primary" style={{ width: `${m.amm.up_price * 100}%` }} />
+                      <div className="h-full bg-primary" style={{ width: `${m.orderbook.best_up_price * 100}%` }} />
                     </div>
-                    <span className="text-destructive font-bold">{formatPct(m.amm.down_price)} DN</span>
+                    <span className="text-destructive font-bold">{formatPct(m.orderbook.best_down_price)} DN</span>
                   </div>
                 </div>
               </div>
@@ -171,8 +172,8 @@ export default function Markets() {
                   <div className="flex items-center gap-8 text-xs font-mono">
                     <div><span className="text-muted-foreground uppercase tracking-wider">Open </span><span className="font-bold">{formatPrice(m.open_price)}</span></div>
                     {m.resolve_price != null && <div><span className="text-muted-foreground uppercase tracking-wider">Close </span><span className="font-bold">{formatPrice(m.resolve_price)}</span></div>}
-                    <div><span className="text-muted-foreground uppercase tracking-wider">Preds </span><span className="font-bold">{m.stats.total_predictions}</span></div>
-                    <div><span className="text-muted-foreground uppercase tracking-wider">Correct </span><span className="font-bold">{m.stats.correct_count ?? 0}/{m.stats.total_predictions}</span></div>
+                    <div><span className="text-muted-foreground uppercase tracking-wider">Orders </span><span className="font-bold">{m.stats.total_orders}</span></div>
+                    <div><span className="text-muted-foreground uppercase tracking-wider">Matched </span><span className="font-bold">{formatNumber(m.stats.total_tickets_matched)} tix</span></div>
                   </div>
                 </div>
               </Link>

@@ -6,8 +6,9 @@ export function formatPct(v: number): string {
   return `${(v * 100).toFixed(1)}%`;
 }
 
-export function formatMultiplier(v: number): string {
-  return `${v.toFixed(1)}x`;
+export function formatChips(v: number): string {
+  if (Math.abs(v) >= 1000) return `${(v / 1000).toFixed(1)}k`;
+  return v.toFixed(0);
 }
 
 export function formatPred(v: number): string {
@@ -52,4 +53,10 @@ export function personaLabel(p: string): string {
     .split("_")
     .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
     .join(" ");
+}
+
+export function rankChange(v: number): string {
+  if (v > 0) return `+${v}`;
+  if (v < 0) return `${v}`;
+  return "=";
 }

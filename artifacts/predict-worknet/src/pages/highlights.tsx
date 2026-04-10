@@ -1,15 +1,15 @@
 import { useState, useEffect, useRef } from "react";
 import {
   useGetHighlights,
-  getGetHighlightsQueryKey,
-} from "@workspace/api-client-react";
+} from "@/lib/api";
 import type { HighlightItem } from "@workspace/api-client-react";
-import { formatMultiplier, formatPct, formatPred, relativeTime, personaLabel } from "@/lib/format";
+import { formatPct, formatPred, formatChips, relativeTime, personaLabel } from "@/lib/format";
 import { AgentLink, MarketLink } from "@/components/address-link";
 
 const TYPES = [
   { value: "", label: "All" },
   { value: "contrarian", label: "Contrarian" },
+  { value: "all_in_win", label: "All In" },
   { value: "streak", label: "Streak" },
   { value: "top_earner", label: "Top Earner" },
   { value: "persona_flip", label: "Persona Flip" },
@@ -19,6 +19,7 @@ const TYPES = [
 function typeIcon(t: string): string {
   switch (t) {
     case "contrarian": return "//";
+    case "all_in_win": return "!!";
     case "streak": return ">>";
     case "top_earner": return "$$";
     case "persona_flip": return "<>";
@@ -33,9 +34,7 @@ export default function Highlights() {
   const prevType = useRef("");
   const limit = 50;
   const params = { limit, type: type || undefined };
-  const { data } = useGetHighlights(params, {
-    query: { refetchInterval: 60000, queryKey: getGetHighlightsQueryKey(params) },
-  });
+  const { data } = useGetHighlights(params);
 
   useEffect(() => {
     if (type !== prevType.current) {
@@ -76,13 +75,18 @@ export default function Highlights() {
                   <span className="text-[10px] font-mono text-muted-foreground ml-auto">{relativeTime(h.timestamp)}</span>
                 </div>
                 <div className="text-xs text-muted-foreground mb-3">{h.description}</div>
-                <div className="flex items-center gap-3 text-xs font-mono">
+                <div className="flex items-center gap-3 text-xs font-mono flex-wrap">
                   {h.agent_address && <AgentLink address={h.agent_address} />}
                   {h.agent_persona && <span className="text-muted-foreground">{personaLabel(h.agent_persona)}</span>}
                   {h.market_id && <MarketLink id={h.market_id} />}
-                  {h.multiplier != null && <span className="text-primary font-bold">{formatMultiplier(h.multiplier)}</span>}
+                  {h.direction && <span className={h.direction === "up" ? "text-primary font-bold" : "text-destructive font-bold"}>{h.direction.toUpperCase()}</span>}
+                  {h.chips_spent != null && <span className="text-foreground">{formatChips(h.chips_spent)} chips</span>}
+                  {h.payout_chips != null && <span className="text-primary font-bold">payout: {formatChips(h.payout_chips)}</span>}
+                  {h.implied_up_prob_at_submit != null && <span className="text-muted-foreground">{formatPct(h.implied_up_prob_at_submit)} crowd UP</span>}
+                  {h.was_all_in && <span className="text-amber-500 font-bold uppercase text-[10px]">All-In</span>}
+                  {h.excess != null && <span className="text-primary font-bold">excess: {h.excess >= 0 ? "+" : ""}{h.excess}</span>}
+                  {h.estimated_reward != null && <span className="text-primary">{formatPred(h.estimated_reward)}</span>}
                   {h.streak_count != null && <span className="text-primary font-bold">{h.streak_count} streak</span>}
-                  {h.earned != null && <span className="text-primary font-bold">{formatPred(h.earned)}</span>}
                   {h.accuracy != null && <span className="font-bold">{formatPct(h.accuracy)}</span>}
                   {h.winner && h.loser && (
                     <span className="text-foreground">

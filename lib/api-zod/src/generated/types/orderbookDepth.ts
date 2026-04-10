@@ -10,9 +10,13 @@ so generated hooks return the inner type directly.
 
  * OpenAPI spec version: 0.2.0
  */
+import type { OrderbookLevel } from "./orderbookLevel";
 
-export type EpochSummaryTopEarner = {
-  address: string;
-  earned: number;
-  excess_score: number;
-};
+export interface OrderbookDepth {
+  market_id: string;
+  up_bids: OrderbookLevel[];
+  down_bids: OrderbookLevel[];
+  last_fill_price?: number | null;
+  implied_up_prob: number;
+  timestamp: Date;
+}

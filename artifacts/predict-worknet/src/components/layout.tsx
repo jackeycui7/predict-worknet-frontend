@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { useHealthCheck, getHealthCheckQueryKey } from "@workspace/api-client-react";
+import { useHealthCheck } from "@/lib/api";
 
 const NAV = [
   { path: "/", label: "Dashboard" },
@@ -11,7 +11,7 @@ const NAV = [
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
-  const { data: health } = useHealthCheck({ query: { refetchInterval: 30000, queryKey: getHealthCheckQueryKey(), retry: false } });
+  const { data: health } = useHealthCheck();
   const isLive = health?.status === "ok";
 
   return (

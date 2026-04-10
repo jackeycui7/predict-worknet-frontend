@@ -2,7 +2,7 @@
 
 ## Overview
 
-pnpm workspace monorepo for the Predict WorkNet prediction market frontend. The backend API is built separately by another team in Rust/axum. This project focuses on the frontend dashboard with generated API hooks matching the real API contract.
+pnpm workspace monorepo for the Predict WorkNet prediction market frontend. The backend API is built separately by another team in Rust/axum. This project focuses on the frontend dashboard with generated API hooks matching the real CLOB-based API contract.
 
 ## Stack
 
@@ -18,21 +18,24 @@ pnpm workspace monorepo for the Predict WorkNet prediction market frontend. The 
 
 ## Architecture
 
-### API Contract
+### API Contract (CLOB v0.2.0)
 
 - Base URL: `/api/v1`
 - All responses wrapped in `{ "success": true, "data": ... }` envelope
 - Market IDs are strings (e.g., `"btc-15m-20260410-1200"`)
 - Accuracy values are 0-1 floats (e.g., `0.642`, not `64.2`)
 - OpenAPI spec: `lib/api-spec/openapi.yaml`
+- **CLOB model**: OrderbookState (best_up_price, best_down_price, spread, depth), tickets, chips_spent/payout_chips, excess scoring
 
 ### Generated Packages
 
-- **`@workspace/api-client-react`** — React Query hooks for all endpoints (16 hooks)
+- **`@workspace/api-client-react`** — React Query hooks for all endpoints (20+ hooks)
   - `useGetFeedStats`, `useGetFeedLive`
-  - `useGetActiveMarkets`, `useGetResolvedMarkets`, `useGetMarketById`, `useGetMarketAmmHistory`, `useGetMarketPredictions`
-  - `useGetLeaderboard`, `useGetLeaderboardPersonas`
-  - `useGetAgentByAddress`, `useGetAgentPredictions`
+  - `useGetActiveMarkets`, `useGetResolvedMarkets`, `useGetMarketById`
+  - `useGetMarketOrderbook`, `useGetMarketPriceHistory`, `useGetMarketKlines`
+  - `useGetMarketPredictions`
+  - `useGetLeaderboard`, `useGetLeaderboardLive`, `useGetLeaderboardPersonas`, `useGetLeaderboardEquityCurves`
+  - `useGetAgentByAddress`, `useGetAgentPredictions`, `useGetAgentEquityCurve`
   - `useGetEpochs`, `useGetEpochById`, `useGetCurrentEpoch`
   - `useGetHighlights`
   - `useHealthCheck`
@@ -45,11 +48,19 @@ pnpm workspace monorepo for the Predict WorkNet prediction market frontend. The 
 - Bearer token injection via `setAuthTokenGetter()`
 - Auto-unwrapping `{ success, data }` response envelope
 
+### Mock Data Layer
+
+`artifacts/predict-worknet/src/lib/api.ts` wraps all generated hooks with a `USE_MOCK` flag (currently `true`).
+When `USE_MOCK=true`, hooks return realistic mock data from `src/lib/mock-data.ts` via TanStack Query.
+When `USE_MOCK=false`, hooks delegate to the real generated API hooks.
+This allows full UI development without a running backend.
+
 ## Key Commands
 
 - `pnpm run typecheck` — full typecheck across all packages
 - `pnpm run build` — typecheck + build all packages
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from OpenAPI spec
+- After codegen: `cd lib/api-client-react && npx tsc -p tsconfig.json` — rebuild declaration files
 - `pnpm --filter @workspace/api-server run dev` — run API dev server
 
 ## Frontend (`artifacts/predict-worknet`)
@@ -57,13 +68,13 @@ pnpm workspace monorepo for the Predict WorkNet prediction market frontend. The 
 Light-themed scientific data dashboard SPA using React+Vite, wouter routing, TanStack Query, Recharts.
 
 ### Pages
-- `/` — Dashboard: large bold "Prediction Markets." hero, 8 stat boxes with big blue numbers, current epoch progress bar, live prediction feed (5s poll)
-- `/markets` — Active markets with countdown timers (15s poll), resolved markets with asset/window filters + Load More
-- `/markets/:id` — Market detail with AMM price history line chart (Recharts), prediction list with collapsible reasoning
-- `/leaderboard` — Agent ranking table with period/sort/persona filters, persona comparison cards (60s poll)
-- `/epochs` — Epoch list with expandable detail panels (top earners, persona breakdown)
-- `/highlights` — Highlight cards filtered by type (60s poll)
-- `/agents/:address` — Agent profile with lifetime stats, streaks, recent performance, prediction history with filters
+- `/` — Dashboard: large bold "Prediction Markets." hero, 8 stat boxes (incl. chips_spent_24h), current epoch progress bar with live top 3, live prediction feed (5s poll)
+- `/markets` — Active markets with countdown timers + orderbook probability bars (15s poll), resolved markets with asset/window filters + Load More
+- `/markets/:id` — Market detail with orderbook panel (best prices, spread, depth), CLOB summary (tickets filled, chips settled), price history chart (CLOB fills), prediction list with expandable reasoning
+- `/leaderboard` — Agent ranking table with period/sort/persona filters, excess/rank_change_1h columns, persona comparison cards (60s poll)
+- `/epochs` — Epoch list with expandable detail panels (top earners with excess_score/alpha/participation rewards, persona breakdown)
+- `/highlights` — Highlight cards filtered by type including all_in_win, contrarian, streak, top_earner, persona_flip, milestone (60s poll)
+- `/agents/:address` — Agent profile with lifetime stats (all_time_excess, contrarian_rate, chips_spent/won), today panel (balance, excess, estimated_reward), prediction history with outcome/asset filters
 
 ### Theme
 - Light mode, white/off-white background
@@ -75,15 +86,18 @@ Light-themed scientific data dashboard SPA using React+Vite, wouter routing, Tan
 - Pulsing green dot for live API status indicator
 
 ### Key Patterns
-- All 16 generated hooks used with proper queryKey helpers
-- Polling intervals: 5s (feed), 15s (markets), 30s (stats/epoch), 60s (leaderboard/highlights)
-- Number formatting: comma separators, percentages from 0-1, multipliers with x suffix, $PRED currency
+- All pages import from `@/lib/api` (mock wrapper) not directly from `@workspace/api-client-react`
+- Types are imported from `@workspace/api-client-react` for type annotations
+- Polling intervals: 5s (feed), 10-15s (markets/orderbook), 30s (stats/epoch), 60s (leaderboard/highlights)
+- Number formatting: comma separators, percentages from 0-1, chips with k suffix, $PRED currency
 - Address truncation (0xab...12), relative timestamps
-- Load More pagination (offset-based) on all list views
+- Load More pagination (offset-based) on all list views with accumulated state
 - useHealthCheck drives the header LIVE/OFFLINE indicator
+- AgentLink/MarketLink components for clickable navigation
 
 ## Important Notes
 
 - The real backend is Rust/axum, built separately. This project only contains the frontend and API contract layer.
 - The `custom-fetch` automatically unwraps the `{ success: true, data: ... }` envelope, so hooks return the inner data directly.
-- When the real API is deployed, set the base URL via `setBaseUrl("https://api.example.com")` in the frontend entry point.
+- When the real API is deployed, set `USE_MOCK = false` in `src/lib/api.ts` and set the base URL via `setBaseUrl("https://api.example.com")` in the frontend entry point.
+- After any OpenAPI spec change: run codegen, then rebuild api-client-react declarations (`npx tsc -p tsconfig.json`), then restart Vite dev server.

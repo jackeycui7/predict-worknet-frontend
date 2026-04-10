@@ -3,11 +3,8 @@ import {
   useGetFeedStats,
   useGetFeedLive,
   useGetCurrentEpoch,
-  getGetFeedStatsQueryKey,
-  getGetFeedLiveQueryKey,
-  getGetCurrentEpochQueryKey,
-} from "@workspace/api-client-react";
-import { formatNumber, formatPct, relativeTime, formatMultiplier, formatPred, personaLabel } from "@/lib/format";
+} from "@/lib/api";
+import { formatNumber, formatPct, formatChips, relativeTime, formatPred, personaLabel, truncateAddress } from "@/lib/format";
 import { AgentLink, MarketLink } from "@/components/address-link";
 
 function BigStat({ label, value }: { label: string; value: string | number }) {
@@ -20,9 +17,9 @@ function BigStat({ label, value }: { label: string; value: string | number }) {
 }
 
 export default function Dashboard() {
-  const { data: stats } = useGetFeedStats({ query: { refetchInterval: 30000, queryKey: getGetFeedStatsQueryKey() } });
-  const { data: feed } = useGetFeedLive({ limit: 30 }, { query: { refetchInterval: 5000, queryKey: getGetFeedLiveQueryKey({ limit: 30 }) } });
-  const { data: epoch } = useGetCurrentEpoch({ query: { refetchInterval: 30000, queryKey: getGetCurrentEpochQueryKey() } });
+  const { data: stats } = useGetFeedStats();
+  const { data: feed } = useGetFeedLive({ limit: 30 });
+  const { data: epoch } = useGetCurrentEpoch();
   const [seen, setSeen] = useState<Set<string>>(new Set());
   const prevFeed = useRef<string[]>([]);
 
@@ -58,7 +55,7 @@ export default function Dashboard() {
         <BigStat label="Active Agents (24h)" value={stats?.active_agents_24h ?? 0} />
         <BigStat label="Open Markets" value={stats?.open_markets ?? 0} />
         <BigStat label="Resolved Today" value={stats?.resolved_today ?? 0} />
-        <BigStat label="Total Predictions" value={stats?.total_predictions_all_time ?? 0} />
+        <BigStat label="Chips Spent (24h)" value={formatChips(stats?.total_chips_spent_24h ?? 0)} />
         <BigStat label="Total Agents" value={stats?.total_agents_all_time ?? 0} />
       </div>
 
@@ -71,7 +68,7 @@ export default function Dashboard() {
           <div className="w-full h-1 bg-muted overflow-hidden">
             <div className="h-full bg-primary transition-all" style={{ width: `${Math.min(100, epochProgress)}%` }} />
           </div>
-          <div className="grid grid-cols-4 gap-6 mt-4">
+          <div className="grid grid-cols-5 gap-6 mt-4">
             <div className="border-t border-border pt-2">
               <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Markets</div>
               <div className="text-lg font-bold text-foreground">{epoch.markets_resolved}/{epoch.markets_created}</div>
@@ -85,10 +82,31 @@ export default function Dashboard() {
               <div className="text-lg font-bold text-foreground">{epoch.total_agents}</div>
             </div>
             <div className="border-t border-border pt-2">
+              <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Chips Spent</div>
+              <div className="text-lg font-bold text-foreground">{formatChips(epoch.total_chips_spent)}</div>
+            </div>
+            <div className="border-t border-border pt-2">
               <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Accuracy</div>
               <div className="text-lg font-bold text-primary">{formatPct(epoch.resolved_stats.global_accuracy)}</div>
             </div>
           </div>
+
+          {epoch.live_top3.length > 0 && (
+            <div className="mt-4 pt-4 border-t border-border">
+              <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-2">Live Top 3</div>
+              <div className="flex gap-4">
+                {epoch.live_top3.map((e) => (
+                  <div key={e.rank} className="flex items-center gap-2 text-xs font-mono">
+                    <span className="text-primary font-bold">#{e.rank}</span>
+                    <AgentLink address={e.address} />
+                    <span className="text-muted-foreground">{personaLabel(e.persona)}</span>
+                    <span className="text-foreground font-bold">+{e.excess}</span>
+                    <span className="text-primary">{formatPred(e.estimated_reward)}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -118,8 +136,9 @@ export default function Dashboard() {
                   </span>
                   <MarketLink id={item.market_id} />
                   <span className="text-foreground font-bold">{item.asset}</span>
-                  <span className="text-primary">{formatMultiplier(item.locked_multiplier)}</span>
-                  <span className="text-muted-foreground ml-auto">#{item.position_in_market}</span>
+                  <span className="text-primary">{formatChips(item.chips_locked)} chips</span>
+                  <span className="text-muted-foreground">{formatPct(item.orderbook_snapshot.implied_up_prob)} up</span>
+                  <span className="text-muted-foreground ml-auto">#{item.order_sequence}</span>
                 </div>
               );
             })}

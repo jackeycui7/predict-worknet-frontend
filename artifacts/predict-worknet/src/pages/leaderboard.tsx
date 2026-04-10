@@ -2,16 +2,14 @@ import { useState, useEffect, useRef } from "react";
 import {
   useGetLeaderboard,
   useGetLeaderboardPersonas,
-  getGetLeaderboardQueryKey,
-  getGetLeaderboardPersonasQueryKey,
-} from "@workspace/api-client-react";
+} from "@/lib/api";
 import type { LeaderboardEntry } from "@workspace/api-client-react";
-import { formatNumber, formatPct, formatPred, formatMultiplier, personaLabel } from "@/lib/format";
+import { formatNumber, formatPct, formatPred, formatChips, personaLabel, rankChange } from "@/lib/format";
 import { AgentLink } from "@/components/address-link";
 
 export default function Leaderboard() {
   const [period, setPeriod] = useState("all");
-  const [sort, setSort] = useState("earnings");
+  const [sort, setSort] = useState("excess");
   const [persona, setPersona] = useState("");
   const [offset, setOffset] = useState(0);
   const [accumulated, setAccumulated] = useState<LeaderboardEntry[]>([]);
@@ -19,10 +17,8 @@ export default function Leaderboard() {
   const limit = 20;
 
   const params = { period, sort, persona: persona || undefined, limit, offset };
-  const { data: lb } = useGetLeaderboard(params, {
-    query: { refetchInterval: 60000, queryKey: getGetLeaderboardQueryKey(params) },
-  });
-  const { data: personas } = useGetLeaderboardPersonas({ query: { refetchInterval: 60000, queryKey: getGetLeaderboardPersonasQueryKey() } });
+  const { data: lb } = useGetLeaderboard(params);
+  const { data: personas } = useGetLeaderboardPersonas();
 
   const currentFilterKey = `${period}-${sort}-${persona}`;
   useEffect(() => {
@@ -59,10 +55,11 @@ export default function Leaderboard() {
     { value: "all", label: "All Time" },
   ];
   const sorts = [
-    { value: "earnings", label: "Earnings" },
+    { value: "excess", label: "Excess" },
     { value: "accuracy", label: "Accuracy" },
     { value: "streak", label: "Streak" },
     { value: "submissions", label: "Submissions" },
+    { value: "total_earned", label: "Earned" },
   ];
 
   return (
@@ -109,12 +106,12 @@ export default function Leaderboard() {
               <th className="px-4 py-3 text-left">#</th>
               <th className="px-4 py-3 text-left">Agent</th>
               <th className="px-4 py-3 text-left">Persona</th>
-              <th className="px-4 py-3 text-right">Subs</th>
+              <th className="px-4 py-3 text-right">Excess</th>
               <th className="px-4 py-3 text-right">Accuracy</th>
               <th className="px-4 py-3 text-right">Earned</th>
               <th className="px-4 py-3 text-right">Streak</th>
-              <th className="px-4 py-3 text-right">Best</th>
-              <th className="px-4 py-3 text-right">Avg Mult</th>
+              <th className="px-4 py-3 text-right">Chips</th>
+              <th className="px-4 py-3 text-right">Rank Δ</th>
             </tr>
           </thead>
           <tbody>
@@ -123,12 +120,12 @@ export default function Leaderboard() {
                 <td className="px-4 py-2.5 text-primary font-bold text-lg">{e.rank}</td>
                 <td className="px-4 py-2.5"><AgentLink address={e.agent_address} /></td>
                 <td className="px-4 py-2.5 text-muted-foreground">{personaLabel(e.persona)}</td>
-                <td className="px-4 py-2.5 text-right font-bold">{formatNumber(e.total_submissions)}</td>
+                <td className={`px-4 py-2.5 text-right font-bold ${e.today_excess >= 0 ? "text-primary" : "text-destructive"}`}>{e.today_excess >= 0 ? "+" : ""}{e.today_excess.toFixed(0)}</td>
                 <td className="px-4 py-2.5 text-right font-bold">{formatPct(e.accuracy)}</td>
                 <td className="px-4 py-2.5 text-right text-primary font-bold">{formatPred(e.total_earned)}</td>
                 <td className="px-4 py-2.5 text-right">{e.current_streak}</td>
-                <td className="px-4 py-2.5 text-right">{e.best_streak}</td>
-                <td className="px-4 py-2.5 text-right">{formatMultiplier(e.avg_multiplier)}</td>
+                <td className="px-4 py-2.5 text-right">{formatChips(e.today_chips_spent)}</td>
+                <td className={`px-4 py-2.5 text-right font-bold ${e.rank_change_1h > 0 ? "text-primary" : e.rank_change_1h < 0 ? "text-destructive" : "text-muted-foreground"}`}>{rankChange(e.rank_change_1h)}</td>
               </tr>
             ))}
           </tbody>
@@ -151,30 +148,30 @@ export default function Leaderboard() {
             {personas.map((p) => (
               <div key={p.persona} className="border border-border bg-card p-5" data-testid={`persona-${p.persona}`}>
                 <div className="text-lg font-bold text-foreground mb-3">{personaLabel(p.persona)}</div>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-3 gap-3">
                   <div className="border-t border-border pt-2">
                     <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Agents</div>
                     <div className="text-xl font-bold text-foreground">{p.agent_count}</div>
                   </div>
                   <div className="border-t border-border pt-2">
-                    <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Subs</div>
-                    <div className="text-xl font-bold text-foreground">{formatNumber(p.total_submissions)}</div>
+                    <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Today Subs</div>
+                    <div className="text-xl font-bold text-foreground">{formatNumber(p.today_submissions)}</div>
                   </div>
                   <div className="border-t border-border pt-2">
                     <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Accuracy</div>
-                    <div className="text-xl font-bold text-primary">{formatPct(p.accuracy)}</div>
+                    <div className="text-xl font-bold text-primary">{formatPct(p.today_accuracy)}</div>
                   </div>
                   <div className="border-t border-border pt-2">
-                    <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Earned</div>
-                    <div className="text-xl font-bold text-primary">{formatPred(p.total_earned)}</div>
+                    <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Wagered</div>
+                    <div className="text-sm font-bold text-foreground">{formatChips(p.today_total_wagered)}</div>
                   </div>
                   <div className="border-t border-border pt-2">
-                    <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Avg/Agent</div>
-                    <div className="text-sm font-bold text-foreground">{formatPred(p.avg_earned_per_agent)}</div>
+                    <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Excess</div>
+                    <div className={`text-sm font-bold ${p.today_total_excess >= 0 ? "text-primary" : "text-destructive"}`}>{p.today_total_excess >= 0 ? "+" : ""}{formatChips(p.today_total_excess)}</div>
                   </div>
                   <div className="border-t border-border pt-2">
-                    <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Avg Mult</div>
-                    <div className="text-sm font-bold text-foreground">{formatMultiplier(p.avg_multiplier)}</div>
+                    <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">All Time</div>
+                    <div className="text-sm font-bold text-primary">{formatPred(p.total_earned_all_time)}</div>
                   </div>
                 </div>
               </div>

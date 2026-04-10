@@ -2,15 +2,12 @@ import { useState, useEffect, useRef } from "react";
 import { useRoute } from "wouter";
 import {
   useGetMarketById,
-  useGetMarketAmmHistory,
+  useGetMarketPriceHistory,
   useGetMarketPredictions,
-  getGetMarketByIdQueryKey,
-  getGetMarketAmmHistoryQueryKey,
-  getGetMarketPredictionsQueryKey,
-} from "@workspace/api-client-react";
+} from "@/lib/api";
 import type { PredictionItem } from "@workspace/api-client-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
-import { formatPct, formatPrice, formatMultiplier, relativeTime, countdownStr, personaLabel } from "@/lib/format";
+import { formatPct, formatPrice, formatChips, formatNumber, relativeTime, countdownStr, personaLabel } from "@/lib/format";
 import { AgentLink } from "@/components/address-link";
 
 export default function MarketDetail() {
@@ -24,16 +21,11 @@ export default function MarketDetail() {
   const filterKey = useRef("");
   const limit = 20;
 
-  const { data: market } = useGetMarketById(id, {
-    query: { enabled: !!id, queryKey: getGetMarketByIdQueryKey(id), refetchInterval: 10000 },
-  });
-  const { data: ammHistory } = useGetMarketAmmHistory(id, {
-    query: { enabled: !!id, queryKey: getGetMarketAmmHistoryQueryKey(id), refetchInterval: 10000 },
-  });
+  const { data: market } = useGetMarketById(id);
+  const { data: priceHistory } = useGetMarketPriceHistory(id);
   const { data: preds } = useGetMarketPredictions(
     id,
-    { limit, offset, outcome: outcomeFilter || undefined },
-    { query: { enabled: !!id, queryKey: getGetMarketPredictionsQueryKey(id, { limit, offset, outcome: outcomeFilter || undefined }) } }
+    { limit, offset, outcome: outcomeFilter || undefined }
   );
 
   const currentFilterKey = `${id}-${outcomeFilter}`;
@@ -69,10 +61,10 @@ export default function MarketDetail() {
     return () => clearInterval(id2);
   }, [market?.close_at]);
 
-  const chartData = ammHistory?.map((p) => ({
+  const chartData = priceHistory?.map((p) => ({
     time: new Date(p.timestamp).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }),
-    up: p.up_price,
-    down: p.down_price,
+    prob: p.implied_up_prob,
+    price: p.fill_price,
   })) ?? [];
 
   if (!market) {
@@ -103,24 +95,36 @@ export default function MarketDetail() {
             <div className="flex justify-between"><span className="text-muted-foreground uppercase tracking-wider">Open Price</span><span className="font-bold">{formatPrice(market.open_price)}</span></div>
             {market.resolve_price != null && <div className="flex justify-between"><span className="text-muted-foreground uppercase tracking-wider">Close Price</span><span className="font-bold">{formatPrice(market.resolve_price)}</span></div>}
             {market.outcome && <div className="flex justify-between"><span className="text-muted-foreground uppercase tracking-wider">Outcome</span><span className={market.outcome === "up" ? "text-primary font-bold" : "text-destructive font-bold"}>{market.outcome.toUpperCase()}</span></div>}
-            <div className="flex justify-between"><span className="text-muted-foreground uppercase tracking-wider">Total Predictions</span><span className="font-bold">{market.stats.total_predictions}</span></div>
+            <div className="flex justify-between"><span className="text-muted-foreground uppercase tracking-wider">Total Orders</span><span className="font-bold">{market.stats.total_orders}</span></div>
+            <div className="flex justify-between"><span className="text-muted-foreground uppercase tracking-wider">Total Fills</span><span className="font-bold">{market.stats.total_fills}</span></div>
+            <div className="flex justify-between"><span className="text-muted-foreground uppercase tracking-wider">Tickets Matched</span><span className="font-bold">{formatNumber(market.stats.total_tickets_matched)}</span></div>
             <div className="flex justify-between"><span className="text-muted-foreground uppercase tracking-wider">Up / Down</span><span className="font-bold">{market.stats.up_count}/{market.stats.down_count}</span></div>
           </div>
         </div>
         <div className="border border-border bg-card p-5">
-          <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-4 pb-2 border-b border-border">AMM State</div>
+          <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-4 pb-2 border-b border-border">Order Book</div>
           <div className="space-y-2 text-xs font-mono">
-            <div className="flex justify-between"><span className="text-primary font-bold uppercase tracking-wider">UP Price</span><span className="text-2xl font-bold text-primary">{formatPct(market.amm.up_price)}</span></div>
-            <div className="flex justify-between"><span className="text-destructive font-bold uppercase tracking-wider">DOWN Price</span><span className="text-2xl font-bold text-destructive">{formatPct(market.amm.down_price)}</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground uppercase tracking-wider">UP Reserve</span><span className="font-bold">{market.amm.up_reserve.toFixed(1)}</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground uppercase tracking-wider">DOWN Reserve</span><span className="font-bold">{market.amm.down_reserve.toFixed(1)}</span></div>
+            <div className="flex justify-between"><span className="text-primary font-bold uppercase tracking-wider">Best UP Price</span><span className="text-2xl font-bold text-primary">{formatPct(market.orderbook.best_up_price)}</span></div>
+            <div className="flex justify-between"><span className="text-destructive font-bold uppercase tracking-wider">Best DOWN Price</span><span className="text-2xl font-bold text-destructive">{formatPct(market.orderbook.best_down_price)}</span></div>
+            <div className="flex justify-between"><span className="text-muted-foreground uppercase tracking-wider">Spread</span><span className="font-bold">{formatPct(market.orderbook.spread)}</span></div>
+            <div className="flex justify-between"><span className="text-muted-foreground uppercase tracking-wider">UP Depth (10)</span><span className="font-bold">{formatNumber(market.orderbook.up_depth_10)} tix</span></div>
+            <div className="flex justify-between"><span className="text-muted-foreground uppercase tracking-wider">DOWN Depth (10)</span><span className="font-bold">{formatNumber(market.orderbook.down_depth_10)} tix</span></div>
+          </div>
+          <div className="mt-4 pt-3 border-t border-border">
+            <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-2">CLOB Summary</div>
+            <div className="space-y-1 text-xs font-mono">
+              <div className="flex justify-between"><span className="text-muted-foreground">UP Tickets Filled</span><span className="font-bold">{formatNumber(market.clob_summary.total_up_tickets_filled)}</span></div>
+              <div className="flex justify-between"><span className="text-muted-foreground">DOWN Tickets Filled</span><span className="font-bold">{formatNumber(market.clob_summary.total_down_tickets_filled)}</span></div>
+              <div className="flex justify-between"><span className="text-muted-foreground">Chips Settled</span><span className="font-bold">{formatChips(market.clob_summary.total_chips_settled)}</span></div>
+              <div className="flex justify-between"><span className="text-muted-foreground">UP Fill Ratio</span><span className="font-bold">{formatPct(market.clob_summary.up_fill_ratio)}</span></div>
+            </div>
           </div>
         </div>
       </div>
 
       {chartData.length > 0 && (
-        <div className="border border-border bg-card p-5" data-testid="amm-chart">
-          <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-4 pb-2 border-b border-border">AMM Price History</div>
+        <div className="border border-border bg-card p-5" data-testid="price-chart">
+          <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-4 pb-2 border-b border-border">Price History (CLOB Fills)</div>
           <ResponsiveContainer width="100%" height={250}>
             <LineChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(230,10%,90%)" />
@@ -128,8 +132,7 @@ export default function MarketDetail() {
               <YAxis domain={[0, 1]} tick={{ fontSize: 10, fill: "hsl(230,8%,50%)" }} />
               <Tooltip contentStyle={{ background: "#fff", border: "1px solid hsl(230,10%,88%)", color: "hsl(235,15%,12%)", fontSize: 11, borderRadius: 0 }} />
               <Legend wrapperStyle={{ fontSize: 11 }} />
-              <Line type="monotone" dataKey="up" name="UP" stroke="hsl(237,100%,50%)" strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="down" name="DOWN" stroke="hsl(0,85%,50%)" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="prob" name="Implied UP Prob" stroke="hsl(237,100%,50%)" strokeWidth={2} dot={false} />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -159,11 +162,13 @@ export default function MarketDetail() {
                   onClick={() => setExpandedIdx((prev) => { const next = new Set(prev); expanded ? next.delete(i) : next.add(i); return next; })}
                   data-testid={`prediction-${i}`}
                 >
-                  <span className="text-muted-foreground w-6">#{p.position_in_market}</span>
                   <AgentLink address={p.agent_address} />
                   <span className="text-muted-foreground">{personaLabel(p.agent_persona)}</span>
                   <span className={p.direction === "up" ? "text-primary font-bold" : "text-destructive font-bold"}>{p.direction.toUpperCase()}</span>
-                  <span className="text-primary">{formatMultiplier(p.locked_multiplier)}</span>
+                  <span className="text-foreground">{p.tickets} tix @ {p.avg_fill_price.toFixed(2)}</span>
+                  <span className="text-primary">{formatChips(p.chips_spent)} chips</span>
+                  {p.payout_chips != null && <span className="text-foreground">payout: {formatChips(p.payout_chips)}</span>}
+                  {p.was_minority && <span className="text-amber-500 text-[10px] uppercase">minority</span>}
                   {p.outcome && <span className={`ml-auto font-bold ${p.outcome === "correct" ? "text-primary" : "text-destructive"}`}>{p.outcome.toUpperCase()}</span>}
                   <span className="text-muted-foreground">{relativeTime(p.submitted_at)}</span>
                   <span className="text-primary font-bold">{expanded ? "−" : "+"}</span>

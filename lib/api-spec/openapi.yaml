@@ -2,9 +2,9 @@ openapi: 3.1.0
 info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
-  version: 0.1.0
+  version: 0.2.0
   description: |
-    Predict WorkNet API specification.
+    Predict WorkNet API specification — CLOB-based prediction market.
     NOTE: Response schemas define the INNER data type (what lives inside "data").
     The real API wraps all responses in { "success": true, "data": <inner> }.
     The customFetch layer in api-client-react auto-unwraps this envelope,
@@ -198,11 +198,11 @@ paths:
               schema:
                 $ref: "#/components/schemas/MarketDetail"
 
-  /markets/{id}/amm-history:
+  /markets/{id}/orderbook:
     get:
-      operationId: getMarketAmmHistory
+      operationId: getMarketOrderbook
       tags: [markets]
-      summary: AMM price history for a market
+      summary: Real-time order book depth
       parameters:
         - name: id
           in: path
@@ -211,13 +211,53 @@ paths:
             type: string
       responses:
         "200":
-          description: AMM history
+          description: Order book
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderbookDepth"
+
+  /markets/{id}/price-history:
+    get:
+      operationId: getMarketPriceHistory
+      tags: [markets]
+      summary: CLOB fill price history
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Price history
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/AmmHistoryPoint"
+                  $ref: "#/components/schemas/PriceHistoryPoint"
+
+  /markets/{id}/klines:
+    get:
+      operationId: getMarketKlines
+      tags: [markets]
+      summary: Asset K-line data
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: K-lines
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/KlinePoint"
 
   /markets/{id}/predictions:
     get:
@@ -267,7 +307,7 @@ paths:
           in: query
           schema:
             type: string
-            default: earnings
+            default: excess
         - name: persona
           in: query
           schema:
@@ -289,6 +329,48 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/LeaderboardResponse"
+
+  /leaderboard/live:
+    get:
+      operationId: getLeaderboardLive
+      tags: [leaderboard]
+      summary: Today live rankings
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+      responses:
+        "200":
+          description: Live leaderboard
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LiveLeaderboardEntry"
+
+  /leaderboard/equity-curves:
+    get:
+      operationId: getLeaderboardEquityCurves
+      tags: [leaderboard]
+      summary: Equity curves for top agents
+      parameters:
+        - name: top
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        "200":
+          description: Equity curves
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AgentEquityCurve"
 
   /leaderboard/personas:
     get:
@@ -323,6 +405,29 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/AgentProfile"
+
+  /agents/{address}/equity-curve:
+    get:
+      operationId: getAgentEquityCurve
+      tags: [agents]
+      summary: Agent equity curve
+      parameters:
+        - name: address
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: date
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Equity curve
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentEquityCurve"
 
   /agents/{address}/predictions:
     get:
@@ -432,6 +537,8 @@ components:
           type: integer
         total_agents_all_time:
           type: integer
+        total_chips_spent_24h:
+          type: number
       required:
         - predictions_1h
         - predictions_24h
@@ -441,6 +548,21 @@ components:
         - resolved_today
         - total_predictions_all_time
         - total_agents_all_time
+        - total_chips_spent_24h
+
+    OrderbookSnapshot:
+      type: object
+      properties:
+        best_up_price:
+          type: number
+        best_down_price:
+          type: number
+        implied_up_prob:
+          type: number
+      required:
+        - best_up_price
+        - best_down_price
+        - implied_up_prob
 
     FeedLiveItem:
       type: object
@@ -459,10 +581,12 @@ components:
           type: string
         direction:
           type: string
-        locked_multiplier:
+        chips_locked:
           type: number
-        position_in_market:
+        order_sequence:
           type: integer
+        orderbook_snapshot:
+          $ref: "#/components/schemas/OrderbookSnapshot"
         submitted_at:
           type: string
           format: date-time
@@ -474,9 +598,30 @@ components:
         - asset
         - window
         - direction
-        - locked_multiplier
-        - position_in_market
+        - chips_locked
+        - order_sequence
+        - orderbook_snapshot
         - submitted_at
+
+    LiveTop3Entry:
+      type: object
+      properties:
+        rank:
+          type: integer
+        address:
+          type: string
+        persona:
+          type: string
+        excess:
+          type: number
+        estimated_reward:
+          type: number
+      required:
+        - rank
+        - address
+        - persona
+        - excess
+        - estimated_reward
 
     CurrentEpoch:
       type: object
@@ -497,6 +642,8 @@ components:
           type: integer
         total_agents:
           type: integer
+        total_chips_spent:
+          type: number
         resolved_stats:
           type: object
           properties:
@@ -504,20 +651,13 @@ components:
               type: integer
             global_accuracy:
               type: number
-            top_earner_so_far:
-              type: object
-              properties:
-                address:
-                  type: string
-                estimated_reward:
-                  type: number
-              required:
-                - address
-                - estimated_reward
           required:
             - total_correct
             - global_accuracy
-            - top_earner_so_far
+        live_top3:
+          type: array
+          items:
+            $ref: "#/components/schemas/LiveTop3Entry"
       required:
         - date
         - status
@@ -527,45 +667,49 @@ components:
         - markets_pending
         - total_predictions
         - total_agents
+        - total_chips_spent
         - resolved_stats
+        - live_top3
 
-    AmmState:
+    OrderbookState:
       type: object
       properties:
-        up_price:
+        best_up_price:
           type: number
-        down_price:
+        best_down_price:
           type: number
-        up_reserve:
+        spread:
           type: number
-        down_reserve:
+        up_depth_10:
+          type: number
+        down_depth_10:
           type: number
       required:
-        - up_price
-        - down_price
-        - up_reserve
-        - down_reserve
+        - best_up_price
+        - best_down_price
+        - spread
+        - up_depth_10
+        - down_depth_10
 
     MarketStats:
       type: object
       properties:
-        total_predictions:
+        total_orders:
+          type: integer
+        total_fills:
+          type: integer
+        total_tickets_matched:
           type: integer
         up_count:
           type: integer
         down_count:
           type: integer
-        up_percentage:
-          type: number
-        correct_count:
-          type: integer
-        incorrect_count:
-          type: integer
       required:
-        - total_predictions
+        - total_orders
+        - total_fills
+        - total_tickets_matched
         - up_count
         - down_count
-        - up_percentage
 
     MarketItem:
       type: object
@@ -600,8 +744,8 @@ components:
           nullable: true
         market_type:
           type: string
-        amm:
-          $ref: "#/components/schemas/AmmState"
+        orderbook:
+          $ref: "#/components/schemas/OrderbookState"
         stats:
           $ref: "#/components/schemas/MarketStats"
       required:
@@ -613,7 +757,7 @@ components:
         - open_at
         - close_at
         - status
-        - amm
+        - orderbook
         - stats
 
     ResolvedMarketsResponse:
@@ -628,6 +772,26 @@ components:
       required:
         - data
         - pagination
+
+    ClobSummary:
+      type: object
+      properties:
+        total_up_tickets_filled:
+          type: integer
+        total_down_tickets_filled:
+          type: integer
+        total_tickets_matched:
+          type: integer
+        total_chips_settled:
+          type: number
+        up_fill_ratio:
+          type: number
+      required:
+        - total_up_tickets_filled
+        - total_down_tickets_filled
+        - total_tickets_matched
+        - total_chips_settled
+        - up_fill_ratio
 
     MarketDetail:
       type: object
@@ -662,8 +826,10 @@ components:
         outcome:
           type: string
           nullable: true
-        amm:
-          $ref: "#/components/schemas/AmmState"
+        orderbook:
+          $ref: "#/components/schemas/OrderbookState"
+        clob_summary:
+          $ref: "#/components/schemas/ClobSummary"
         stats:
           $ref: "#/components/schemas/MarketStats"
       required:
@@ -676,34 +842,95 @@ components:
         - open_at
         - close_at
         - status
-        - amm
+        - orderbook
+        - clob_summary
         - stats
 
-    AmmHistoryPoint:
+    OrderbookLevel:
       type: object
       properties:
-        up_price:
+        price:
           type: number
-        down_price:
-          type: number
-        up_reserve:
-          type: number
-        down_reserve:
-          type: number
-        prediction_count:
+        tickets:
           type: integer
-        triggered_by:
+        cumulative:
+          type: integer
+      required:
+        - price
+        - tickets
+        - cumulative
+
+    OrderbookDepth:
+      type: object
+      properties:
+        market_id:
           type: string
+        up_bids:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderbookLevel"
+        down_bids:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderbookLevel"
+        last_fill_price:
+          type: number
           nullable: true
+        implied_up_prob:
+          type: number
         timestamp:
           type: string
           format: date-time
       required:
-        - up_price
-        - down_price
-        - up_reserve
-        - down_reserve
-        - prediction_count
+        - market_id
+        - up_bids
+        - down_bids
+        - implied_up_prob
+        - timestamp
+
+    PriceHistoryPoint:
+      type: object
+      properties:
+        fill_price:
+          type: number
+        implied_up_prob:
+          type: number
+        tickets:
+          type: integer
+        direction:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+      required:
+        - fill_price
+        - implied_up_prob
+        - tickets
+        - direction
+        - timestamp
+
+    KlinePoint:
+      type: object
+      properties:
+        open:
+          type: number
+        high:
+          type: number
+        low:
+          type: number
+        close:
+          type: number
+        volume:
+          type: number
+        timestamp:
+          type: string
+          format: date-time
+      required:
+        - open
+        - high
+        - low
+        - close
+        - volume
         - timestamp
 
     PredictionItem:
@@ -717,20 +944,23 @@ components:
           type: string
         reasoning:
           type: string
-        locked_multiplier:
-          type: number
-        position_in_market:
+        tickets:
           type: integer
-        amm_up_price_at_submit:
+        avg_fill_price:
           type: number
-        amm_down_price_at_submit:
+        chips_spent:
           type: number
+        payout_chips:
+          type: number
+          nullable: true
         outcome:
           type: string
           nullable: true
-        amm_score:
-          type: number
+        was_minority:
+          type: boolean
           nullable: true
+        implied_up_prob_at_submit:
+          type: number
         submitted_at:
           type: string
           format: date-time
@@ -739,10 +969,10 @@ components:
         - agent_persona
         - direction
         - reasoning
-        - locked_multiplier
-        - position_in_market
-        - amm_up_price_at_submit
-        - amm_down_price_at_submit
+        - tickets
+        - avg_fill_price
+        - chips_spent
+        - implied_up_prob_at_submit
         - submitted_at
 
     MarketPredictionsResponse:
@@ -767,8 +997,18 @@ components:
           type: string
         persona:
           type: string
-        total_submissions:
+        today_excess:
+          type: number
+        today_submissions:
           type: integer
+        today_correct:
+          type: integer
+        today_accuracy:
+          type: number
+        today_chips_spent:
+          type: number
+        today_payout_received:
+          type: number
         accuracy:
           type: number
         total_earned:
@@ -777,18 +1017,23 @@ components:
           type: integer
         best_streak:
           type: integer
-        avg_multiplier:
-          type: number
+        rank_change_1h:
+          type: integer
       required:
         - rank
         - agent_address
         - persona
-        - total_submissions
+        - today_excess
+        - today_submissions
+        - today_correct
+        - today_accuracy
+        - today_chips_spent
+        - today_payout_received
         - accuracy
         - total_earned
         - current_streak
         - best_streak
-        - avg_multiplier
+        - rank_change_1h
 
     LeaderboardResponse:
       type: object
@@ -803,6 +1048,38 @@ components:
         - data
         - pagination
 
+    LiveLeaderboardEntry:
+      type: object
+      properties:
+        rank:
+          type: integer
+        agent_address:
+          type: string
+        persona:
+          type: string
+        excess:
+          type: number
+        accuracy:
+          type: number
+        submissions:
+          type: integer
+        chips_spent:
+          type: number
+        payout_received:
+          type: number
+        estimated_reward:
+          type: number
+      required:
+        - rank
+        - agent_address
+        - persona
+        - excess
+        - accuracy
+        - submissions
+        - chips_spent
+        - payout_received
+        - estimated_reward
+
     PersonaStats:
       type: object
       properties:
@@ -810,47 +1087,65 @@ components:
           type: string
         agent_count:
           type: integer
-        total_submissions:
+        today_submissions:
           type: integer
-        accuracy:
+        today_accuracy:
           type: number
-        total_earned:
+        today_total_wagered:
           type: number
-        avg_earned_per_agent:
+        today_total_payout:
           type: number
-        avg_multiplier:
+        today_total_excess:
+          type: number
+        today_avg_excess_per_agent:
+          type: number
+        total_earned_all_time:
           type: number
       required:
         - persona
         - agent_count
-        - total_submissions
-        - accuracy
-        - total_earned
-        - avg_earned_per_agent
-        - avg_multiplier
+        - today_submissions
+        - today_accuracy
+        - today_total_wagered
+        - today_total_payout
+        - today_total_excess
+        - today_avg_excess_per_agent
+        - total_earned_all_time
 
-    AgentRecentPerformance:
+    AgentToday:
       type: object
       properties:
-        today_submissions:
+        balance:
+          type: number
+        total_fed:
+          type: number
+        excess:
+          type: number
+        submissions:
           type: integer
-        today_correct:
+        resolved:
           type: integer
-        today_accuracy:
+        correct:
+          type: integer
+        accuracy:
           type: number
-        today_earned:
+        chips_spent:
           type: number
-        week_accuracy:
+        payout_received:
           type: number
-        week_earned:
+        estimated_reward:
           type: number
       required:
-        - today_submissions
-        - today_correct
-        - today_accuracy
-        - today_earned
-        - week_accuracy
-        - week_earned
+        - balance
+        - total_fed
+        - excess
+        - submissions
+        - resolved
+        - correct
+        - accuracy
+        - chips_spent
+        - payout_received
+        - estimated_reward
 
     AgentStats:
       type: object
@@ -871,7 +1166,11 @@ components:
           type: integer
         total_earned:
           type: number
-        avg_multiplier:
+        all_time_chips_spent:
+          type: number
+        all_time_chips_won:
+          type: number
+        all_time_excess:
           type: number
         rank:
           type: integer
@@ -879,6 +1178,8 @@ components:
           type: string
         favorite_window:
           type: string
+        contrarian_rate:
+          type: number
       required:
         - total_submissions
         - total_resolved
@@ -888,10 +1189,13 @@ components:
         - current_streak
         - best_streak
         - total_earned
-        - avg_multiplier
+        - all_time_chips_spent
+        - all_time_chips_won
+        - all_time_excess
         - rank
         - favorite_asset
         - favorite_window
+        - contrarian_rate
 
     AgentProfile:
       type: object
@@ -905,14 +1209,14 @@ components:
           format: date-time
         stats:
           $ref: "#/components/schemas/AgentStats"
-        recent_performance:
-          $ref: "#/components/schemas/AgentRecentPerformance"
+        today:
+          $ref: "#/components/schemas/AgentToday"
       required:
         - address
         - persona
         - joined_at
         - stats
-        - recent_performance
+        - today
 
     AgentPredictionItem:
       type: object
@@ -927,14 +1231,23 @@ components:
           type: string
         reasoning:
           type: string
-        locked_multiplier:
+        tickets:
+          type: integer
+        avg_fill_price:
           type: number
+        chips_spent:
+          type: number
+        payout_chips:
+          type: number
+          nullable: true
         outcome:
           type: string
           nullable: true
-        amm_score:
-          type: number
+        was_minority:
+          type: boolean
           nullable: true
+        implied_up_prob_at_submit:
+          type: number
         submitted_at:
           type: string
           format: date-time
@@ -948,7 +1261,10 @@ components:
         - window
         - direction
         - reasoning
-        - locked_multiplier
+        - tickets
+        - avg_fill_price
+        - chips_spent
+        - implied_up_prob_at_submit
         - submitted_at
 
     AgentPredictionsResponse:
@@ -964,6 +1280,85 @@ components:
         - data
         - pagination
 
+    EquityCurveDatapoint:
+      type: object
+      properties:
+        time:
+          type: string
+          format: date-time
+        balance:
+          type: number
+        change:
+          type: number
+        event:
+          type: string
+        market_id:
+          type: string
+          nullable: true
+        direction:
+          type: string
+          nullable: true
+        outcome:
+          type: string
+          nullable: true
+        chips_spent:
+          type: number
+          nullable: true
+        payout_chips:
+          type: number
+          nullable: true
+        was_minority:
+          type: boolean
+          nullable: true
+      required:
+        - time
+        - balance
+        - change
+        - event
+
+    AgentEquityCurve:
+      type: object
+      properties:
+        agent_address:
+          type: string
+        persona:
+          type: string
+        date:
+          type: string
+        starting_balance:
+          type: number
+        final_balance:
+          type: number
+        total_fed:
+          type: number
+        excess:
+          type: number
+        return_rate:
+          type: number
+        total_markets_resolved:
+          type: integer
+        correct:
+          type: integer
+        accuracy:
+          type: number
+        datapoints:
+          type: array
+          items:
+            $ref: "#/components/schemas/EquityCurveDatapoint"
+      required:
+        - agent_address
+        - persona
+        - date
+        - starting_balance
+        - final_balance
+        - total_fed
+        - excess
+        - return_rate
+        - total_markets_resolved
+        - correct
+        - accuracy
+        - datapoints
+
     EpochSummary:
       type: object
       properties:
@@ -974,6 +1369,10 @@ components:
         status:
           type: string
         total_emission:
+          type: number
+        participation_pool:
+          type: number
+        alpha_pool:
           type: number
         total_agents:
           type: integer
@@ -990,9 +1389,12 @@ components:
               type: string
             earned:
               type: number
+            excess_score:
+              type: number
           required:
             - address
             - earned
+            - excess_score
         settled_at:
           type: string
           format: date-time
@@ -1001,6 +1403,8 @@ components:
         - date
         - status
         - total_emission
+        - participation_pool
+        - alpha_pool
         - total_agents
         - total_predictions
         - total_correct
@@ -1034,7 +1438,7 @@ components:
           type: integer
         accuracy:
           type: number
-        alpha_score:
+        excess_score:
           type: number
         participation_reward:
           type: number
@@ -1048,7 +1452,7 @@ components:
         - persona
         - valid_submissions
         - accuracy
-        - alpha_score
+        - excess_score
         - participation_reward
         - alpha_reward
         - total_reward
@@ -1060,6 +1464,8 @@ components:
           type: string
         agent_count:
           type: integer
+        total_excess:
+          type: number
         accuracy:
           type: number
         total_earned:
@@ -1067,6 +1473,7 @@ components:
       required:
         - persona
         - agent_count
+        - total_excess
         - accuracy
         - total_earned
 
@@ -1143,14 +1550,29 @@ components:
         market_id:
           type: string
           nullable: true
-        multiplier:
+        direction:
+          type: string
+          nullable: true
+        chips_spent:
+          type: number
+          nullable: true
+        payout_chips:
+          type: number
+          nullable: true
+        implied_up_prob_at_submit:
+          type: number
+          nullable: true
+        was_all_in:
+          type: boolean
+          nullable: true
+        excess:
+          type: number
+          nullable: true
+        estimated_reward:
           type: number
           nullable: true
         streak_count:
           type: integer
-          nullable: true
-        earned:
-          type: number
           nullable: true
         accuracy:
           type: number

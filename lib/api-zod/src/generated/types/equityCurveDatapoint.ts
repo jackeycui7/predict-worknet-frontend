@@ -11,8 +11,15 @@ so generated hooks return the inner type directly.
  * OpenAPI spec version: 0.2.0
  */
 
-export type EpochSummaryTopEarner = {
-  address: string;
-  earned: number;
-  excess_score: number;
-};
+export interface EquityCurveDatapoint {
+  time: Date;
+  balance: number;
+  change: number;
+  event: string;
+  market_id?: string | null;
+  direction?: string | null;
+  outcome?: string | null;
+  chips_spent?: number | null;
+  payout_chips?: number | null;
+  was_minority?: boolean | null;
+}

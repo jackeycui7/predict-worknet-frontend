@@ -3,11 +3,9 @@ import { useRoute } from "wouter";
 import {
   useGetAgentByAddress,
   useGetAgentPredictions,
-  getGetAgentByAddressQueryKey,
-  getGetAgentPredictionsQueryKey,
-} from "@workspace/api-client-react";
+} from "@/lib/api";
 import type { AgentPredictionItem } from "@workspace/api-client-react";
-import { formatNumber, formatPct, formatPred, formatMultiplier, relativeTime, personaLabel } from "@/lib/format";
+import { formatNumber, formatPct, formatPred, formatChips, relativeTime, personaLabel } from "@/lib/format";
 import { MarketLink } from "@/components/address-link";
 
 export default function AgentProfile() {
@@ -21,13 +19,9 @@ export default function AgentProfile() {
   const filterKey = useRef("");
   const limit = 20;
 
-  const { data: profile } = useGetAgentByAddress(address, {
-    query: { enabled: !!address, queryKey: getGetAgentByAddressQueryKey(address) },
-  });
+  const { data: profile } = useGetAgentByAddress(address);
   const predParams = { limit, offset, outcome: outcome || undefined, asset: asset || undefined };
-  const { data: preds } = useGetAgentPredictions(address, predParams, {
-    query: { enabled: !!address, queryKey: getGetAgentPredictionsQueryKey(address, predParams) },
-  });
+  const { data: preds } = useGetAgentPredictions(address, predParams);
 
   const currentFilterKey = `${address}-${outcome}-${asset}`;
   useEffect(() => {
@@ -57,7 +51,7 @@ export default function AgentProfile() {
   }
 
   const s = profile.stats;
-  const r = profile.recent_performance;
+  const t = profile.today;
 
   return (
     <div className="px-6 py-8 space-y-8" data-testid="agent-profile-page">
@@ -79,8 +73,9 @@ export default function AgentProfile() {
             <div className="flex justify-between"><span className="text-muted-foreground uppercase tracking-wider">Correct</span><span className="text-primary font-bold">{formatNumber(s.correct)}</span></div>
             <div className="flex justify-between"><span className="text-muted-foreground uppercase tracking-wider">Incorrect</span><span className="text-destructive font-bold">{formatNumber(s.incorrect)}</span></div>
             <div className="flex justify-between border-t border-border pt-2 mt-2"><span className="text-muted-foreground uppercase tracking-wider">Accuracy</span><span className="text-2xl text-primary font-bold">{formatPct(s.accuracy)}</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground uppercase tracking-wider">Avg Mult</span><span className="font-bold">{formatMultiplier(s.avg_multiplier)}</span></div>
-            <div className="flex justify-between border-t border-border pt-2 mt-2"><span className="text-muted-foreground uppercase tracking-wider">Total Earned</span><span className="text-2xl text-primary font-bold">{formatPred(s.total_earned)}</span></div>
+            <div className="flex justify-between"><span className="text-muted-foreground uppercase tracking-wider">Total Earned</span><span className="text-2xl text-primary font-bold">{formatPred(s.total_earned)}</span></div>
+            <div className="flex justify-between"><span className="text-muted-foreground uppercase tracking-wider">All-Time Excess</span><span className={`font-bold ${s.all_time_excess >= 0 ? "text-primary" : "text-destructive"}`}>{s.all_time_excess >= 0 ? "+" : ""}{formatChips(s.all_time_excess)}</span></div>
+            <div className="flex justify-between"><span className="text-muted-foreground uppercase tracking-wider">Contrarian Rate</span><span className="font-bold">{formatPct(s.contrarian_rate)}</span></div>
           </div>
         </div>
 
@@ -91,18 +86,23 @@ export default function AgentProfile() {
             <div className="flex justify-between"><span className="text-muted-foreground uppercase tracking-wider">Best Streak</span><span className="font-bold">{s.best_streak}</span></div>
             <div className="flex justify-between border-t border-border pt-2 mt-2"><span className="text-muted-foreground uppercase tracking-wider">Fav Asset</span><span className="font-bold">{s.favorite_asset}</span></div>
             <div className="flex justify-between"><span className="text-muted-foreground uppercase tracking-wider">Fav Window</span><span className="font-bold">{s.favorite_window}</span></div>
+            <div className="flex justify-between border-t border-border pt-2 mt-2"><span className="text-muted-foreground uppercase tracking-wider">Chips Spent (AT)</span><span className="font-bold">{formatChips(s.all_time_chips_spent)}</span></div>
+            <div className="flex justify-between"><span className="text-muted-foreground uppercase tracking-wider">Chips Won (AT)</span><span className="font-bold">{formatChips(s.all_time_chips_won)}</span></div>
           </div>
         </div>
 
         <div className="border border-border bg-card p-5">
-          <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-4 pb-2 border-b border-border">Recent Performance</div>
+          <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-4 pb-2 border-b border-border">Today</div>
           <div className="space-y-2 text-xs font-mono">
-            <div className="flex justify-between"><span className="text-muted-foreground uppercase tracking-wider">Today Subs</span><span className="font-bold">{r.today_submissions}</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground uppercase tracking-wider">Today Correct</span><span className="text-primary font-bold">{r.today_correct}</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground uppercase tracking-wider">Today Acc</span><span className="text-2xl text-primary font-bold">{formatPct(r.today_accuracy)}</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground uppercase tracking-wider">Today Earned</span><span className="text-primary font-bold">{formatPred(r.today_earned)}</span></div>
-            <div className="flex justify-between border-t border-border pt-2 mt-2"><span className="text-muted-foreground uppercase tracking-wider">Week Acc</span><span className="font-bold">{formatPct(r.week_accuracy)}</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground uppercase tracking-wider">Week Earned</span><span className="text-primary font-bold">{formatPred(r.week_earned)}</span></div>
+            <div className="flex justify-between"><span className="text-muted-foreground uppercase tracking-wider">Balance</span><span className="text-2xl text-primary font-bold">{formatChips(t.balance)}</span></div>
+            <div className="flex justify-between"><span className="text-muted-foreground uppercase tracking-wider">Fed Today</span><span className="font-bold">{formatChips(t.total_fed)}</span></div>
+            <div className="flex justify-between"><span className="text-muted-foreground uppercase tracking-wider">Excess</span><span className={`font-bold ${t.excess >= 0 ? "text-primary" : "text-destructive"}`}>{t.excess >= 0 ? "+" : ""}{formatChips(t.excess)}</span></div>
+            <div className="flex justify-between border-t border-border pt-2 mt-2"><span className="text-muted-foreground uppercase tracking-wider">Subs / Resolved</span><span className="font-bold">{t.submissions} / {t.resolved}</span></div>
+            <div className="flex justify-between"><span className="text-muted-foreground uppercase tracking-wider">Correct</span><span className="text-primary font-bold">{t.correct}</span></div>
+            <div className="flex justify-between"><span className="text-muted-foreground uppercase tracking-wider">Accuracy</span><span className="text-primary font-bold">{formatPct(t.accuracy)}</span></div>
+            <div className="flex justify-between"><span className="text-muted-foreground uppercase tracking-wider">Chips Spent</span><span className="font-bold">{formatChips(t.chips_spent)}</span></div>
+            <div className="flex justify-between"><span className="text-muted-foreground uppercase tracking-wider">Payout</span><span className="text-primary font-bold">{formatChips(t.payout_received)}</span></div>
+            <div className="flex justify-between border-t border-border pt-2 mt-2"><span className="text-muted-foreground uppercase tracking-wider">Est. Reward</span><span className="text-2xl text-primary font-bold">{formatPred(t.estimated_reward)}</span></div>
           </div>
         </div>
       </div>
@@ -142,13 +142,15 @@ export default function AgentProfile() {
                 <MarketLink id={p.market_id} />
                 <span className="text-foreground font-bold">{p.asset} {p.window}</span>
                 <span className={p.direction === "up" ? "text-primary font-bold" : "text-destructive font-bold"}>{p.direction.toUpperCase()}</span>
-                <span className="text-primary font-bold">{formatMultiplier(p.locked_multiplier)}</span>
+                <span className="text-foreground">{p.tickets} tix @ {p.avg_fill_price.toFixed(2)}</span>
+                <span className="text-primary">{formatChips(p.chips_spent)} chips</span>
+                {p.payout_chips != null && <span className="text-foreground">payout: {formatChips(p.payout_chips)}</span>}
+                {p.was_minority && <span className="text-amber-500 text-[10px] uppercase">minority</span>}
                 {p.outcome && (
                   <span className={`ml-auto font-bold ${p.outcome === "correct" ? "text-primary" : p.outcome === "incorrect" ? "text-destructive" : "text-muted-foreground"}`}>
                     {p.outcome.toUpperCase()}
                   </span>
                 )}
-                {p.amm_score != null && <span className="text-muted-foreground">score: {p.amm_score.toFixed(2)}</span>}
                 <span className="text-muted-foreground">{relativeTime(p.submitted_at)}</span>
               </div>
               <div className="text-muted-foreground text-[11px] line-clamp-2">{p.reasoning}</div>

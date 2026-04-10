@@ -10,9 +10,19 @@ so generated hooks return the inner type directly.
 
  * OpenAPI spec version: 0.2.0
  */
+import type { EquityCurveDatapoint } from "./equityCurveDatapoint";
 
-export type EpochSummaryTopEarner = {
-  address: string;
-  earned: number;
-  excess_score: number;
-};
+export interface AgentEquityCurve {
+  agent_address: string;
+  persona: string;
+  date: string;
+  starting_balance: number;
+  final_balance: number;
+  total_fed: number;
+  excess: number;
+  return_rate: number;
+  total_markets_resolved: number;
+  correct: number;
+  accuracy: number;
+  datapoints: EquityCurveDatapoint[];
+}

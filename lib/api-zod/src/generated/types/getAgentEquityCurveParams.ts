@@ -11,8 +11,6 @@ so generated hooks return the inner type directly.
  * OpenAPI spec version: 0.2.0
  */
 
-export type EpochSummaryTopEarner = {
-  address: string;
-  earned: number;
-  excess_score: number;
+export type GetAgentEquityCurveParams = {
+  date?: string;
 };

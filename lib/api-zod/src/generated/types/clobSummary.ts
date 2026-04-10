@@ -11,8 +11,10 @@ so generated hooks return the inner type directly.
  * OpenAPI spec version: 0.2.0
  */
 
-export type EpochSummaryTopEarner = {
-  address: string;
-  earned: number;
-  excess_score: number;
-};
+export interface ClobSummary {
+  total_up_tickets_filled: number;
+  total_down_tickets_filled: number;
+  total_tickets_matched: number;
+  total_chips_settled: number;
+  up_fill_ratio: number;
+}
