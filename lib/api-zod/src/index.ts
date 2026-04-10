@@ -22,6 +22,8 @@ export {
   type GetFeedLiveParams,
   type GetHighlightsParams,
   type GetLeaderboardParams,
+  type GetAgentPredictionsParams,
+  type GetMarketPredictionsParams,
   type GetResolvedMarketsParams,
   type HealthStatus,
   type HighlightItem,

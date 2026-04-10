@@ -3,7 +3,12 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: Predict WorkNet API specification
+  description: |
+    Predict WorkNet API specification.
+    NOTE: Response schemas define the INNER data type (what lives inside "data").
+    The real API wraps all responses in { "success": true, "data": <inner> }.
+    The customFetch layer in api-client-react auto-unwraps this envelope,
+    so generated hooks return the inner type directly.
 servers:
   - url: /api/v1
     description: Base API path
