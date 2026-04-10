@@ -5,7 +5,8 @@
  * Predict WorkNet API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { MarketItem } from "./marketItem";
 
-export interface HealthStatus {
-  status: string;
+export interface ActiveMarketsResponse {
+  items: MarketItem[];
 }

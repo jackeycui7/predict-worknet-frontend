@@ -6,6 +6,10 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface HealthStatus {
-  status: string;
-}
+export type GetLeaderboardParams = {
+  period?: string;
+  sort?: string;
+  persona?: string;
+  limit?: number;
+  offset?: number;
+};

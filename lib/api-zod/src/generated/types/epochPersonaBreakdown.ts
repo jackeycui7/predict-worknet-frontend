@@ -6,6 +6,9 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface HealthStatus {
-  status: string;
+export interface EpochPersonaBreakdown {
+  persona: string;
+  agent_count: number;
+  accuracy: number;
+  total_earned: number;
 }

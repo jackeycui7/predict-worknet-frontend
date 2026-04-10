@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface HealthStatus {
-  status: string;
-}
+export type CurrentEpochResolvedStatsTopEarnerSoFar = {
+  address: string;
+  estimated_reward: number;
+};

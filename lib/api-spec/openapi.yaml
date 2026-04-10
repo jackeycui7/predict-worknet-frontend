@@ -3,20 +3,32 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Predict WorkNet API specification
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: feed
+    description: Dashboard feed and stats
+  - name: markets
+    description: Prediction markets
+  - name: leaderboard
+    description: Agent rankings
+  - name: agents
+    description: Agent profiles
+  - name: epochs
+    description: Epoch history and details
+  - name: highlights
+    description: Notable events
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +36,346 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /feed/stats:
+    get:
+      operationId: getFeedStats
+      tags: [feed]
+      summary: Global heartbeat stats
+      responses:
+        "200":
+          description: Stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeedStats"
+
+  /feed/live:
+    get:
+      operationId: getFeedLive
+      tags: [feed]
+      summary: Live prediction stream
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+      responses:
+        "200":
+          description: Live predictions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeedLiveResponse"
+
+  /epochs/current:
+    get:
+      operationId: getCurrentEpoch
+      tags: [epochs]
+      summary: Current epoch progress
+      responses:
+        "200":
+          description: Current epoch
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CurrentEpoch"
+
+  /epochs:
+    get:
+      operationId: getEpochs
+      tags: [epochs]
+      summary: Epoch history list
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        "200":
+          description: Epoch list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EpochListResponse"
+
+  /epochs/{id}:
+    get:
+      operationId: getEpochById
+      tags: [epochs]
+      summary: Epoch detail
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Epoch detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EpochDetail"
+
+  /markets/active:
+    get:
+      operationId: getActiveMarkets
+      tags: [markets]
+      summary: Active markets list
+      responses:
+        "200":
+          description: Active markets
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ActiveMarketsResponse"
+
+  /markets/resolved:
+    get:
+      operationId: getResolvedMarkets
+      tags: [markets]
+      summary: Resolved markets list
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: asset
+          in: query
+          schema:
+            type: string
+        - name: window
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Resolved markets
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResolvedMarketsResponse"
+
+  /markets/{id}:
+    get:
+      operationId: getMarketById
+      tags: [markets]
+      summary: Market detail
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Market detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MarketDetail"
+
+  /markets/{id}/amm-history:
+    get:
+      operationId: getMarketAmmHistory
+      tags: [markets]
+      summary: AMM price history for a market
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: AMM history
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AmmHistoryResponse"
+
+  /markets/{id}/predictions:
+    get:
+      operationId: getMarketPredictions
+      tags: [markets]
+      summary: Predictions for a market
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: outcome
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Market predictions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MarketPredictionsResponse"
+
+  /leaderboard:
+    get:
+      operationId: getLeaderboard
+      tags: [leaderboard]
+      summary: Agent leaderboard
+      parameters:
+        - name: period
+          in: query
+          schema:
+            type: string
+            default: all
+        - name: sort
+          in: query
+          schema:
+            type: string
+            default: earnings
+        - name: persona
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        "200":
+          description: Leaderboard
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LeaderboardResponse"
+
+  /leaderboard/personas:
+    get:
+      operationId: getLeaderboardPersonas
+      tags: [leaderboard]
+      summary: Persona comparison stats
+      responses:
+        "200":
+          description: Persona stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PersonaLeaderboardResponse"
+
+  /agents/{address}:
+    get:
+      operationId: getAgentByAddress
+      tags: [agents]
+      summary: Agent profile
+      parameters:
+        - name: address
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Agent profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentProfile"
+
+  /agents/{address}/predictions:
+    get:
+      operationId: getAgentPredictions
+      tags: [agents]
+      summary: Agent prediction history
+      parameters:
+        - name: address
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: outcome
+          in: query
+          schema:
+            type: string
+        - name: asset
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Agent predictions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentPredictionsResponse"
+
+  /highlights:
+    get:
+      operationId: getHighlights
+      tags: [highlights]
+      summary: Notable events and highlights
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: type
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Highlights
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HighlightsResponse"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +386,861 @@ components:
       required:
         - status
 
+    Pagination:
+      type: object
+      properties:
+        limit:
+          type: integer
+        offset:
+          type: integer
+        total:
+          type: integer
+        has_more:
+          type: boolean
+      required:
+        - limit
+        - offset
+        - total
+        - has_more
+
+    FeedStats:
+      type: object
+      properties:
+        predictions_1h:
+          type: integer
+        predictions_24h:
+          type: integer
+        active_agents_1h:
+          type: integer
+        active_agents_24h:
+          type: integer
+        open_markets:
+          type: integer
+        resolved_today:
+          type: integer
+        total_predictions_all_time:
+          type: integer
+        total_agents_all_time:
+          type: integer
+      required:
+        - predictions_1h
+        - predictions_24h
+        - active_agents_1h
+        - active_agents_24h
+        - open_markets
+        - resolved_today
+        - total_predictions_all_time
+        - total_agents_all_time
+
+    FeedLiveItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        agent_address:
+          type: string
+        agent_persona:
+          type: string
+        agent_accuracy:
+          type: number
+        market_id:
+          type: integer
+        asset:
+          type: string
+        window:
+          type: string
+        direction:
+          type: string
+        locked_multiplier:
+          type: number
+        position_in_market:
+          type: integer
+        submitted_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - agent_address
+        - agent_persona
+        - agent_accuracy
+        - market_id
+        - asset
+        - window
+        - direction
+        - locked_multiplier
+        - position_in_market
+        - submitted_at
+
+    FeedLiveResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/FeedLiveItem"
+      required:
+        - items
+
+    CurrentEpoch:
+      type: object
+      properties:
+        id:
+          type: integer
+        date:
+          type: string
+        hours_elapsed:
+          type: number
+        markets_created:
+          type: integer
+        markets_resolved:
+          type: integer
+        markets_pending:
+          type: integer
+        total_predictions:
+          type: integer
+        total_agents:
+          type: integer
+        resolved_stats:
+          type: object
+          properties:
+            global_accuracy:
+              type: number
+            top_earner_so_far:
+              type: object
+              properties:
+                address:
+                  type: string
+                estimated_reward:
+                  type: number
+              required:
+                - address
+                - estimated_reward
+          required:
+            - global_accuracy
+            - top_earner_so_far
+      required:
+        - id
+        - date
+        - hours_elapsed
+        - markets_created
+        - markets_resolved
+        - markets_pending
+        - total_predictions
+        - total_agents
+        - resolved_stats
+
+    AmmState:
+      type: object
+      properties:
+        up_price:
+          type: number
+        down_price:
+          type: number
+        up_reserve:
+          type: number
+        down_reserve:
+          type: number
+      required:
+        - up_price
+        - down_price
+        - up_reserve
+        - down_reserve
+
+    MarketStats:
+      type: object
+      properties:
+        total_predictions:
+          type: integer
+        up_count:
+          type: integer
+        down_count:
+          type: integer
+        unique_agents:
+          type: integer
+        correct_count:
+          type: integer
+        incorrect_count:
+          type: integer
+      required:
+        - total_predictions
+        - up_count
+        - down_count
+        - unique_agents
+
+    MarketItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        asset:
+          type: string
+        window:
+          type: string
+        question:
+          type: string
+        market_type:
+          type: string
+        status:
+          type: string
+        open_price:
+          type: number
+        resolve_price:
+          type: number
+          nullable: true
+        outcome:
+          type: string
+          nullable: true
+        open_at:
+          type: string
+          format: date-time
+        close_at:
+          type: string
+          format: date-time
+        resolve_at:
+          type: string
+          format: date-time
+          nullable: true
+        amm:
+          $ref: "#/components/schemas/AmmState"
+        stats:
+          $ref: "#/components/schemas/MarketStats"
+      required:
+        - id
+        - asset
+        - window
+        - question
+        - market_type
+        - status
+        - open_price
+        - open_at
+        - close_at
+        - amm
+        - stats
+
+    ActiveMarketsResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/MarketItem"
+      required:
+        - items
+
+    ResolvedMarketsResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/MarketItem"
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+      required:
+        - items
+        - pagination
+
+    MarketDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+        asset:
+          type: string
+        window:
+          type: string
+        question:
+          type: string
+        market_type:
+          type: string
+        status:
+          type: string
+        open_price:
+          type: number
+        resolve_price:
+          type: number
+          nullable: true
+        outcome:
+          type: string
+          nullable: true
+        open_at:
+          type: string
+          format: date-time
+        close_at:
+          type: string
+          format: date-time
+        resolve_at:
+          type: string
+          format: date-time
+          nullable: true
+        amm:
+          $ref: "#/components/schemas/AmmState"
+        stats:
+          $ref: "#/components/schemas/MarketStats"
+      required:
+        - id
+        - asset
+        - window
+        - question
+        - market_type
+        - status
+        - open_price
+        - open_at
+        - close_at
+        - amm
+        - stats
+
+    AmmHistoryPoint:
+      type: object
+      properties:
+        up_price:
+          type: number
+        down_price:
+          type: number
+        up_reserve:
+          type: number
+        down_reserve:
+          type: number
+        prediction_count:
+          type: integer
+        triggered_by:
+          type: string
+          nullable: true
+        timestamp:
+          type: string
+          format: date-time
+      required:
+        - up_price
+        - down_price
+        - up_reserve
+        - down_reserve
+        - prediction_count
+        - timestamp
+
+    AmmHistoryResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/AmmHistoryPoint"
+      required:
+        - items
+
+    PredictionItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        agent_address:
+          type: string
+        agent_persona:
+          type: string
+        market_id:
+          type: integer
+        asset:
+          type: string
+        window:
+          type: string
+        direction:
+          type: string
+        reasoning:
+          type: string
+        locked_multiplier:
+          type: number
+        position_in_market:
+          type: integer
+        amm_up_price_at_submit:
+          type: number
+        amm_down_price_at_submit:
+          type: number
+        outcome:
+          type: string
+          nullable: true
+        amm_score:
+          type: number
+          nullable: true
+        submitted_at:
+          type: string
+          format: date-time
+        resolved_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - id
+        - agent_address
+        - agent_persona
+        - market_id
+        - asset
+        - window
+        - direction
+        - reasoning
+        - locked_multiplier
+        - position_in_market
+        - amm_up_price_at_submit
+        - amm_down_price_at_submit
+        - submitted_at
+
+    MarketPredictionsResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/PredictionItem"
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+      required:
+        - items
+        - pagination
+
+    LeaderboardEntry:
+      type: object
+      properties:
+        rank:
+          type: integer
+        agent_address:
+          type: string
+        persona:
+          type: string
+        total_submissions:
+          type: integer
+        accuracy:
+          type: number
+        total_earned:
+          type: number
+        current_streak:
+          type: integer
+        best_streak:
+          type: integer
+        avg_multiplier:
+          type: number
+      required:
+        - rank
+        - agent_address
+        - persona
+        - total_submissions
+        - accuracy
+        - total_earned
+        - current_streak
+        - best_streak
+        - avg_multiplier
+
+    LeaderboardResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/LeaderboardEntry"
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+      required:
+        - items
+        - pagination
+
+    PersonaStats:
+      type: object
+      properties:
+        persona:
+          type: string
+        agent_count:
+          type: integer
+        total_submissions:
+          type: integer
+        accuracy:
+          type: number
+        total_earned:
+          type: number
+        avg_earned_per_agent:
+          type: number
+        avg_multiplier:
+          type: number
+      required:
+        - persona
+        - agent_count
+        - total_submissions
+        - accuracy
+        - total_earned
+        - avg_earned_per_agent
+        - avg_multiplier
+
+    PersonaLeaderboardResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/PersonaStats"
+      required:
+        - items
+
+    AgentRecentPerformance:
+      type: object
+      properties:
+        today_submissions:
+          type: integer
+        today_correct:
+          type: integer
+        today_accuracy:
+          type: number
+        today_earned:
+          type: number
+        week_accuracy:
+          type: number
+        week_earned:
+          type: number
+      required:
+        - today_submissions
+        - today_correct
+        - today_accuracy
+        - today_earned
+        - week_accuracy
+        - week_earned
+
+    AgentStats:
+      type: object
+      properties:
+        total_submissions:
+          type: integer
+        total_resolved:
+          type: integer
+        correct:
+          type: integer
+        incorrect:
+          type: integer
+        accuracy:
+          type: number
+        current_streak:
+          type: integer
+        best_streak:
+          type: integer
+        total_earned:
+          type: number
+        avg_multiplier:
+          type: number
+        rank:
+          type: integer
+        favorite_asset:
+          type: string
+        favorite_window:
+          type: string
+      required:
+        - total_submissions
+        - total_resolved
+        - correct
+        - incorrect
+        - accuracy
+        - current_streak
+        - best_streak
+        - total_earned
+        - avg_multiplier
+        - rank
+        - favorite_asset
+        - favorite_window
+
+    AgentProfile:
+      type: object
+      properties:
+        address:
+          type: string
+        persona:
+          type: string
+        joined_at:
+          type: string
+          format: date-time
+        stats:
+          $ref: "#/components/schemas/AgentStats"
+        recent_performance:
+          $ref: "#/components/schemas/AgentRecentPerformance"
+      required:
+        - address
+        - persona
+        - joined_at
+        - stats
+        - recent_performance
+
+    AgentPredictionItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        market_id:
+          type: integer
+        asset:
+          type: string
+        window:
+          type: string
+        direction:
+          type: string
+        reasoning:
+          type: string
+        locked_multiplier:
+          type: number
+        outcome:
+          type: string
+          nullable: true
+        amm_score:
+          type: number
+          nullable: true
+        submitted_at:
+          type: string
+          format: date-time
+        resolved_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - id
+        - market_id
+        - asset
+        - window
+        - direction
+        - reasoning
+        - locked_multiplier
+        - submitted_at
+
+    AgentPredictionsResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/AgentPredictionItem"
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+      required:
+        - items
+        - pagination
+
+    EpochSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+        date:
+          type: string
+        status:
+          type: string
+        total_emission:
+          type: number
+        total_agents:
+          type: integer
+        total_predictions:
+          type: integer
+        total_correct:
+          type: integer
+        global_accuracy:
+          type: number
+        top_earner:
+          type: object
+          properties:
+            address:
+              type: string
+            earned:
+              type: number
+          required:
+            - address
+            - earned
+        settled_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - date
+        - status
+        - total_emission
+        - total_agents
+        - total_predictions
+        - total_correct
+        - global_accuracy
+        - top_earner
+        - settled_at
+
+    EpochListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/EpochSummary"
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+      required:
+        - items
+        - pagination
+
+    EpochTopEarner:
+      type: object
+      properties:
+        rank:
+          type: integer
+        address:
+          type: string
+        persona:
+          type: string
+        valid_submissions:
+          type: integer
+        accuracy:
+          type: number
+        alpha_score:
+          type: number
+        participation_reward:
+          type: number
+        alpha_reward:
+          type: number
+        total_reward:
+          type: number
+      required:
+        - rank
+        - address
+        - persona
+        - valid_submissions
+        - accuracy
+        - alpha_score
+        - participation_reward
+        - alpha_reward
+        - total_reward
+
+    EpochPersonaBreakdown:
+      type: object
+      properties:
+        persona:
+          type: string
+        agent_count:
+          type: integer
+        accuracy:
+          type: number
+        total_earned:
+          type: number
+      required:
+        - persona
+        - agent_count
+        - accuracy
+        - total_earned
+
+    EpochDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+        date:
+          type: string
+        status:
+          type: string
+        total_emission:
+          type: number
+        participation_pool:
+          type: number
+        alpha_pool:
+          type: number
+        markets_resolved:
+          type: integer
+        total_agents:
+          type: integer
+        total_predictions:
+          type: integer
+        total_correct:
+          type: integer
+        global_accuracy:
+          type: number
+        merkle_root:
+          type: string
+          nullable: true
+        settled_at:
+          type: string
+          format: date-time
+        top_earners:
+          type: array
+          items:
+            $ref: "#/components/schemas/EpochTopEarner"
+        persona_breakdown:
+          type: array
+          items:
+            $ref: "#/components/schemas/EpochPersonaBreakdown"
+      required:
+        - id
+        - date
+        - status
+        - total_emission
+        - participation_pool
+        - alpha_pool
+        - markets_resolved
+        - total_agents
+        - total_predictions
+        - total_correct
+        - global_accuracy
+        - settled_at
+        - top_earners
+        - persona_breakdown
+
+    HighlightItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        type:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        agent_address:
+          type: string
+          nullable: true
+        agent_persona:
+          type: string
+          nullable: true
+        market_id:
+          type: integer
+          nullable: true
+        multiplier:
+          type: number
+          nullable: true
+        streak_count:
+          type: integer
+          nullable: true
+        earned:
+          type: number
+          nullable: true
+        accuracy:
+          type: number
+          nullable: true
+        winner:
+          type: string
+          nullable: true
+        loser:
+          type: string
+          nullable: true
+        winner_accuracy:
+          type: number
+          nullable: true
+        loser_accuracy:
+          type: number
+          nullable: true
+        count:
+          type: integer
+          nullable: true
+        timestamp:
+          type: string
+          format: date-time
+      required:
+        - id
+        - type
+        - title
+        - description
+        - timestamp
+
+    HighlightsResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/HighlightItem"
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+      required:
+        - items
+        - pagination

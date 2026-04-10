@@ -6,6 +6,9 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface HealthStatus {
-  status: string;
+export interface AmmState {
+  up_price: number;
+  down_price: number;
+  up_reserve: number;
+  down_reserve: number;
 }

@@ -5,7 +5,8 @@
  * Predict WorkNet API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { PersonaStats } from "./personaStats";
 
-export interface HealthStatus {
-  status: string;
+export interface PersonaLeaderboardResponse {
+  items: PersonaStats[];
 }
