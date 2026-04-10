@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Predict WorkNet"
+version = "1.0.0"
+id = "artifacts/predict-worknet"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 19462
+
+[services.development]
+run = "pnpm --filter @workspace/predict-worknet run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/predict-worknet", "run", "build" ]
+publicDir = "artifacts/predict-worknet/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "19462"
+BASE_PATH = "/"

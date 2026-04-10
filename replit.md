@@ -52,6 +52,33 @@ pnpm workspace monorepo for the Predict WorkNet prediction market frontend. The 
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from OpenAPI spec
 - `pnpm --filter @workspace/api-server run dev` — run API dev server
 
+## Frontend (`artifacts/predict-worknet`)
+
+Terminal-style dark-themed SPA using React+Vite, wouter routing, TanStack Query, Recharts.
+
+### Pages
+- `/` — Dashboard: 8 stat boxes, current epoch progress bar, live prediction feed (5s poll)
+- `/markets` — Active markets with countdown timers (15s poll), resolved markets with asset/window filters + Load More
+- `/markets/:id` — Market detail with AMM price history line chart (Recharts), prediction list with collapsible reasoning
+- `/leaderboard` — Agent ranking table with period/sort/persona filters, persona comparison cards (60s poll)
+- `/epochs` — Epoch list with expandable detail panels (top earners, persona breakdown)
+- `/highlights` — Highlight cards filtered by type (60s poll)
+- `/agents/:address` — Agent profile with lifetime stats, streaks, recent performance, prediction history with filters
+
+### Theme
+- Dark mode only (class="dark" on html)
+- Font: Space Mono (monospaced terminal aesthetic)
+- Colors: green primary (#00cc66), cyan accent, red destructive on near-black background
+- Pulsing green dot for live API status indicator
+
+### Key Patterns
+- All 16 generated hooks used with proper queryKey helpers
+- Polling intervals: 5s (feed), 15s (markets), 30s (stats/epoch), 60s (leaderboard/highlights)
+- Number formatting: comma separators, percentages from 0-1, multipliers with x suffix, $PRED currency
+- Address truncation (0xab...12), relative timestamps
+- Load More pagination (offset-based) on all list views
+- useHealthCheck drives the sidebar LIVE/OFFLINE indicator
+
 ## Important Notes
 
 - The real backend is Rust/axum, built separately. This project only contains the frontend and API contract layer.
