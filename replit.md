@@ -68,21 +68,24 @@ This allows full UI development without a running backend.
 Light-themed scientific data dashboard SPA using React+Vite, wouter routing, TanStack Query, Recharts.
 
 ### Pages
-- `/` — Dashboard: large bold "Prediction Markets." hero, 8 stat boxes (incl. chips_spent_24h), current epoch progress bar with live top 3, live prediction feed (5s poll)
-- `/markets` — Active markets with countdown timers + orderbook probability bars (15s poll), resolved markets with asset/window filters + Load More
+- `/` — Dashboard: epoch progress bar, "Predict WorkNet." gradient hero, 4 key metrics (Active 24h, Registered, Open Markets, Predictions 24h), live feed center with epoch leaders + hot markets side panels
+- `/markets` — Active markets with countdown timers + orderbook probability bars, resolved tab with MiniCalendar date picker sidebar + asset/window filters + Load More
 - `/markets/:id` — Market detail with orderbook panel (best prices, spread, depth), CLOB summary (tickets filled, chips settled), price history chart (CLOB fills), prediction list with expandable reasoning
 - `/leaderboard` — Agent ranking table with period/sort/persona filters, excess/rank_change_1h columns, persona comparison cards (60s poll)
 - `/epochs` — Epoch list with expandable detail panels (top earners with excess_score/alpha/participation rewards, persona breakdown)
 - `/highlights` — Highlight cards filtered by type including all_in_win, contrarian, streak, top_earner, persona_flip, milestone (60s poll)
+- `/rewards` — Agent address lookup + recent epochs table + "How Rewards Work" explainer grid (Participation Pool, Alpha Pool, Excess Scoring, Settlement)
+- `/join` — 4-step guide (Install AWP, Install Skill, Configure Persona, Start Predicting) + requirements section
 - `/agents/:address` — Agent profile with lifetime stats (all_time_excess, contrarian_rate, chips_spent/won), today panel (balance, excess, estimated_reward), prediction history with outcome/asset filters
 
 ### Theme
-- Light mode, white/off-white background
-- Font: Space Grotesk (bold display), Space Mono (data/labels)
+- Light mode, pure white background
+- Font: Inter (headings/body), JetBrains Mono (data/code) — loaded via Google Fonts
+- Brand: "Predict WorkNet" with "built on AWP" subtitle
 - Colors: electric blue primary (hsl 237 100% 50%), red destructive, on white background
 - Sharp zero-radius edges (no rounded corners)
-- Top horizontal nav bar with PWN_SYS logo, live data indicator, navigation links
-- Large bold metrics with uppercase tracking-widest labels
+- Top horizontal nav bar with brand, live indicator, 7 nav links
+- CSS utilities: gradient-text, metric-glow, animate-fade-up, animate-feed-slide, glass-card
 - Pulsing green dot for live API status indicator
 
 ### Key Patterns

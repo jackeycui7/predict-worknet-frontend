@@ -73,8 +73,8 @@
   --elevate-1: rgba(0,0,0, .03);
   --elevate-2: rgba(0,0,0, .06);
 
-  --background: 0 0% 98%;
-  --foreground: 235 15% 12%;
+  --background: 0 0% 100%;
+  --foreground: 230 25% 10%;
   --border: 230 10% 88%;
 
   --card: 0 0% 100%;
@@ -118,9 +118,9 @@
   --chart-4: 45 100% 45%;
   --chart-5: 160 80% 40%;
 
-  --app-font-sans: "Space Grotesk", system-ui, sans-serif;
+  --app-font-sans: "Inter", system-ui, -apple-system, sans-serif;
   --app-font-serif: Georgia, serif;
-  --app-font-mono: "Space Mono", "Courier New", monospace;
+  --app-font-mono: "JetBrains Mono", "Fira Code", monospace;
 
   --radius: 0px;
 
@@ -172,4 +172,43 @@
 }
 .animate-pulse-live {
   animation: pulse-live 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up {
+  animation: fade-up 0.5s ease-out forwards;
+}
+
+@keyframes count-tick {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+@keyframes feed-slide {
+  from { opacity: 0; transform: translateX(-8px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.animate-feed-slide {
+  animation: feed-slide 0.3s ease-out forwards;
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, hsl(237, 100%, 50%) 0%, hsl(200, 100%, 45%) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  border: 1px solid hsl(230, 10%, 90%);
+}
+
+.metric-glow {
+  text-shadow: 0 0 40px hsla(237, 100%, 50%, 0.15);
 }
