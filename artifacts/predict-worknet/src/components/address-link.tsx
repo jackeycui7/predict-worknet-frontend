@@ -5,7 +5,7 @@ export function AgentLink({ address }: { address: string }) {
   return (
     <Link href={`/agents/${address}`}>
       <span
-        className="text-accent hover:underline cursor-pointer font-mono text-xs"
+        className="text-primary hover:underline cursor-pointer font-mono text-xs"
         data-testid={`agent-link-${address}`}
       >
         {truncateAddress(address)}
@@ -18,7 +18,7 @@ export function MarketLink({ id }: { id: string }) {
   return (
     <Link href={`/markets/${id}`}>
       <span
-        className="text-accent hover:underline cursor-pointer font-mono text-xs"
+        className="text-primary hover:underline cursor-pointer font-mono text-xs"
         data-testid={`market-link-${id}`}
       >
         {id}

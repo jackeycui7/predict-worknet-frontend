@@ -17,49 +17,49 @@ function EpochRow({ epochId, isExpanded }: { epochId: number; isExpanded: boolea
   return (
     <>
       {isExpanded && detail && (
-        <div className="px-4 py-4 border-t border-border/50 bg-muted/20">
-          <div className="grid grid-cols-3 gap-4 mb-4 text-xs font-mono">
-            <div>
-              <span className="text-muted-foreground">Participation Pool: </span>
-              <span className="text-accent">{formatPred(detail.participation_pool)}</span>
+        <div className="px-5 py-5 border-t border-border bg-muted/20">
+          <div className="grid grid-cols-3 gap-4 mb-6">
+            <div className="border-t border-border pt-2">
+              <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Participation Pool</div>
+              <div className="text-xl font-bold text-primary">{formatPred(detail.participation_pool)}</div>
             </div>
-            <div>
-              <span className="text-muted-foreground">Alpha Pool: </span>
-              <span className="text-accent">{formatPred(detail.alpha_pool)}</span>
+            <div className="border-t border-border pt-2">
+              <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Alpha Pool</div>
+              <div className="text-xl font-bold text-primary">{formatPred(detail.alpha_pool)}</div>
             </div>
-            <div>
-              <span className="text-muted-foreground">Markets Resolved: </span>
-              <span>{detail.markets_resolved}</span>
+            <div className="border-t border-border pt-2">
+              <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Markets Resolved</div>
+              <div className="text-xl font-bold text-foreground">{detail.markets_resolved}</div>
             </div>
           </div>
 
           {detail.top_earners.length > 0 && (
-            <div className="mb-4">
-              <div className="text-[10px] font-mono text-muted-foreground uppercase mb-2">Top Earners</div>
+            <div className="mb-6">
+              <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-3 pb-2 border-b border-border">Top Earners</div>
               <table className="w-full">
                 <thead>
-                  <tr className="text-[10px] font-mono text-muted-foreground uppercase border-b border-border/50">
-                    <th className="px-2 py-1 text-left">#</th>
-                    <th className="px-2 py-1 text-left">Agent</th>
-                    <th className="px-2 py-1 text-left">Persona</th>
-                    <th className="px-2 py-1 text-right">Subs</th>
-                    <th className="px-2 py-1 text-right">Accuracy</th>
-                    <th className="px-2 py-1 text-right">Part.</th>
-                    <th className="px-2 py-1 text-right">Alpha</th>
-                    <th className="px-2 py-1 text-right">Total</th>
+                  <tr className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest border-b border-border/50">
+                    <th className="px-2 py-2 text-left">#</th>
+                    <th className="px-2 py-2 text-left">Agent</th>
+                    <th className="px-2 py-2 text-left">Persona</th>
+                    <th className="px-2 py-2 text-right">Subs</th>
+                    <th className="px-2 py-2 text-right">Accuracy</th>
+                    <th className="px-2 py-2 text-right">Part.</th>
+                    <th className="px-2 py-2 text-right">Alpha</th>
+                    <th className="px-2 py-2 text-right">Total</th>
                   </tr>
                 </thead>
                 <tbody>
                   {detail.top_earners.map((e) => (
                     <tr key={e.address} className="text-xs font-mono border-b border-border/30">
-                      <td className="px-2 py-1 text-primary">{e.rank}</td>
-                      <td className="px-2 py-1"><AgentLink address={e.address} /></td>
-                      <td className="px-2 py-1 text-muted-foreground">{personaLabel(e.persona)}</td>
-                      <td className="px-2 py-1 text-right">{e.valid_submissions}</td>
-                      <td className="px-2 py-1 text-right">{formatPct(e.accuracy)}</td>
-                      <td className="px-2 py-1 text-right">{formatPred(e.participation_reward)}</td>
-                      <td className="px-2 py-1 text-right">{formatPred(e.alpha_reward)}</td>
-                      <td className="px-2 py-1 text-right text-accent font-bold">{formatPred(e.total_reward)}</td>
+                      <td className="px-2 py-1.5 text-primary font-bold">{e.rank}</td>
+                      <td className="px-2 py-1.5"><AgentLink address={e.address} /></td>
+                      <td className="px-2 py-1.5 text-muted-foreground">{personaLabel(e.persona)}</td>
+                      <td className="px-2 py-1.5 text-right">{e.valid_submissions}</td>
+                      <td className="px-2 py-1.5 text-right">{formatPct(e.accuracy)}</td>
+                      <td className="px-2 py-1.5 text-right">{formatPred(e.participation_reward)}</td>
+                      <td className="px-2 py-1.5 text-right">{formatPred(e.alpha_reward)}</td>
+                      <td className="px-2 py-1.5 text-right text-primary font-bold">{formatPred(e.total_reward)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -69,12 +69,12 @@ function EpochRow({ epochId, isExpanded }: { epochId: number; isExpanded: boolea
 
           {detail.persona_breakdown.length > 0 && (
             <div>
-              <div className="text-[10px] font-mono text-muted-foreground uppercase mb-2">Persona Breakdown</div>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-3 pb-2 border-b border-border">Persona Breakdown</div>
+              <div className="grid grid-cols-3 gap-3">
                 {detail.persona_breakdown.map((p) => (
-                  <div key={p.persona} className="border border-border/50 rounded p-2 text-xs font-mono">
-                    <div className="font-bold text-foreground">{personaLabel(p.persona)}</div>
-                    <div className="text-muted-foreground">{p.agent_count} agents | {formatPct(p.accuracy)} | {formatPred(p.total_earned)}</div>
+                  <div key={p.persona} className="border border-border bg-card p-3">
+                    <div className="font-bold text-foreground text-sm mb-1">{personaLabel(p.persona)}</div>
+                    <div className="text-xs font-mono text-muted-foreground">{p.agent_count} agents · {formatPct(p.accuracy)} · {formatPred(p.total_earned)}</div>
                   </div>
                 ))}
               </div>
@@ -117,25 +117,25 @@ export default function Epochs() {
   };
 
   return (
-    <div className="p-6 space-y-6" data-testid="epochs-page">
-      <h1 className="text-xl font-mono font-bold text-foreground">Epochs</h1>
-      <div className="space-y-2" data-testid="epochs-list">
+    <div className="px-6 py-8 space-y-8" data-testid="epochs-page">
+      <h1 className="text-4xl font-bold text-primary tracking-tight">Epochs.</h1>
+      <div className="space-y-3" data-testid="epochs-list">
         {accumulated.map((ep) => (
-          <div key={ep.id} className="border border-border rounded bg-card overflow-hidden" data-testid={`epoch-${ep.id}`}>
+          <div key={ep.id} className="border border-border bg-card overflow-hidden" data-testid={`epoch-${ep.id}`}>
             <div
-              className="px-4 py-3 flex items-center gap-4 cursor-pointer hover:bg-muted/30 text-xs font-mono"
+              className="px-5 py-3 flex items-center gap-5 cursor-pointer hover:bg-muted/30 text-xs font-mono"
               onClick={() => toggle(ep.id)}
             >
-              <span className="text-primary font-bold w-12">#{ep.id}</span>
-              <span className="text-foreground w-24">{ep.date}</span>
-              <span className={`text-[10px] px-1.5 py-0.5 rounded ${ep.status === "settled" ? "bg-primary/20 text-primary" : "bg-accent/20 text-accent"}`}>
+              <span className="text-primary font-bold text-lg w-12">#{ep.id}</span>
+              <span className="text-foreground font-bold w-24">{ep.date}</span>
+              <span className={`text-[10px] px-2 py-0.5 border uppercase tracking-wider ${ep.status === "settled" ? "border-primary text-primary" : "border-foreground text-foreground"}`}>
                 {ep.status.toUpperCase()}
               </span>
-              <span className="text-muted-foreground">Emission: <span className="text-accent">{formatPred(ep.total_emission)}</span></span>
-              <span className="text-muted-foreground">Agents: {ep.total_agents}</span>
-              <span className="text-muted-foreground">Preds: {formatNumber(ep.total_predictions)}</span>
-              <span className="text-muted-foreground">Acc: {formatPct(ep.global_accuracy)}</span>
-              <span className="ml-auto text-muted-foreground">{expanded.has(ep.id) ? "[-]" : "[+]"}</span>
+              <span className="text-muted-foreground">Emission: <span className="text-primary font-bold">{formatPred(ep.total_emission)}</span></span>
+              <span className="text-muted-foreground">Agents: <span className="font-bold text-foreground">{ep.total_agents}</span></span>
+              <span className="text-muted-foreground">Preds: <span className="font-bold text-foreground">{formatNumber(ep.total_predictions)}</span></span>
+              <span className="text-muted-foreground">Acc: <span className="font-bold text-primary">{formatPct(ep.global_accuracy)}</span></span>
+              <span className="ml-auto text-primary font-bold">{expanded.has(ep.id) ? "−" : "+"}</span>
             </div>
             <EpochRow epochId={ep.id} isExpanded={expanded.has(ep.id)} />
           </div>
@@ -144,7 +144,7 @@ export default function Epochs() {
       {data?.pagination?.has_more && (
         <button
           onClick={() => setOffset((o) => o + limit)}
-          className="w-full py-2 text-xs font-mono text-primary border border-border rounded hover:bg-muted/50"
+          className="w-full py-2.5 text-xs font-mono text-primary border border-primary uppercase tracking-widest hover:bg-primary hover:text-primary-foreground transition-colors"
           data-testid="load-more-epochs"
         >
           Load More

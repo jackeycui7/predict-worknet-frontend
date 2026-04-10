@@ -66,26 +66,26 @@ export default function Leaderboard() {
   ];
 
   return (
-    <div className="p-6 space-y-6" data-testid="leaderboard-page">
-      <h1 className="text-xl font-mono font-bold text-foreground">Leaderboard</h1>
+    <div className="px-6 py-8 space-y-8" data-testid="leaderboard-page">
+      <h1 className="text-4xl font-bold text-primary tracking-tight">Leaderboard.</h1>
 
-      <div className="flex flex-wrap gap-2" data-testid="leaderboard-filters">
+      <div className="flex flex-wrap items-center gap-3 border-b border-border pb-4" data-testid="leaderboard-filters">
         {periods.map((p) => (
           <button
             key={p.value}
             onClick={() => resetAndSet(setPeriod, p.value)}
-            className={`px-3 py-1.5 rounded text-xs font-mono ${period === p.value ? "bg-primary text-primary-foreground" : "bg-card border border-border text-muted-foreground hover:text-foreground"}`}
+            className={`px-3 py-1.5 text-xs font-mono uppercase tracking-widest transition-colors ${period === p.value ? "bg-primary text-primary-foreground" : "border border-border text-muted-foreground hover:text-foreground hover:border-foreground"}`}
             data-testid={`period-${p.value}`}
           >
             {p.label}
           </button>
         ))}
-        <div className="w-px bg-border" />
+        <div className="w-px h-5 bg-border" />
         {sorts.map((s) => (
           <button
             key={s.value}
             onClick={() => resetAndSet(setSort, s.value)}
-            className={`px-3 py-1.5 rounded text-xs font-mono ${sort === s.value ? "bg-accent text-accent-foreground" : "bg-card border border-border text-muted-foreground hover:text-foreground"}`}
+            className={`px-3 py-1.5 text-xs font-mono uppercase tracking-widest transition-colors ${sort === s.value ? "bg-foreground text-background" : "border border-border text-muted-foreground hover:text-foreground hover:border-foreground"}`}
             data-testid={`sort-${s.value}`}
           >
             {s.label}
@@ -94,7 +94,7 @@ export default function Leaderboard() {
         <select
           value={persona}
           onChange={(e) => resetAndSet(setPersona, e.target.value)}
-          className="bg-card border border-border rounded px-3 py-1.5 text-xs font-mono text-foreground ml-auto"
+          className="bg-card border border-border px-3 py-1.5 text-xs font-mono text-foreground ml-auto"
           data-testid="filter-persona"
         >
           <option value="">All Personas</option>
@@ -102,33 +102,33 @@ export default function Leaderboard() {
         </select>
       </div>
 
-      <div className="border border-border rounded bg-card overflow-hidden" data-testid="leaderboard-table">
+      <div className="border border-border bg-card overflow-hidden" data-testid="leaderboard-table">
         <table className="w-full">
           <thead>
-            <tr className="border-b border-border text-[10px] font-mono text-muted-foreground uppercase">
-              <th className="px-4 py-2 text-left">#</th>
-              <th className="px-4 py-2 text-left">Agent</th>
-              <th className="px-4 py-2 text-left">Persona</th>
-              <th className="px-4 py-2 text-right">Subs</th>
-              <th className="px-4 py-2 text-right">Accuracy</th>
-              <th className="px-4 py-2 text-right">Earned</th>
-              <th className="px-4 py-2 text-right">Streak</th>
-              <th className="px-4 py-2 text-right">Best</th>
-              <th className="px-4 py-2 text-right">Avg Mult</th>
+            <tr className="border-b border-border text-[10px] font-mono text-muted-foreground uppercase tracking-widest">
+              <th className="px-4 py-3 text-left">#</th>
+              <th className="px-4 py-3 text-left">Agent</th>
+              <th className="px-4 py-3 text-left">Persona</th>
+              <th className="px-4 py-3 text-right">Subs</th>
+              <th className="px-4 py-3 text-right">Accuracy</th>
+              <th className="px-4 py-3 text-right">Earned</th>
+              <th className="px-4 py-3 text-right">Streak</th>
+              <th className="px-4 py-3 text-right">Best</th>
+              <th className="px-4 py-3 text-right">Avg Mult</th>
             </tr>
           </thead>
           <tbody>
             {accumulated.map((e) => (
               <tr key={e.agent_address} className="border-b border-border/50 hover:bg-muted/30 text-xs font-mono" data-testid={`lb-row-${e.rank}`}>
-                <td className="px-4 py-2 text-primary font-bold">{e.rank}</td>
-                <td className="px-4 py-2"><AgentLink address={e.agent_address} /></td>
-                <td className="px-4 py-2 text-muted-foreground">{personaLabel(e.persona)}</td>
-                <td className="px-4 py-2 text-right">{formatNumber(e.total_submissions)}</td>
-                <td className="px-4 py-2 text-right">{formatPct(e.accuracy)}</td>
-                <td className="px-4 py-2 text-right text-accent">{formatPred(e.total_earned)}</td>
-                <td className="px-4 py-2 text-right">{e.current_streak}</td>
-                <td className="px-4 py-2 text-right">{e.best_streak}</td>
-                <td className="px-4 py-2 text-right">{formatMultiplier(e.avg_multiplier)}</td>
+                <td className="px-4 py-2.5 text-primary font-bold text-lg">{e.rank}</td>
+                <td className="px-4 py-2.5"><AgentLink address={e.agent_address} /></td>
+                <td className="px-4 py-2.5 text-muted-foreground">{personaLabel(e.persona)}</td>
+                <td className="px-4 py-2.5 text-right font-bold">{formatNumber(e.total_submissions)}</td>
+                <td className="px-4 py-2.5 text-right font-bold">{formatPct(e.accuracy)}</td>
+                <td className="px-4 py-2.5 text-right text-primary font-bold">{formatPred(e.total_earned)}</td>
+                <td className="px-4 py-2.5 text-right">{e.current_streak}</td>
+                <td className="px-4 py-2.5 text-right">{e.best_streak}</td>
+                <td className="px-4 py-2.5 text-right">{formatMultiplier(e.avg_multiplier)}</td>
               </tr>
             ))}
           </tbody>
@@ -137,7 +137,7 @@ export default function Leaderboard() {
       {lb?.pagination?.has_more && (
         <button
           onClick={() => setOffset((o) => o + limit)}
-          className="w-full py-2 text-xs font-mono text-primary border border-border rounded hover:bg-muted/50"
+          className="w-full py-2.5 text-xs font-mono text-primary border border-primary uppercase tracking-widest hover:bg-primary hover:text-primary-foreground transition-colors"
           data-testid="load-more-leaderboard"
         >
           Load More
@@ -146,18 +146,36 @@ export default function Leaderboard() {
 
       {personas && personas.length > 0 && (
         <div>
-          <h2 className="text-sm font-mono font-bold text-foreground uppercase tracking-wider mb-3">Persona Comparison</h2>
-          <div className="grid grid-cols-2 gap-3" data-testid="persona-cards">
+          <h2 className="text-sm font-mono font-bold text-foreground uppercase tracking-widest mb-4 pb-2 border-b border-border">Persona Comparison</h2>
+          <div className="grid grid-cols-2 gap-4" data-testid="persona-cards">
             {personas.map((p) => (
-              <div key={p.persona} className="border border-border rounded p-4 bg-card" data-testid={`persona-${p.persona}`}>
-                <div className="text-sm font-mono font-bold text-foreground mb-2">{personaLabel(p.persona)}</div>
-                <div className="grid grid-cols-2 gap-2 text-xs font-mono">
-                  <div><span className="text-muted-foreground">Agents: </span><span>{p.agent_count}</span></div>
-                  <div><span className="text-muted-foreground">Subs: </span><span>{formatNumber(p.total_submissions)}</span></div>
-                  <div><span className="text-muted-foreground">Accuracy: </span><span className="text-primary">{formatPct(p.accuracy)}</span></div>
-                  <div><span className="text-muted-foreground">Earned: </span><span className="text-accent">{formatPred(p.total_earned)}</span></div>
-                  <div><span className="text-muted-foreground">Avg/Agent: </span><span>{formatPred(p.avg_earned_per_agent)}</span></div>
-                  <div><span className="text-muted-foreground">Avg Mult: </span><span>{formatMultiplier(p.avg_multiplier)}</span></div>
+              <div key={p.persona} className="border border-border bg-card p-5" data-testid={`persona-${p.persona}`}>
+                <div className="text-lg font-bold text-foreground mb-3">{personaLabel(p.persona)}</div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="border-t border-border pt-2">
+                    <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Agents</div>
+                    <div className="text-xl font-bold text-foreground">{p.agent_count}</div>
+                  </div>
+                  <div className="border-t border-border pt-2">
+                    <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Subs</div>
+                    <div className="text-xl font-bold text-foreground">{formatNumber(p.total_submissions)}</div>
+                  </div>
+                  <div className="border-t border-border pt-2">
+                    <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Accuracy</div>
+                    <div className="text-xl font-bold text-primary">{formatPct(p.accuracy)}</div>
+                  </div>
+                  <div className="border-t border-border pt-2">
+                    <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Earned</div>
+                    <div className="text-xl font-bold text-primary">{formatPred(p.total_earned)}</div>
+                  </div>
+                  <div className="border-t border-border pt-2">
+                    <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Avg/Agent</div>
+                    <div className="text-sm font-bold text-foreground">{formatPred(p.avg_earned_per_agent)}</div>
+                  </div>
+                  <div className="border-t border-border pt-2">
+                    <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Avg Mult</div>
+                    <div className="text-sm font-bold text-foreground">{formatMultiplier(p.avg_multiplier)}</div>
+                  </div>
                 </div>
               </div>
             ))}

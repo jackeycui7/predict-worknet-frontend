@@ -17,7 +17,7 @@ function CountdownTimer({ closesAt }: { closesAt: string }) {
   }, [closesAt]);
   const isClosed = display === "CLOSED";
   return (
-    <span className={`font-mono text-xs ${isClosed ? "text-destructive" : "text-primary"}`} data-testid="countdown">
+    <span className={`font-mono text-xs font-bold ${isClosed ? "text-destructive" : "text-primary"}`} data-testid="countdown">
       {display}
     </span>
   );
@@ -72,20 +72,22 @@ export default function Markets() {
   const windows = ["15m", "30m", "1h"];
 
   return (
-    <div className="p-6 space-y-6" data-testid="markets-page">
-      <h1 className="text-xl font-mono font-bold text-foreground">Markets</h1>
+    <div className="px-6 py-8 space-y-8" data-testid="markets-page">
+      <div>
+        <h1 className="text-4xl font-bold text-primary tracking-tight">Markets.</h1>
+      </div>
 
-      <div className="flex gap-2">
+      <div className="flex gap-0 border-b border-border">
         <button
           onClick={() => setTab("active")}
-          className={`px-4 py-2 rounded text-xs font-mono ${tab === "active" ? "bg-primary text-primary-foreground" : "bg-card border border-border text-muted-foreground hover:text-foreground"}`}
+          className={`px-4 py-2 text-xs font-mono uppercase tracking-widest border-b-2 transition-colors ${tab === "active" ? "border-primary text-primary font-bold" : "border-transparent text-muted-foreground hover:text-foreground"}`}
           data-testid="tab-active"
         >
           Active ({active?.length ?? 0})
         </button>
         <button
           onClick={() => { setTab("resolved"); setOffset(0); setAccumulated([]); }}
-          className={`px-4 py-2 rounded text-xs font-mono ${tab === "resolved" ? "bg-primary text-primary-foreground" : "bg-card border border-border text-muted-foreground hover:text-foreground"}`}
+          className={`px-4 py-2 text-xs font-mono uppercase tracking-widest border-b-2 transition-colors ${tab === "resolved" ? "border-primary text-primary font-bold" : "border-transparent text-muted-foreground hover:text-foreground"}`}
           data-testid="tab-resolved"
         >
           Resolved
@@ -93,51 +95,51 @@ export default function Markets() {
       </div>
 
       {tab === "active" && (
-        <div className="space-y-2" data-testid="active-markets">
+        <div className="space-y-3" data-testid="active-markets">
           {active?.map((m) => (
             <Link key={m.id} href={`/markets/${m.id}`}>
-              <div className="border border-border rounded p-4 bg-card hover:border-primary/40 cursor-pointer transition-colors" data-testid={`market-${m.id}`}>
-                <div className="flex items-center justify-between mb-2">
+              <div className="border border-border bg-card p-5 hover:border-primary cursor-pointer transition-colors" data-testid={`market-${m.id}`}>
+                <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-3">
-                    <span className="font-mono text-sm font-bold text-foreground">{m.asset}</span>
-                    <span className="text-[10px] font-mono text-muted-foreground px-1.5 py-0.5 rounded bg-muted">{m.window}</span>
+                    <span className="text-xl font-bold text-foreground">{m.asset}</span>
+                    <span className="text-[10px] font-mono text-muted-foreground px-2 py-0.5 border border-border uppercase">{m.window}</span>
                     <span className="text-xs font-mono text-muted-foreground">{m.id}</span>
                   </div>
                   <CountdownTimer closesAt={m.close_at} />
                 </div>
-                <div className="flex items-center gap-6 text-xs font-mono">
+                <div className="flex items-center gap-8 text-xs font-mono">
                   <div>
-                    <span className="text-muted-foreground">Open: </span>
-                    <span className="text-foreground">{formatPrice(m.open_price)}</span>
+                    <span className="text-muted-foreground uppercase tracking-wider">Open </span>
+                    <span className="text-foreground font-bold">{formatPrice(m.open_price)}</span>
                   </div>
                   <div>
-                    <span className="text-muted-foreground">Predictions: </span>
-                    <span className="text-foreground">{m.stats.total_predictions}</span>
+                    <span className="text-muted-foreground uppercase tracking-wider">Preds </span>
+                    <span className="text-foreground font-bold">{m.stats.total_predictions}</span>
                   </div>
                   <div className="flex items-center gap-2 flex-1">
-                    <span className="text-primary">{formatPct(m.amm.up_price)} UP</span>
-                    <div className="flex-1 h-2 bg-destructive/30 rounded-full overflow-hidden">
-                      <div className="h-full bg-primary rounded-full" style={{ width: `${m.amm.up_price * 100}%` }} />
+                    <span className="text-primary font-bold">{formatPct(m.amm.up_price)} UP</span>
+                    <div className="flex-1 h-1.5 bg-muted overflow-hidden">
+                      <div className="h-full bg-primary" style={{ width: `${m.amm.up_price * 100}%` }} />
                     </div>
-                    <span className="text-destructive">{formatPct(m.amm.down_price)} DN</span>
+                    <span className="text-destructive font-bold">{formatPct(m.amm.down_price)} DN</span>
                   </div>
                 </div>
               </div>
             </Link>
           ))}
           {(!active || active.length === 0) && (
-            <div className="text-center py-8 text-muted-foreground font-mono text-sm">No active markets</div>
+            <div className="text-center py-12 text-muted-foreground font-mono text-sm">No active markets</div>
           )}
         </div>
       )}
 
       {tab === "resolved" && (
-        <div className="space-y-4">
-          <div className="flex gap-2" data-testid="resolved-filters">
+        <div className="space-y-6">
+          <div className="flex gap-3" data-testid="resolved-filters">
             <select
               value={asset}
               onChange={(e) => resetFilters(e.target.value, window)}
-              className="bg-card border border-border rounded px-3 py-1.5 text-xs font-mono text-foreground"
+              className="bg-card border border-border px-3 py-1.5 text-xs font-mono text-foreground"
               data-testid="filter-asset"
             >
               <option value="">All Assets</option>
@@ -146,31 +148,31 @@ export default function Markets() {
             <select
               value={window}
               onChange={(e) => resetFilters(asset, e.target.value)}
-              className="bg-card border border-border rounded px-3 py-1.5 text-xs font-mono text-foreground"
+              className="bg-card border border-border px-3 py-1.5 text-xs font-mono text-foreground"
               data-testid="filter-window"
             >
               <option value="">All Windows</option>
               {windows.map((w) => <option key={w} value={w}>{w}</option>)}
             </select>
           </div>
-          <div className="space-y-2" data-testid="resolved-markets">
+          <div className="space-y-3" data-testid="resolved-markets">
             {accumulated.map((m) => (
               <Link key={m.id} href={`/markets/${m.id}`}>
-                <div className="border border-border rounded p-4 bg-card hover:border-primary/40 cursor-pointer transition-colors" data-testid={`market-${m.id}`}>
-                  <div className="flex items-center justify-between mb-2">
+                <div className="border border-border bg-card p-5 hover:border-primary cursor-pointer transition-colors" data-testid={`market-${m.id}`}>
+                  <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-3">
-                      <span className="font-mono text-sm font-bold text-foreground">{m.asset}</span>
-                      <span className="text-[10px] font-mono text-muted-foreground px-1.5 py-0.5 rounded bg-muted">{m.window}</span>
+                      <span className="text-xl font-bold text-foreground">{m.asset}</span>
+                      <span className="text-[10px] font-mono text-muted-foreground px-2 py-0.5 border border-border uppercase">{m.window}</span>
                     </div>
-                    <span className={`text-xs font-mono font-bold ${m.outcome === "up" ? "text-primary" : "text-destructive"}`}>
+                    <span className={`text-sm font-bold ${m.outcome === "up" ? "text-primary" : "text-destructive"}`}>
                       {m.outcome?.toUpperCase()}
                     </span>
                   </div>
-                  <div className="flex items-center gap-6 text-xs font-mono">
-                    <div><span className="text-muted-foreground">Open: </span><span>{formatPrice(m.open_price)}</span></div>
-                    {m.resolve_price != null && <div><span className="text-muted-foreground">Close: </span><span>{formatPrice(m.resolve_price)}</span></div>}
-                    <div><span className="text-muted-foreground">Predictions: </span><span>{m.stats.total_predictions}</span></div>
-                    <div><span className="text-muted-foreground">Correct: </span><span>{m.stats.correct_count ?? 0}/{m.stats.total_predictions}</span></div>
+                  <div className="flex items-center gap-8 text-xs font-mono">
+                    <div><span className="text-muted-foreground uppercase tracking-wider">Open </span><span className="font-bold">{formatPrice(m.open_price)}</span></div>
+                    {m.resolve_price != null && <div><span className="text-muted-foreground uppercase tracking-wider">Close </span><span className="font-bold">{formatPrice(m.resolve_price)}</span></div>}
+                    <div><span className="text-muted-foreground uppercase tracking-wider">Preds </span><span className="font-bold">{m.stats.total_predictions}</span></div>
+                    <div><span className="text-muted-foreground uppercase tracking-wider">Correct </span><span className="font-bold">{m.stats.correct_count ?? 0}/{m.stats.total_predictions}</span></div>
                   </div>
                 </div>
               </Link>
@@ -179,7 +181,7 @@ export default function Markets() {
           {resolved?.pagination?.has_more && (
             <button
               onClick={() => setOffset((o) => o + limit)}
-              className="w-full py-2 text-xs font-mono text-primary border border-border rounded hover:bg-muted/50"
+              className="w-full py-2.5 text-xs font-mono text-primary border border-primary uppercase tracking-widest hover:bg-primary hover:text-primary-foreground transition-colors"
               data-testid="load-more-resolved"
             >
               Load More

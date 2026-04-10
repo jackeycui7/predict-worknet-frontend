@@ -77,71 +77,71 @@ export default function MarketDetail() {
 
   if (!market) {
     return (
-      <div className="p-6 font-mono text-muted-foreground" data-testid="market-detail-loading">Loading market...</div>
+      <div className="px-6 py-8 font-mono text-muted-foreground" data-testid="market-detail-loading">Loading market...</div>
     );
   }
 
   return (
-    <div className="p-6 space-y-6" data-testid="market-detail-page">
+    <div className="px-6 py-8 space-y-8" data-testid="market-detail-page">
       <div>
-        <div className="flex items-center gap-3 mb-2">
-          <h1 className="text-xl font-mono font-bold text-foreground">{market.asset}</h1>
-          <span className="text-[10px] font-mono text-muted-foreground px-1.5 py-0.5 rounded bg-muted">{market.window}</span>
-          <span className={`text-xs font-mono px-2 py-0.5 rounded ${market.status === "open" ? "bg-primary/20 text-primary" : market.status === "resolved" ? "bg-accent/20 text-accent" : "bg-muted text-muted-foreground"}`}>
+        <h1 className="text-5xl font-bold text-primary tracking-tight leading-none mb-3">{market.asset}.</h1>
+        <div className="flex items-center gap-3">
+          <span className="text-[10px] font-mono text-muted-foreground px-2 py-0.5 border border-border uppercase">{market.window}</span>
+          <span className={`text-xs font-mono font-bold px-2 py-0.5 border ${market.status === "open" ? "border-primary text-primary" : market.status === "resolved" ? "border-foreground text-foreground" : "border-border text-muted-foreground"}`}>
             {market.status.toUpperCase()}
           </span>
-          {market.status === "open" && <span className="text-sm font-mono text-primary">{countdown}</span>}
+          {market.status === "open" && <span className="text-sm font-mono font-bold text-primary">{countdown}</span>}
         </div>
-        <div className="text-sm font-mono text-muted-foreground">{market.question}</div>
+        <div className="text-sm text-muted-foreground mt-2">{market.question}</div>
         <div className="text-xs font-mono text-muted-foreground mt-1">{market.id}</div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div className="border border-border rounded p-4 bg-card">
-          <div className="text-[10px] font-mono text-muted-foreground uppercase mb-2">Market Info</div>
-          <div className="space-y-1 text-xs font-mono">
-            <div className="flex justify-between"><span className="text-muted-foreground">Open Price</span><span>{formatPrice(market.open_price)}</span></div>
-            {market.resolve_price != null && <div className="flex justify-between"><span className="text-muted-foreground">Close Price</span><span>{formatPrice(market.resolve_price)}</span></div>}
-            {market.outcome && <div className="flex justify-between"><span className="text-muted-foreground">Outcome</span><span className={market.outcome === "up" ? "text-primary font-bold" : "text-destructive font-bold"}>{market.outcome.toUpperCase()}</span></div>}
-            <div className="flex justify-between"><span className="text-muted-foreground">Total Predictions</span><span>{market.stats.total_predictions}</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground">Up/Down</span><span>{market.stats.up_count}/{market.stats.down_count}</span></div>
+      <div className="grid grid-cols-2 gap-6">
+        <div className="border border-border bg-card p-5">
+          <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-4 pb-2 border-b border-border">Market Info</div>
+          <div className="space-y-2 text-xs font-mono">
+            <div className="flex justify-between"><span className="text-muted-foreground uppercase tracking-wider">Open Price</span><span className="font-bold">{formatPrice(market.open_price)}</span></div>
+            {market.resolve_price != null && <div className="flex justify-between"><span className="text-muted-foreground uppercase tracking-wider">Close Price</span><span className="font-bold">{formatPrice(market.resolve_price)}</span></div>}
+            {market.outcome && <div className="flex justify-between"><span className="text-muted-foreground uppercase tracking-wider">Outcome</span><span className={market.outcome === "up" ? "text-primary font-bold" : "text-destructive font-bold"}>{market.outcome.toUpperCase()}</span></div>}
+            <div className="flex justify-between"><span className="text-muted-foreground uppercase tracking-wider">Total Predictions</span><span className="font-bold">{market.stats.total_predictions}</span></div>
+            <div className="flex justify-between"><span className="text-muted-foreground uppercase tracking-wider">Up / Down</span><span className="font-bold">{market.stats.up_count}/{market.stats.down_count}</span></div>
           </div>
         </div>
-        <div className="border border-border rounded p-4 bg-card">
-          <div className="text-[10px] font-mono text-muted-foreground uppercase mb-2">AMM State</div>
-          <div className="space-y-1 text-xs font-mono">
-            <div className="flex justify-between"><span className="text-primary">UP Price</span><span>{formatPct(market.amm.up_price)}</span></div>
-            <div className="flex justify-between"><span className="text-destructive">DOWN Price</span><span>{formatPct(market.amm.down_price)}</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground">UP Reserve</span><span>{market.amm.up_reserve.toFixed(1)}</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground">DOWN Reserve</span><span>{market.amm.down_reserve.toFixed(1)}</span></div>
+        <div className="border border-border bg-card p-5">
+          <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-4 pb-2 border-b border-border">AMM State</div>
+          <div className="space-y-2 text-xs font-mono">
+            <div className="flex justify-between"><span className="text-primary font-bold uppercase tracking-wider">UP Price</span><span className="text-2xl font-bold text-primary">{formatPct(market.amm.up_price)}</span></div>
+            <div className="flex justify-between"><span className="text-destructive font-bold uppercase tracking-wider">DOWN Price</span><span className="text-2xl font-bold text-destructive">{formatPct(market.amm.down_price)}</span></div>
+            <div className="flex justify-between"><span className="text-muted-foreground uppercase tracking-wider">UP Reserve</span><span className="font-bold">{market.amm.up_reserve.toFixed(1)}</span></div>
+            <div className="flex justify-between"><span className="text-muted-foreground uppercase tracking-wider">DOWN Reserve</span><span className="font-bold">{market.amm.down_reserve.toFixed(1)}</span></div>
           </div>
         </div>
       </div>
 
       {chartData.length > 0 && (
-        <div className="border border-border rounded p-4 bg-card" data-testid="amm-chart">
-          <div className="text-[10px] font-mono text-muted-foreground uppercase mb-3">AMM Price History</div>
+        <div className="border border-border bg-card p-5" data-testid="amm-chart">
+          <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-4 pb-2 border-b border-border">AMM Price History</div>
           <ResponsiveContainer width="100%" height={250}>
             <LineChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(240,10%,15%)" />
-              <XAxis dataKey="time" tick={{ fontSize: 10, fill: "hsl(120,20%,60%)" }} />
-              <YAxis domain={[0, 1]} tick={{ fontSize: 10, fill: "hsl(120,20%,60%)" }} />
-              <Tooltip contentStyle={{ background: "hsl(240,10%,6%)", border: "1px solid hsl(240,10%,15%)", color: "hsl(120,100%,90%)", fontSize: 11 }} />
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(230,10%,90%)" />
+              <XAxis dataKey="time" tick={{ fontSize: 10, fill: "hsl(230,8%,50%)" }} />
+              <YAxis domain={[0, 1]} tick={{ fontSize: 10, fill: "hsl(230,8%,50%)" }} />
+              <Tooltip contentStyle={{ background: "#fff", border: "1px solid hsl(230,10%,88%)", color: "hsl(235,15%,12%)", fontSize: 11, borderRadius: 0 }} />
               <Legend wrapperStyle={{ fontSize: 11 }} />
-              <Line type="monotone" dataKey="up" name="UP" stroke="hsl(150,100%,40%)" strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="down" name="DOWN" stroke="hsl(0,100%,45%)" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="up" name="UP" stroke="hsl(237,100%,50%)" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="down" name="DOWN" stroke="hsl(0,85%,50%)" strokeWidth={2} dot={false} />
             </LineChart>
           </ResponsiveContainer>
         </div>
       )}
 
       <div>
-        <div className="flex items-center gap-3 mb-3">
-          <h2 className="text-sm font-mono font-bold text-foreground uppercase tracking-wider">Predictions</h2>
+        <div className="flex items-center gap-3 mb-4 border-b border-border pb-3">
+          <h2 className="text-sm font-mono font-bold text-foreground uppercase tracking-widest">Predictions</h2>
           <select
             value={outcomeFilter}
             onChange={(e) => { setOutcomeFilter(e.target.value); setOffset(0); setAccumulated([]); }}
-            className="bg-card border border-border rounded px-2 py-1 text-xs font-mono text-foreground"
+            className="bg-card border border-border px-2 py-1 text-xs font-mono text-foreground"
             data-testid="filter-outcome"
           >
             <option value="">All</option>
@@ -153,9 +153,9 @@ export default function MarketDetail() {
           {accumulated.map((p, i) => {
             const expanded = expandedIdx.has(i);
             return (
-              <div key={`${p.agent_address}-${p.submitted_at}`} className="border border-border rounded bg-card">
+              <div key={`${p.agent_address}-${p.submitted_at}`} className="border border-border bg-card">
                 <div
-                  className="px-4 py-2 flex items-center gap-3 text-xs font-mono cursor-pointer hover:bg-muted/30"
+                  className="px-4 py-2.5 flex items-center gap-3 text-xs font-mono cursor-pointer hover:bg-muted/30"
                   onClick={() => setExpandedIdx((prev) => { const next = new Set(prev); expanded ? next.delete(i) : next.add(i); return next; })}
                   data-testid={`prediction-${i}`}
                 >
@@ -163,13 +163,13 @@ export default function MarketDetail() {
                   <AgentLink address={p.agent_address} />
                   <span className="text-muted-foreground">{personaLabel(p.agent_persona)}</span>
                   <span className={p.direction === "up" ? "text-primary font-bold" : "text-destructive font-bold"}>{p.direction.toUpperCase()}</span>
-                  <span className="text-accent">{formatMultiplier(p.locked_multiplier)}</span>
-                  {p.outcome && <span className={`ml-auto ${p.outcome === "correct" ? "text-primary" : "text-destructive"}`}>{p.outcome.toUpperCase()}</span>}
+                  <span className="text-primary">{formatMultiplier(p.locked_multiplier)}</span>
+                  {p.outcome && <span className={`ml-auto font-bold ${p.outcome === "correct" ? "text-primary" : "text-destructive"}`}>{p.outcome.toUpperCase()}</span>}
                   <span className="text-muted-foreground">{relativeTime(p.submitted_at)}</span>
-                  <span className="text-muted-foreground">{expanded ? "[-]" : "[+]"}</span>
+                  <span className="text-primary font-bold">{expanded ? "−" : "+"}</span>
                 </div>
                 {expanded && (
-                  <div className="px-4 py-3 border-t border-border/50 text-xs font-mono text-muted-foreground whitespace-pre-wrap">
+                  <div className="px-4 py-3 border-t border-border text-xs font-mono text-muted-foreground whitespace-pre-wrap">
                     {p.reasoning}
                   </div>
                 )}
@@ -180,7 +180,7 @@ export default function MarketDetail() {
         {preds?.pagination?.has_more && (
           <button
             onClick={() => setOffset((o) => o + limit)}
-            className="w-full mt-3 py-2 text-xs font-mono text-primary border border-border rounded hover:bg-muted/50"
+            className="w-full mt-4 py-2.5 text-xs font-mono text-primary border border-primary uppercase tracking-widest hover:bg-primary hover:text-primary-foreground transition-colors"
             data-testid="load-more-predictions"
           >
             Load More
