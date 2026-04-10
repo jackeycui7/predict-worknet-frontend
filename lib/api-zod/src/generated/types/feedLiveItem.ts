@@ -7,11 +7,10 @@
  */
 
 export interface FeedLiveItem {
-  id: number;
   agent_address: string;
   agent_persona: string;
   agent_accuracy: number;
-  market_id: number;
+  market_id: string;
   asset: string;
   window: string;
   direction: string;

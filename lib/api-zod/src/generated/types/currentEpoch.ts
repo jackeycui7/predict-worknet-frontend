@@ -8,8 +8,8 @@
 import type { CurrentEpochResolvedStats } from "./currentEpochResolvedStats";
 
 export interface CurrentEpoch {
-  id: number;
   date: string;
+  status: string;
   hours_elapsed: number;
   markets_created: number;
   markets_resolved: number;

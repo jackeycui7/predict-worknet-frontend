@@ -10,9 +10,9 @@ export interface HealthStatus {
 }
 
 export interface Pagination {
+  total: number;
   limit: number;
   offset: number;
-  total: number;
   has_more: boolean;
 }
 
@@ -28,11 +28,10 @@ export interface FeedStats {
 }
 
 export interface FeedLiveItem {
-  id: number;
   agent_address: string;
   agent_persona: string;
   agent_accuracy: number;
-  market_id: number;
+  market_id: string;
   asset: string;
   window: string;
   direction: string;
@@ -41,23 +40,20 @@ export interface FeedLiveItem {
   submitted_at: string;
 }
 
-export interface FeedLiveResponse {
-  items: FeedLiveItem[];
-}
-
 export type CurrentEpochResolvedStatsTopEarnerSoFar = {
   address: string;
   estimated_reward: number;
 };
 
 export type CurrentEpochResolvedStats = {
+  total_correct: number;
   global_accuracy: number;
   top_earner_so_far: CurrentEpochResolvedStatsTopEarnerSoFar;
 };
 
 export interface CurrentEpoch {
-  id: number;
   date: string;
+  status: string;
   hours_elapsed: number;
   markets_created: number;
   markets_resolved: number;
@@ -78,50 +74,46 @@ export interface MarketStats {
   total_predictions: number;
   up_count: number;
   down_count: number;
-  unique_agents: number;
+  up_percentage: number;
   correct_count?: number;
   incorrect_count?: number;
 }
 
 export interface MarketItem {
-  id: number;
+  id: string;
   asset: string;
   window: string;
   question: string;
-  market_type: string;
-  status: string;
   open_price: number;
-  resolve_price?: number | null;
-  outcome?: string | null;
   open_at: string;
   close_at: string;
   resolve_at?: string | null;
+  status: string;
+  resolve_price?: number | null;
+  outcome?: string | null;
+  market_type?: string;
   amm: AmmState;
   stats: MarketStats;
 }
 
-export interface ActiveMarketsResponse {
-  items: MarketItem[];
-}
-
 export interface ResolvedMarketsResponse {
-  items: MarketItem[];
+  data: MarketItem[];
   pagination: Pagination;
 }
 
 export interface MarketDetail {
-  id: number;
+  id: string;
   asset: string;
   window: string;
   question: string;
   market_type: string;
-  status: string;
   open_price: number;
-  resolve_price?: number | null;
-  outcome?: string | null;
   open_at: string;
   close_at: string;
   resolve_at?: string | null;
+  status: string;
+  resolve_price?: number | null;
+  outcome?: string | null;
   amm: AmmState;
   stats: MarketStats;
 }
@@ -136,17 +128,9 @@ export interface AmmHistoryPoint {
   timestamp: string;
 }
 
-export interface AmmHistoryResponse {
-  items: AmmHistoryPoint[];
-}
-
 export interface PredictionItem {
-  id: number;
   agent_address: string;
   agent_persona: string;
-  market_id: number;
-  asset: string;
-  window: string;
   direction: string;
   reasoning: string;
   locked_multiplier: number;
@@ -156,11 +140,10 @@ export interface PredictionItem {
   outcome?: string | null;
   amm_score?: number | null;
   submitted_at: string;
-  resolved_at?: string | null;
 }
 
 export interface MarketPredictionsResponse {
-  items: PredictionItem[];
+  data: PredictionItem[];
   pagination: Pagination;
 }
 
@@ -177,7 +160,7 @@ export interface LeaderboardEntry {
 }
 
 export interface LeaderboardResponse {
-  items: LeaderboardEntry[];
+  data: LeaderboardEntry[];
   pagination: Pagination;
 }
 
@@ -189,10 +172,6 @@ export interface PersonaStats {
   total_earned: number;
   avg_earned_per_agent: number;
   avg_multiplier: number;
-}
-
-export interface PersonaLeaderboardResponse {
-  items: PersonaStats[];
 }
 
 export interface AgentRecentPerformance {
@@ -228,8 +207,7 @@ export interface AgentProfile {
 }
 
 export interface AgentPredictionItem {
-  id: number;
-  market_id: number;
+  market_id: string;
   asset: string;
   window: string;
   direction: string;
@@ -242,7 +220,7 @@ export interface AgentPredictionItem {
 }
 
 export interface AgentPredictionsResponse {
-  items: AgentPredictionItem[];
+  data: AgentPredictionItem[];
   pagination: Pagination;
 }
 
@@ -265,7 +243,7 @@ export interface EpochSummary {
 }
 
 export interface EpochListResponse {
-  items: EpochSummary[];
+  data: EpochSummary[];
   pagination: Pagination;
 }
 
@@ -295,25 +273,24 @@ export interface EpochDetail {
   total_emission: number;
   participation_pool: number;
   alpha_pool: number;
-  markets_resolved: number;
   total_agents: number;
   total_predictions: number;
   total_correct: number;
   global_accuracy: number;
-  merkle_root?: string | null;
-  settled_at: string;
+  markets_resolved: number;
   top_earners: EpochTopEarner[];
   persona_breakdown: EpochPersonaBreakdown[];
+  merkle_root?: string | null;
+  settled_at: string;
 }
 
 export interface HighlightItem {
-  id: number;
   type: string;
   title: string;
   description: string;
   agent_address?: string | null;
   agent_persona?: string | null;
-  market_id?: number | null;
+  market_id?: string | null;
   multiplier?: number | null;
   streak_count?: number | null;
   earned?: number | null;
@@ -324,11 +301,6 @@ export interface HighlightItem {
   loser_accuracy?: number | null;
   count?: number | null;
   timestamp: string;
-}
-
-export interface HighlightsResponse {
-  items: HighlightItem[];
-  pagination: Pagination;
 }
 
 export type GetFeedLiveParams = {
@@ -370,6 +342,5 @@ export type GetAgentPredictionsParams = {
 
 export type GetHighlightsParams = {
   limit?: number;
-  offset?: number;
   type?: string;
 };

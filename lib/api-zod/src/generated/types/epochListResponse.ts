@@ -9,6 +9,6 @@ import type { EpochSummary } from "./epochSummary";
 import type { Pagination } from "./pagination";
 
 export interface EpochListResponse {
-  items: EpochSummary[];
+  data: EpochSummary[];
   pagination: Pagination;
 }

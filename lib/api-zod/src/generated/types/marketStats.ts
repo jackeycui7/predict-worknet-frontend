@@ -10,7 +10,7 @@ export interface MarketStats {
   total_predictions: number;
   up_count: number;
   down_count: number;
-  unique_agents: number;
+  up_percentage: number;
   correct_count?: number;
   incorrect_count?: number;
 }

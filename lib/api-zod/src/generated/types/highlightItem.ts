@@ -7,13 +7,12 @@
  */
 
 export interface HighlightItem {
-  id: number;
   type: string;
   title: string;
   description: string;
   agent_address?: string | null;
   agent_persona?: string | null;
-  market_id?: number | null;
+  market_id?: string | null;
   multiplier?: number | null;
   streak_count?: number | null;
   earned?: number | null;

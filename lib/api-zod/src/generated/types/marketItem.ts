@@ -9,18 +9,18 @@ import type { AmmState } from "./ammState";
 import type { MarketStats } from "./marketStats";
 
 export interface MarketItem {
-  id: number;
+  id: string;
   asset: string;
   window: string;
   question: string;
-  market_type: string;
-  status: string;
   open_price: number;
-  resolve_price?: number | null;
-  outcome?: string | null;
   open_at: Date;
   close_at: Date;
   resolve_at?: Date | null;
+  status: string;
+  resolve_price?: number | null;
+  outcome?: string | null;
+  market_type?: string;
   amm: AmmState;
   stats: MarketStats;
 }

@@ -5,7 +5,7 @@ info:
   version: 0.1.0
   description: Predict WorkNet API specification
 servers:
-  - url: /api
+  - url: /api/v1
     description: Base API path
 tags:
   - name: health
@@ -60,14 +60,16 @@ paths:
           in: query
           schema:
             type: integer
-            default: 50
+            default: 20
       responses:
         "200":
           description: Live predictions
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/FeedLiveResponse"
+                type: array
+                items:
+                  $ref: "#/components/schemas/FeedLiveItem"
 
   /epochs/current:
     get:
@@ -136,7 +138,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ActiveMarketsResponse"
+                type: array
+                items:
+                  $ref: "#/components/schemas/MarketItem"
 
   /markets/resolved:
     get:
@@ -180,7 +184,7 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
       responses:
         "200":
           description: Market detail
@@ -199,14 +203,16 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
       responses:
         "200":
           description: AMM history
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/AmmHistoryResponse"
+                type: array
+                items:
+                  $ref: "#/components/schemas/AmmHistoryPoint"
 
   /markets/{id}/predictions:
     get:
@@ -218,7 +224,7 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
         - name: limit
           in: query
           schema:
@@ -290,7 +296,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PersonaLeaderboardResponse"
+                type: array
+                items:
+                  $ref: "#/components/schemas/PersonaStats"
 
   /agents/{address}:
     get:
@@ -358,12 +366,7 @@ paths:
           in: query
           schema:
             type: integer
-            default: 20
-        - name: offset
-          in: query
-          schema:
-            type: integer
-            default: 0
+            default: 10
         - name: type
           in: query
           schema:
@@ -374,7 +377,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/HighlightsResponse"
+                type: array
+                items:
+                  $ref: "#/components/schemas/HighlightItem"
 
 components:
   schemas:
@@ -389,18 +394,18 @@ components:
     Pagination:
       type: object
       properties:
+        total:
+          type: integer
         limit:
           type: integer
         offset:
           type: integer
-        total:
-          type: integer
         has_more:
           type: boolean
       required:
+        - total
         - limit
         - offset
-        - total
         - has_more
 
     FeedStats:
@@ -435,8 +440,6 @@ components:
     FeedLiveItem:
       type: object
       properties:
-        id:
-          type: integer
         agent_address:
           type: string
         agent_persona:
@@ -444,7 +447,7 @@ components:
         agent_accuracy:
           type: number
         market_id:
-          type: integer
+          type: string
         asset:
           type: string
         window:
@@ -459,7 +462,6 @@ components:
           type: string
           format: date-time
       required:
-        - id
         - agent_address
         - agent_persona
         - agent_accuracy
@@ -471,22 +473,12 @@ components:
         - position_in_market
         - submitted_at
 
-    FeedLiveResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: "#/components/schemas/FeedLiveItem"
-      required:
-        - items
-
     CurrentEpoch:
       type: object
       properties:
-        id:
-          type: integer
         date:
+          type: string
+        status:
           type: string
         hours_elapsed:
           type: number
@@ -503,6 +495,8 @@ components:
         resolved_stats:
           type: object
           properties:
+            total_correct:
+              type: integer
             global_accuracy:
               type: number
             top_earner_so_far:
@@ -516,11 +510,12 @@ components:
                 - address
                 - estimated_reward
           required:
+            - total_correct
             - global_accuracy
             - top_earner_so_far
       required:
-        - id
         - date
+        - status
         - hours_elapsed
         - markets_created
         - markets_resolved
@@ -555,8 +550,8 @@ components:
           type: integer
         down_count:
           type: integer
-        unique_agents:
-          type: integer
+        up_percentage:
+          type: number
         correct_count:
           type: integer
         incorrect_count:
@@ -565,31 +560,21 @@ components:
         - total_predictions
         - up_count
         - down_count
-        - unique_agents
+        - up_percentage
 
     MarketItem:
       type: object
       properties:
         id:
-          type: integer
+          type: string
         asset:
           type: string
         window:
           type: string
         question:
           type: string
-        market_type:
-          type: string
-        status:
-          type: string
         open_price:
           type: number
-        resolve_price:
-          type: number
-          nullable: true
-        outcome:
-          type: string
-          nullable: true
         open_at:
           type: string
           format: date-time
@@ -600,6 +585,16 @@ components:
           type: string
           format: date-time
           nullable: true
+        status:
+          type: string
+        resolve_price:
+          type: number
+          nullable: true
+        outcome:
+          type: string
+          nullable: true
+        market_type:
+          type: string
         amm:
           $ref: "#/components/schemas/AmmState"
         stats:
@@ -609,42 +604,31 @@ components:
         - asset
         - window
         - question
-        - market_type
-        - status
         - open_price
         - open_at
         - close_at
+        - status
         - amm
         - stats
-
-    ActiveMarketsResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: "#/components/schemas/MarketItem"
-      required:
-        - items
 
     ResolvedMarketsResponse:
       type: object
       properties:
-        items:
+        data:
           type: array
           items:
             $ref: "#/components/schemas/MarketItem"
         pagination:
           $ref: "#/components/schemas/Pagination"
       required:
-        - items
+        - data
         - pagination
 
     MarketDetail:
       type: object
       properties:
         id:
-          type: integer
+          type: string
         asset:
           type: string
         window:
@@ -653,16 +637,8 @@ components:
           type: string
         market_type:
           type: string
-        status:
-          type: string
         open_price:
           type: number
-        resolve_price:
-          type: number
-          nullable: true
-        outcome:
-          type: string
-          nullable: true
         open_at:
           type: string
           format: date-time
@@ -672,6 +648,14 @@ components:
         resolve_at:
           type: string
           format: date-time
+          nullable: true
+        status:
+          type: string
+        resolve_price:
+          type: number
+          nullable: true
+        outcome:
+          type: string
           nullable: true
         amm:
           $ref: "#/components/schemas/AmmState"
@@ -683,10 +667,10 @@ components:
         - window
         - question
         - market_type
-        - status
         - open_price
         - open_at
         - close_at
+        - status
         - amm
         - stats
 
@@ -717,30 +701,12 @@ components:
         - prediction_count
         - timestamp
 
-    AmmHistoryResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: "#/components/schemas/AmmHistoryPoint"
-      required:
-        - items
-
     PredictionItem:
       type: object
       properties:
-        id:
-          type: integer
         agent_address:
           type: string
         agent_persona:
-          type: string
-        market_id:
-          type: integer
-        asset:
-          type: string
-        window:
           type: string
         direction:
           type: string
@@ -763,17 +729,9 @@ components:
         submitted_at:
           type: string
           format: date-time
-        resolved_at:
-          type: string
-          format: date-time
-          nullable: true
       required:
-        - id
         - agent_address
         - agent_persona
-        - market_id
-        - asset
-        - window
         - direction
         - reasoning
         - locked_multiplier
@@ -785,14 +743,14 @@ components:
     MarketPredictionsResponse:
       type: object
       properties:
-        items:
+        data:
           type: array
           items:
             $ref: "#/components/schemas/PredictionItem"
         pagination:
           $ref: "#/components/schemas/Pagination"
       required:
-        - items
+        - data
         - pagination
 
     LeaderboardEntry:
@@ -830,14 +788,14 @@ components:
     LeaderboardResponse:
       type: object
       properties:
-        items:
+        data:
           type: array
           items:
             $ref: "#/components/schemas/LeaderboardEntry"
         pagination:
           $ref: "#/components/schemas/Pagination"
       required:
-        - items
+        - data
         - pagination
 
     PersonaStats:
@@ -865,16 +823,6 @@ components:
         - total_earned
         - avg_earned_per_agent
         - avg_multiplier
-
-    PersonaLeaderboardResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: "#/components/schemas/PersonaStats"
-      required:
-        - items
 
     AgentRecentPerformance:
       type: object
@@ -964,10 +912,8 @@ components:
     AgentPredictionItem:
       type: object
       properties:
-        id:
-          type: integer
         market_id:
-          type: integer
+          type: string
         asset:
           type: string
         window:
@@ -992,7 +938,6 @@ components:
           format: date-time
           nullable: true
       required:
-        - id
         - market_id
         - asset
         - window
@@ -1004,14 +949,14 @@ components:
     AgentPredictionsResponse:
       type: object
       properties:
-        items:
+        data:
           type: array
           items:
             $ref: "#/components/schemas/AgentPredictionItem"
         pagination:
           $ref: "#/components/schemas/Pagination"
       required:
-        - items
+        - data
         - pagination
 
     EpochSummary:
@@ -1061,14 +1006,14 @@ components:
     EpochListResponse:
       type: object
       properties:
-        items:
+        data:
           type: array
           items:
             $ref: "#/components/schemas/EpochSummary"
         pagination:
           $ref: "#/components/schemas/Pagination"
       required:
-        - items
+        - data
         - pagination
 
     EpochTopEarner:
@@ -1135,8 +1080,6 @@ components:
           type: number
         alpha_pool:
           type: number
-        markets_resolved:
-          type: integer
         total_agents:
           type: integer
         total_predictions:
@@ -1145,12 +1088,8 @@ components:
           type: integer
         global_accuracy:
           type: number
-        merkle_root:
-          type: string
-          nullable: true
-        settled_at:
-          type: string
-          format: date-time
+        markets_resolved:
+          type: integer
         top_earners:
           type: array
           items:
@@ -1159,6 +1098,12 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/EpochPersonaBreakdown"
+        merkle_root:
+          type: string
+          nullable: true
+        settled_at:
+          type: string
+          format: date-time
       required:
         - id
         - date
@@ -1166,20 +1111,18 @@ components:
         - total_emission
         - participation_pool
         - alpha_pool
-        - markets_resolved
         - total_agents
         - total_predictions
         - total_correct
         - global_accuracy
-        - settled_at
+        - markets_resolved
         - top_earners
         - persona_breakdown
+        - settled_at
 
     HighlightItem:
       type: object
       properties:
-        id:
-          type: integer
         type:
           type: string
         title:
@@ -1193,7 +1136,7 @@ components:
           type: string
           nullable: true
         market_id:
-          type: integer
+          type: string
           nullable: true
         multiplier:
           type: number
@@ -1226,21 +1169,7 @@ components:
           type: string
           format: date-time
       required:
-        - id
         - type
         - title
         - description
         - timestamp
-
-    HighlightsResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: "#/components/schemas/HighlightItem"
-        pagination:
-          $ref: "#/components/schemas/Pagination"
-      required:
-        - items
-        - pagination

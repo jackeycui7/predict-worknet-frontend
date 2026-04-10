@@ -7,12 +7,8 @@
  */
 
 export interface PredictionItem {
-  id: number;
   agent_address: string;
   agent_persona: string;
-  market_id: number;
-  asset: string;
-  window: string;
   direction: string;
   reasoning: string;
   locked_multiplier: number;
@@ -22,5 +18,4 @@ export interface PredictionItem {
   outcome?: string | null;
   amm_score?: number | null;
   submitted_at: Date;
-  resolved_at?: Date | null;
 }

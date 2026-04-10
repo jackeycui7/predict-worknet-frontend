@@ -9,6 +9,6 @@ import type { Pagination } from "./pagination";
 import type { PredictionItem } from "./predictionItem";
 
 export interface MarketPredictionsResponse {
-  items: PredictionItem[];
+  data: PredictionItem[];
   pagination: Pagination;
 }

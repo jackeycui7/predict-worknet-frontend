@@ -31,36 +31,32 @@ export const GetFeedStatsResponse = zod.object({
 /**
  * @summary Live prediction stream
  */
-export const getFeedLiveQueryLimitDefault = 50;
+export const getFeedLiveQueryLimitDefault = 20;
 
 export const GetFeedLiveQueryParams = zod.object({
   limit: zod.coerce.number().default(getFeedLiveQueryLimitDefault),
 });
 
-export const GetFeedLiveResponse = zod.object({
-  items: zod.array(
-    zod.object({
-      id: zod.number(),
-      agent_address: zod.string(),
-      agent_persona: zod.string(),
-      agent_accuracy: zod.number(),
-      market_id: zod.number(),
-      asset: zod.string(),
-      window: zod.string(),
-      direction: zod.string(),
-      locked_multiplier: zod.number(),
-      position_in_market: zod.number(),
-      submitted_at: zod.coerce.date(),
-    }),
-  ),
+export const GetFeedLiveResponseItem = zod.object({
+  agent_address: zod.string(),
+  agent_persona: zod.string(),
+  agent_accuracy: zod.number(),
+  market_id: zod.string(),
+  asset: zod.string(),
+  window: zod.string(),
+  direction: zod.string(),
+  locked_multiplier: zod.number(),
+  position_in_market: zod.number(),
+  submitted_at: zod.coerce.date(),
 });
+export const GetFeedLiveResponse = zod.array(GetFeedLiveResponseItem);
 
 /**
  * @summary Current epoch progress
  */
 export const GetCurrentEpochResponse = zod.object({
-  id: zod.number(),
   date: zod.string(),
+  status: zod.string(),
   hours_elapsed: zod.number(),
   markets_created: zod.number(),
   markets_resolved: zod.number(),
@@ -68,6 +64,7 @@ export const GetCurrentEpochResponse = zod.object({
   total_predictions: zod.number(),
   total_agents: zod.number(),
   resolved_stats: zod.object({
+    total_correct: zod.number(),
     global_accuracy: zod.number(),
     top_earner_so_far: zod.object({
       address: zod.string(),
@@ -88,7 +85,7 @@ export const GetEpochsQueryParams = zod.object({
 });
 
 export const GetEpochsResponse = zod.object({
-  items: zod.array(
+  data: zod.array(
     zod.object({
       id: zod.number(),
       date: zod.string(),
@@ -106,9 +103,9 @@ export const GetEpochsResponse = zod.object({
     }),
   ),
   pagination: zod.object({
+    total: zod.number(),
     limit: zod.number(),
     offset: zod.number(),
-    total: zod.number(),
     has_more: zod.boolean(),
   }),
 });
@@ -127,13 +124,11 @@ export const GetEpochByIdResponse = zod.object({
   total_emission: zod.number(),
   participation_pool: zod.number(),
   alpha_pool: zod.number(),
-  markets_resolved: zod.number(),
   total_agents: zod.number(),
   total_predictions: zod.number(),
   total_correct: zod.number(),
   global_accuracy: zod.number(),
-  merkle_root: zod.string().nullish(),
-  settled_at: zod.coerce.date(),
+  markets_resolved: zod.number(),
   top_earners: zod.array(
     zod.object({
       rank: zod.number(),
@@ -155,43 +150,42 @@ export const GetEpochByIdResponse = zod.object({
       total_earned: zod.number(),
     }),
   ),
+  merkle_root: zod.string().nullish(),
+  settled_at: zod.coerce.date(),
 });
 
 /**
  * @summary Active markets list
  */
-export const GetActiveMarketsResponse = zod.object({
-  items: zod.array(
-    zod.object({
-      id: zod.number(),
-      asset: zod.string(),
-      window: zod.string(),
-      question: zod.string(),
-      market_type: zod.string(),
-      status: zod.string(),
-      open_price: zod.number(),
-      resolve_price: zod.number().nullish(),
-      outcome: zod.string().nullish(),
-      open_at: zod.coerce.date(),
-      close_at: zod.coerce.date(),
-      resolve_at: zod.coerce.date().nullish(),
-      amm: zod.object({
-        up_price: zod.number(),
-        down_price: zod.number(),
-        up_reserve: zod.number(),
-        down_reserve: zod.number(),
-      }),
-      stats: zod.object({
-        total_predictions: zod.number(),
-        up_count: zod.number(),
-        down_count: zod.number(),
-        unique_agents: zod.number(),
-        correct_count: zod.number().optional(),
-        incorrect_count: zod.number().optional(),
-      }),
-    }),
-  ),
+export const GetActiveMarketsResponseItem = zod.object({
+  id: zod.string(),
+  asset: zod.string(),
+  window: zod.string(),
+  question: zod.string(),
+  open_price: zod.number(),
+  open_at: zod.coerce.date(),
+  close_at: zod.coerce.date(),
+  resolve_at: zod.coerce.date().nullish(),
+  status: zod.string(),
+  resolve_price: zod.number().nullish(),
+  outcome: zod.string().nullish(),
+  market_type: zod.string().optional(),
+  amm: zod.object({
+    up_price: zod.number(),
+    down_price: zod.number(),
+    up_reserve: zod.number(),
+    down_reserve: zod.number(),
+  }),
+  stats: zod.object({
+    total_predictions: zod.number(),
+    up_count: zod.number(),
+    down_count: zod.number(),
+    up_percentage: zod.number(),
+    correct_count: zod.number().optional(),
+    incorrect_count: zod.number().optional(),
+  }),
 });
+export const GetActiveMarketsResponse = zod.array(GetActiveMarketsResponseItem);
 
 /**
  * @summary Resolved markets list
@@ -207,20 +201,20 @@ export const GetResolvedMarketsQueryParams = zod.object({
 });
 
 export const GetResolvedMarketsResponse = zod.object({
-  items: zod.array(
+  data: zod.array(
     zod.object({
-      id: zod.number(),
+      id: zod.string(),
       asset: zod.string(),
       window: zod.string(),
       question: zod.string(),
-      market_type: zod.string(),
-      status: zod.string(),
       open_price: zod.number(),
-      resolve_price: zod.number().nullish(),
-      outcome: zod.string().nullish(),
       open_at: zod.coerce.date(),
       close_at: zod.coerce.date(),
       resolve_at: zod.coerce.date().nullish(),
+      status: zod.string(),
+      resolve_price: zod.number().nullish(),
+      outcome: zod.string().nullish(),
+      market_type: zod.string().optional(),
       amm: zod.object({
         up_price: zod.number(),
         down_price: zod.number(),
@@ -231,16 +225,16 @@ export const GetResolvedMarketsResponse = zod.object({
         total_predictions: zod.number(),
         up_count: zod.number(),
         down_count: zod.number(),
-        unique_agents: zod.number(),
+        up_percentage: zod.number(),
         correct_count: zod.number().optional(),
         incorrect_count: zod.number().optional(),
       }),
     }),
   ),
   pagination: zod.object({
+    total: zod.number(),
     limit: zod.number(),
     offset: zod.number(),
-    total: zod.number(),
     has_more: zod.boolean(),
   }),
 });
@@ -249,22 +243,22 @@ export const GetResolvedMarketsResponse = zod.object({
  * @summary Market detail
  */
 export const GetMarketByIdParams = zod.object({
-  id: zod.coerce.number(),
+  id: zod.coerce.string(),
 });
 
 export const GetMarketByIdResponse = zod.object({
-  id: zod.number(),
+  id: zod.string(),
   asset: zod.string(),
   window: zod.string(),
   question: zod.string(),
   market_type: zod.string(),
-  status: zod.string(),
   open_price: zod.number(),
-  resolve_price: zod.number().nullish(),
-  outcome: zod.string().nullish(),
   open_at: zod.coerce.date(),
   close_at: zod.coerce.date(),
   resolve_at: zod.coerce.date().nullish(),
+  status: zod.string(),
+  resolve_price: zod.number().nullish(),
+  outcome: zod.string().nullish(),
   amm: zod.object({
     up_price: zod.number(),
     down_price: zod.number(),
@@ -275,7 +269,7 @@ export const GetMarketByIdResponse = zod.object({
     total_predictions: zod.number(),
     up_count: zod.number(),
     down_count: zod.number(),
-    unique_agents: zod.number(),
+    up_percentage: zod.number(),
     correct_count: zod.number().optional(),
     incorrect_count: zod.number().optional(),
   }),
@@ -285,28 +279,27 @@ export const GetMarketByIdResponse = zod.object({
  * @summary AMM price history for a market
  */
 export const GetMarketAmmHistoryParams = zod.object({
-  id: zod.coerce.number(),
+  id: zod.coerce.string(),
 });
 
-export const GetMarketAmmHistoryResponse = zod.object({
-  items: zod.array(
-    zod.object({
-      up_price: zod.number(),
-      down_price: zod.number(),
-      up_reserve: zod.number(),
-      down_reserve: zod.number(),
-      prediction_count: zod.number(),
-      triggered_by: zod.string().nullish(),
-      timestamp: zod.coerce.date(),
-    }),
-  ),
+export const GetMarketAmmHistoryResponseItem = zod.object({
+  up_price: zod.number(),
+  down_price: zod.number(),
+  up_reserve: zod.number(),
+  down_reserve: zod.number(),
+  prediction_count: zod.number(),
+  triggered_by: zod.string().nullish(),
+  timestamp: zod.coerce.date(),
 });
+export const GetMarketAmmHistoryResponse = zod.array(
+  GetMarketAmmHistoryResponseItem,
+);
 
 /**
  * @summary Predictions for a market
  */
 export const GetMarketPredictionsParams = zod.object({
-  id: zod.coerce.number(),
+  id: zod.coerce.string(),
 });
 
 export const getMarketPredictionsQueryLimitDefault = 50;
@@ -319,14 +312,10 @@ export const GetMarketPredictionsQueryParams = zod.object({
 });
 
 export const GetMarketPredictionsResponse = zod.object({
-  items: zod.array(
+  data: zod.array(
     zod.object({
-      id: zod.number(),
       agent_address: zod.string(),
       agent_persona: zod.string(),
-      market_id: zod.number(),
-      asset: zod.string(),
-      window: zod.string(),
       direction: zod.string(),
       reasoning: zod.string(),
       locked_multiplier: zod.number(),
@@ -336,13 +325,12 @@ export const GetMarketPredictionsResponse = zod.object({
       outcome: zod.string().nullish(),
       amm_score: zod.number().nullish(),
       submitted_at: zod.coerce.date(),
-      resolved_at: zod.coerce.date().nullish(),
     }),
   ),
   pagination: zod.object({
+    total: zod.number(),
     limit: zod.number(),
     offset: zod.number(),
-    total: zod.number(),
     has_more: zod.boolean(),
   }),
 });
@@ -364,7 +352,7 @@ export const GetLeaderboardQueryParams = zod.object({
 });
 
 export const GetLeaderboardResponse = zod.object({
-  items: zod.array(
+  data: zod.array(
     zod.object({
       rank: zod.number(),
       agent_address: zod.string(),
@@ -378,9 +366,9 @@ export const GetLeaderboardResponse = zod.object({
     }),
   ),
   pagination: zod.object({
+    total: zod.number(),
     limit: zod.number(),
     offset: zod.number(),
-    total: zod.number(),
     has_more: zod.boolean(),
   }),
 });
@@ -388,19 +376,18 @@ export const GetLeaderboardResponse = zod.object({
 /**
  * @summary Persona comparison stats
  */
-export const GetLeaderboardPersonasResponse = zod.object({
-  items: zod.array(
-    zod.object({
-      persona: zod.string(),
-      agent_count: zod.number(),
-      total_submissions: zod.number(),
-      accuracy: zod.number(),
-      total_earned: zod.number(),
-      avg_earned_per_agent: zod.number(),
-      avg_multiplier: zod.number(),
-    }),
-  ),
+export const GetLeaderboardPersonasResponseItem = zod.object({
+  persona: zod.string(),
+  agent_count: zod.number(),
+  total_submissions: zod.number(),
+  accuracy: zod.number(),
+  total_earned: zod.number(),
+  avg_earned_per_agent: zod.number(),
+  avg_multiplier: zod.number(),
 });
+export const GetLeaderboardPersonasResponse = zod.array(
+  GetLeaderboardPersonasResponseItem,
+);
 
 /**
  * @summary Agent profile
@@ -455,10 +442,9 @@ export const GetAgentPredictionsQueryParams = zod.object({
 });
 
 export const GetAgentPredictionsResponse = zod.object({
-  items: zod.array(
+  data: zod.array(
     zod.object({
-      id: zod.number(),
-      market_id: zod.number(),
+      market_id: zod.string(),
       asset: zod.string(),
       window: zod.string(),
       direction: zod.string(),
@@ -471,9 +457,9 @@ export const GetAgentPredictionsResponse = zod.object({
     }),
   ),
   pagination: zod.object({
+    total: zod.number(),
     limit: zod.number(),
     offset: zod.number(),
-    total: zod.number(),
     has_more: zod.boolean(),
   }),
 });
@@ -481,41 +467,29 @@ export const GetAgentPredictionsResponse = zod.object({
 /**
  * @summary Notable events and highlights
  */
-export const getHighlightsQueryLimitDefault = 20;
-export const getHighlightsQueryOffsetDefault = 0;
+export const getHighlightsQueryLimitDefault = 10;
 
 export const GetHighlightsQueryParams = zod.object({
   limit: zod.coerce.number().default(getHighlightsQueryLimitDefault),
-  offset: zod.coerce.number().default(getHighlightsQueryOffsetDefault),
   type: zod.coerce.string().optional(),
 });
 
-export const GetHighlightsResponse = zod.object({
-  items: zod.array(
-    zod.object({
-      id: zod.number(),
-      type: zod.string(),
-      title: zod.string(),
-      description: zod.string(),
-      agent_address: zod.string().nullish(),
-      agent_persona: zod.string().nullish(),
-      market_id: zod.number().nullish(),
-      multiplier: zod.number().nullish(),
-      streak_count: zod.number().nullish(),
-      earned: zod.number().nullish(),
-      accuracy: zod.number().nullish(),
-      winner: zod.string().nullish(),
-      loser: zod.string().nullish(),
-      winner_accuracy: zod.number().nullish(),
-      loser_accuracy: zod.number().nullish(),
-      count: zod.number().nullish(),
-      timestamp: zod.coerce.date(),
-    }),
-  ),
-  pagination: zod.object({
-    limit: zod.number(),
-    offset: zod.number(),
-    total: zod.number(),
-    has_more: zod.boolean(),
-  }),
+export const GetHighlightsResponseItem = zod.object({
+  type: zod.string(),
+  title: zod.string(),
+  description: zod.string(),
+  agent_address: zod.string().nullish(),
+  agent_persona: zod.string().nullish(),
+  market_id: zod.string().nullish(),
+  multiplier: zod.number().nullish(),
+  streak_count: zod.number().nullish(),
+  earned: zod.number().nullish(),
+  accuracy: zod.number().nullish(),
+  winner: zod.string().nullish(),
+  loser: zod.string().nullish(),
+  winner_accuracy: zod.number().nullish(),
+  loser_accuracy: zod.number().nullish(),
+  count: zod.number().nullish(),
+  timestamp: zod.coerce.date(),
 });
+export const GetHighlightsResponse = zod.array(GetHighlightsResponseItem);

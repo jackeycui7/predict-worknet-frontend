@@ -9,6 +9,6 @@ import type { MarketItem } from "./marketItem";
 import type { Pagination } from "./pagination";
 
 export interface ResolvedMarketsResponse {
-  items: MarketItem[];
+  data: MarketItem[];
   pagination: Pagination;
 }

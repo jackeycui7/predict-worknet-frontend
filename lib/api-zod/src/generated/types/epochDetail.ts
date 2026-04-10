@@ -15,13 +15,13 @@ export interface EpochDetail {
   total_emission: number;
   participation_pool: number;
   alpha_pool: number;
-  markets_resolved: number;
   total_agents: number;
   total_predictions: number;
   total_correct: number;
   global_accuracy: number;
-  merkle_root?: string | null;
-  settled_at: Date;
+  markets_resolved: number;
   top_earners: EpochTopEarner[];
   persona_breakdown: EpochPersonaBreakdown[];
+  merkle_root?: string | null;
+  settled_at: Date;
 }

@@ -9,6 +9,6 @@ import type { LeaderboardEntry } from "./leaderboardEntry";
 import type { Pagination } from "./pagination";
 
 export interface LeaderboardResponse {
-  items: LeaderboardEntry[];
+  data: LeaderboardEntry[];
   pagination: Pagination;
 }

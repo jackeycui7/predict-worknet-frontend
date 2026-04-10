@@ -14,14 +14,13 @@ import type {
 } from "@tanstack/react-query";
 
 import type {
-  ActiveMarketsResponse,
   AgentPredictionsResponse,
   AgentProfile,
-  AmmHistoryResponse,
+  AmmHistoryPoint,
   CurrentEpoch,
   EpochDetail,
   EpochListResponse,
-  FeedLiveResponse,
+  FeedLiveItem,
   FeedStats,
   GetAgentPredictionsParams,
   GetEpochsParams,
@@ -31,11 +30,12 @@ import type {
   GetMarketPredictionsParams,
   GetResolvedMarketsParams,
   HealthStatus,
-  HighlightsResponse,
+  HighlightItem,
   LeaderboardResponse,
   MarketDetail,
+  MarketItem,
   MarketPredictionsResponse,
-  PersonaLeaderboardResponse,
+  PersonaStats,
   ResolvedMarketsResponse,
 } from "./api.schemas";
 
@@ -52,7 +52,7 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
  * @summary Health check
  */
 export const getHealthCheckUrl = () => {
-  return `/api/healthz`;
+  return `/api/v1/healthz`;
 };
 
 export const healthCheck = async (
@@ -65,7 +65,7 @@ export const healthCheck = async (
 };
 
 export const getHealthCheckQueryKey = () => {
-  return [`/api/healthz`] as const;
+  return [`/api/v1/healthz`] as const;
 };
 
 export const getHealthCheckQueryOptions = <
@@ -127,7 +127,7 @@ export function useHealthCheck<
  * @summary Global heartbeat stats
  */
 export const getGetFeedStatsUrl = () => {
-  return `/api/feed/stats`;
+  return `/api/v1/feed/stats`;
 };
 
 export const getFeedStats = async (
@@ -140,7 +140,7 @@ export const getFeedStats = async (
 };
 
 export const getGetFeedStatsQueryKey = () => {
-  return [`/api/feed/stats`] as const;
+  return [`/api/v1/feed/stats`] as const;
 };
 
 export const getGetFeedStatsQueryOptions = <
@@ -213,22 +213,22 @@ export const getGetFeedLiveUrl = (params?: GetFeedLiveParams) => {
   const stringifiedParams = normalizedParams.toString();
 
   return stringifiedParams.length > 0
-    ? `/api/feed/live?${stringifiedParams}`
-    : `/api/feed/live`;
+    ? `/api/v1/feed/live?${stringifiedParams}`
+    : `/api/v1/feed/live`;
 };
 
 export const getFeedLive = async (
   params?: GetFeedLiveParams,
   options?: RequestInit,
-): Promise<FeedLiveResponse> => {
-  return customFetch<FeedLiveResponse>(getGetFeedLiveUrl(params), {
+): Promise<FeedLiveItem[]> => {
+  return customFetch<FeedLiveItem[]>(getGetFeedLiveUrl(params), {
     ...options,
     method: "GET",
   });
 };
 
 export const getGetFeedLiveQueryKey = (params?: GetFeedLiveParams) => {
-  return [`/api/feed/live`, ...(params ? [params] : [])] as const;
+  return [`/api/v1/feed/live`, ...(params ? [params] : [])] as const;
 };
 
 export const getGetFeedLiveQueryOptions = <
@@ -296,7 +296,7 @@ export function useGetFeedLive<
  * @summary Current epoch progress
  */
 export const getGetCurrentEpochUrl = () => {
-  return `/api/epochs/current`;
+  return `/api/v1/epochs/current`;
 };
 
 export const getCurrentEpoch = async (
@@ -309,7 +309,7 @@ export const getCurrentEpoch = async (
 };
 
 export const getGetCurrentEpochQueryKey = () => {
-  return [`/api/epochs/current`] as const;
+  return [`/api/v1/epochs/current`] as const;
 };
 
 export const getGetCurrentEpochQueryOptions = <
@@ -382,8 +382,8 @@ export const getGetEpochsUrl = (params?: GetEpochsParams) => {
   const stringifiedParams = normalizedParams.toString();
 
   return stringifiedParams.length > 0
-    ? `/api/epochs?${stringifiedParams}`
-    : `/api/epochs`;
+    ? `/api/v1/epochs?${stringifiedParams}`
+    : `/api/v1/epochs`;
 };
 
 export const getEpochs = async (
@@ -397,7 +397,7 @@ export const getEpochs = async (
 };
 
 export const getGetEpochsQueryKey = (params?: GetEpochsParams) => {
-  return [`/api/epochs`, ...(params ? [params] : [])] as const;
+  return [`/api/v1/epochs`, ...(params ? [params] : [])] as const;
 };
 
 export const getGetEpochsQueryOptions = <
@@ -465,7 +465,7 @@ export function useGetEpochs<
  * @summary Epoch detail
  */
 export const getGetEpochByIdUrl = (id: number) => {
-  return `/api/epochs/${id}`;
+  return `/api/v1/epochs/${id}`;
 };
 
 export const getEpochById = async (
@@ -479,7 +479,7 @@ export const getEpochById = async (
 };
 
 export const getGetEpochByIdQueryKey = (id: number) => {
-  return [`/api/epochs/${id}`] as const;
+  return [`/api/v1/epochs/${id}`] as const;
 };
 
 export const getGetEpochByIdQueryOptions = <
@@ -552,20 +552,20 @@ export function useGetEpochById<
  * @summary Active markets list
  */
 export const getGetActiveMarketsUrl = () => {
-  return `/api/markets/active`;
+  return `/api/v1/markets/active`;
 };
 
 export const getActiveMarkets = async (
   options?: RequestInit,
-): Promise<ActiveMarketsResponse> => {
-  return customFetch<ActiveMarketsResponse>(getGetActiveMarketsUrl(), {
+): Promise<MarketItem[]> => {
+  return customFetch<MarketItem[]>(getGetActiveMarketsUrl(), {
     ...options,
     method: "GET",
   });
 };
 
 export const getGetActiveMarketsQueryKey = () => {
-  return [`/api/markets/active`] as const;
+  return [`/api/v1/markets/active`] as const;
 };
 
 export const getGetActiveMarketsQueryOptions = <
@@ -638,8 +638,8 @@ export const getGetResolvedMarketsUrl = (params?: GetResolvedMarketsParams) => {
   const stringifiedParams = normalizedParams.toString();
 
   return stringifiedParams.length > 0
-    ? `/api/markets/resolved?${stringifiedParams}`
-    : `/api/markets/resolved`;
+    ? `/api/v1/markets/resolved?${stringifiedParams}`
+    : `/api/v1/markets/resolved`;
 };
 
 export const getResolvedMarkets = async (
@@ -658,7 +658,7 @@ export const getResolvedMarkets = async (
 export const getGetResolvedMarketsQueryKey = (
   params?: GetResolvedMarketsParams,
 ) => {
-  return [`/api/markets/resolved`, ...(params ? [params] : [])] as const;
+  return [`/api/v1/markets/resolved`, ...(params ? [params] : [])] as const;
 };
 
 export const getGetResolvedMarketsQueryOptions = <
@@ -726,12 +726,12 @@ export function useGetResolvedMarkets<
 /**
  * @summary Market detail
  */
-export const getGetMarketByIdUrl = (id: number) => {
-  return `/api/markets/${id}`;
+export const getGetMarketByIdUrl = (id: string) => {
+  return `/api/v1/markets/${id}`;
 };
 
 export const getMarketById = async (
-  id: number,
+  id: string,
   options?: RequestInit,
 ): Promise<MarketDetail> => {
   return customFetch<MarketDetail>(getGetMarketByIdUrl(id), {
@@ -740,15 +740,15 @@ export const getMarketById = async (
   });
 };
 
-export const getGetMarketByIdQueryKey = (id: number) => {
-  return [`/api/markets/${id}`] as const;
+export const getGetMarketByIdQueryKey = (id: string) => {
+  return [`/api/v1/markets/${id}`] as const;
 };
 
 export const getGetMarketByIdQueryOptions = <
   TData = Awaited<ReturnType<typeof getMarketById>>,
   TError = ErrorType<unknown>,
 >(
-  id: number,
+  id: string,
   options?: {
     query?: UseQueryOptions<
       Awaited<ReturnType<typeof getMarketById>>,
@@ -791,7 +791,7 @@ export function useGetMarketById<
   TData = Awaited<ReturnType<typeof getMarketById>>,
   TError = ErrorType<unknown>,
 >(
-  id: number,
+  id: string,
   options?: {
     query?: UseQueryOptions<
       Awaited<ReturnType<typeof getMarketById>>,
@@ -813,29 +813,29 @@ export function useGetMarketById<
 /**
  * @summary AMM price history for a market
  */
-export const getGetMarketAmmHistoryUrl = (id: number) => {
-  return `/api/markets/${id}/amm-history`;
+export const getGetMarketAmmHistoryUrl = (id: string) => {
+  return `/api/v1/markets/${id}/amm-history`;
 };
 
 export const getMarketAmmHistory = async (
-  id: number,
+  id: string,
   options?: RequestInit,
-): Promise<AmmHistoryResponse> => {
-  return customFetch<AmmHistoryResponse>(getGetMarketAmmHistoryUrl(id), {
+): Promise<AmmHistoryPoint[]> => {
+  return customFetch<AmmHistoryPoint[]>(getGetMarketAmmHistoryUrl(id), {
     ...options,
     method: "GET",
   });
 };
 
-export const getGetMarketAmmHistoryQueryKey = (id: number) => {
-  return [`/api/markets/${id}/amm-history`] as const;
+export const getGetMarketAmmHistoryQueryKey = (id: string) => {
+  return [`/api/v1/markets/${id}/amm-history`] as const;
 };
 
 export const getGetMarketAmmHistoryQueryOptions = <
   TData = Awaited<ReturnType<typeof getMarketAmmHistory>>,
   TError = ErrorType<unknown>,
 >(
-  id: number,
+  id: string,
   options?: {
     query?: UseQueryOptions<
       Awaited<ReturnType<typeof getMarketAmmHistory>>,
@@ -878,7 +878,7 @@ export function useGetMarketAmmHistory<
   TData = Awaited<ReturnType<typeof getMarketAmmHistory>>,
   TError = ErrorType<unknown>,
 >(
-  id: number,
+  id: string,
   options?: {
     query?: UseQueryOptions<
       Awaited<ReturnType<typeof getMarketAmmHistory>>,
@@ -901,7 +901,7 @@ export function useGetMarketAmmHistory<
  * @summary Predictions for a market
  */
 export const getGetMarketPredictionsUrl = (
-  id: number,
+  id: string,
   params?: GetMarketPredictionsParams,
 ) => {
   const normalizedParams = new URLSearchParams();
@@ -915,12 +915,12 @@ export const getGetMarketPredictionsUrl = (
   const stringifiedParams = normalizedParams.toString();
 
   return stringifiedParams.length > 0
-    ? `/api/markets/${id}/predictions?${stringifiedParams}`
-    : `/api/markets/${id}/predictions`;
+    ? `/api/v1/markets/${id}/predictions?${stringifiedParams}`
+    : `/api/v1/markets/${id}/predictions`;
 };
 
 export const getMarketPredictions = async (
-  id: number,
+  id: string,
   params?: GetMarketPredictionsParams,
   options?: RequestInit,
 ): Promise<MarketPredictionsResponse> => {
@@ -934,11 +934,11 @@ export const getMarketPredictions = async (
 };
 
 export const getGetMarketPredictionsQueryKey = (
-  id: number,
+  id: string,
   params?: GetMarketPredictionsParams,
 ) => {
   return [
-    `/api/markets/${id}/predictions`,
+    `/api/v1/markets/${id}/predictions`,
     ...(params ? [params] : []),
   ] as const;
 };
@@ -947,7 +947,7 @@ export const getGetMarketPredictionsQueryOptions = <
   TData = Awaited<ReturnType<typeof getMarketPredictions>>,
   TError = ErrorType<unknown>,
 >(
-  id: number,
+  id: string,
   params?: GetMarketPredictionsParams,
   options?: {
     query?: UseQueryOptions<
@@ -993,7 +993,7 @@ export function useGetMarketPredictions<
   TData = Awaited<ReturnType<typeof getMarketPredictions>>,
   TError = ErrorType<unknown>,
 >(
-  id: number,
+  id: string,
   params?: GetMarketPredictionsParams,
   options?: {
     query?: UseQueryOptions<
@@ -1028,8 +1028,8 @@ export const getGetLeaderboardUrl = (params?: GetLeaderboardParams) => {
   const stringifiedParams = normalizedParams.toString();
 
   return stringifiedParams.length > 0
-    ? `/api/leaderboard?${stringifiedParams}`
-    : `/api/leaderboard`;
+    ? `/api/v1/leaderboard?${stringifiedParams}`
+    : `/api/v1/leaderboard`;
 };
 
 export const getLeaderboard = async (
@@ -1043,7 +1043,7 @@ export const getLeaderboard = async (
 };
 
 export const getGetLeaderboardQueryKey = (params?: GetLeaderboardParams) => {
-  return [`/api/leaderboard`, ...(params ? [params] : [])] as const;
+  return [`/api/v1/leaderboard`, ...(params ? [params] : [])] as const;
 };
 
 export const getGetLeaderboardQueryOptions = <
@@ -1111,23 +1111,20 @@ export function useGetLeaderboard<
  * @summary Persona comparison stats
  */
 export const getGetLeaderboardPersonasUrl = () => {
-  return `/api/leaderboard/personas`;
+  return `/api/v1/leaderboard/personas`;
 };
 
 export const getLeaderboardPersonas = async (
   options?: RequestInit,
-): Promise<PersonaLeaderboardResponse> => {
-  return customFetch<PersonaLeaderboardResponse>(
-    getGetLeaderboardPersonasUrl(),
-    {
-      ...options,
-      method: "GET",
-    },
-  );
+): Promise<PersonaStats[]> => {
+  return customFetch<PersonaStats[]>(getGetLeaderboardPersonasUrl(), {
+    ...options,
+    method: "GET",
+  });
 };
 
 export const getGetLeaderboardPersonasQueryKey = () => {
-  return [`/api/leaderboard/personas`] as const;
+  return [`/api/v1/leaderboard/personas`] as const;
 };
 
 export const getGetLeaderboardPersonasQueryOptions = <
@@ -1190,7 +1187,7 @@ export function useGetLeaderboardPersonas<
  * @summary Agent profile
  */
 export const getGetAgentByAddressUrl = (address: string) => {
-  return `/api/agents/${address}`;
+  return `/api/v1/agents/${address}`;
 };
 
 export const getAgentByAddress = async (
@@ -1204,7 +1201,7 @@ export const getAgentByAddress = async (
 };
 
 export const getGetAgentByAddressQueryKey = (address: string) => {
-  return [`/api/agents/${address}`] as const;
+  return [`/api/v1/agents/${address}`] as const;
 };
 
 export const getGetAgentByAddressQueryOptions = <
@@ -1292,8 +1289,8 @@ export const getGetAgentPredictionsUrl = (
   const stringifiedParams = normalizedParams.toString();
 
   return stringifiedParams.length > 0
-    ? `/api/agents/${address}/predictions?${stringifiedParams}`
-    : `/api/agents/${address}/predictions`;
+    ? `/api/v1/agents/${address}/predictions?${stringifiedParams}`
+    : `/api/v1/agents/${address}/predictions`;
 };
 
 export const getAgentPredictions = async (
@@ -1315,7 +1312,7 @@ export const getGetAgentPredictionsQueryKey = (
   params?: GetAgentPredictionsParams,
 ) => {
   return [
-    `/api/agents/${address}/predictions`,
+    `/api/v1/agents/${address}/predictions`,
     ...(params ? [params] : []),
   ] as const;
 };
@@ -1409,22 +1406,22 @@ export const getGetHighlightsUrl = (params?: GetHighlightsParams) => {
   const stringifiedParams = normalizedParams.toString();
 
   return stringifiedParams.length > 0
-    ? `/api/highlights?${stringifiedParams}`
-    : `/api/highlights`;
+    ? `/api/v1/highlights?${stringifiedParams}`
+    : `/api/v1/highlights`;
 };
 
 export const getHighlights = async (
   params?: GetHighlightsParams,
   options?: RequestInit,
-): Promise<HighlightsResponse> => {
-  return customFetch<HighlightsResponse>(getGetHighlightsUrl(params), {
+): Promise<HighlightItem[]> => {
+  return customFetch<HighlightItem[]>(getGetHighlightsUrl(params), {
     ...options,
     method: "GET",
   });
 };
 
 export const getGetHighlightsQueryKey = (params?: GetHighlightsParams) => {
-  return [`/api/highlights`, ...(params ? [params] : [])] as const;
+  return [`/api/v1/highlights`, ...(params ? [params] : [])] as const;
 };
 
 export const getGetHighlightsQueryOptions = <

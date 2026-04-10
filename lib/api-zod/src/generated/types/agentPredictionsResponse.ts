@@ -9,6 +9,6 @@ import type { AgentPredictionItem } from "./agentPredictionItem";
 import type { Pagination } from "./pagination";
 
 export interface AgentPredictionsResponse {
-  items: AgentPredictionItem[];
+  data: AgentPredictionItem[];
   pagination: Pagination;
 }

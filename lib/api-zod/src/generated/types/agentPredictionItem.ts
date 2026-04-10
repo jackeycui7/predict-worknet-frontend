@@ -7,8 +7,7 @@
  */
 
 export interface AgentPredictionItem {
-  id: number;
-  market_id: number;
+  market_id: string;
   asset: string;
   window: string;
   direction: string;

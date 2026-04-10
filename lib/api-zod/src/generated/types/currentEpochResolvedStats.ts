@@ -8,6 +8,7 @@
 import type { CurrentEpochResolvedStatsTopEarnerSoFar } from "./currentEpochResolvedStatsTopEarnerSoFar";
 
 export type CurrentEpochResolvedStats = {
+  total_correct: number;
   global_accuracy: number;
   top_earner_so_far: CurrentEpochResolvedStatsTopEarnerSoFar;
 };

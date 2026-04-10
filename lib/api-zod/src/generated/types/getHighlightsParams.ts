@@ -8,6 +8,5 @@
 
 export type GetHighlightsParams = {
   limit?: number;
-  offset?: number;
   type?: string;
 };
