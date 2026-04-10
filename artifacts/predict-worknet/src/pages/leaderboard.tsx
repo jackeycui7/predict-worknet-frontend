@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   useGetLeaderboard,
   useGetLeaderboardPersonas,
   getGetLeaderboardQueryKey,
   getGetLeaderboardPersonasQueryKey,
 } from "@workspace/api-client-react";
+import type { LeaderboardEntry } from "@workspace/api-client-react";
 import { formatNumber, formatPct, formatPred, formatMultiplier, personaLabel } from "@/lib/format";
 import { AgentLink } from "@/components/address-link";
 
@@ -13,6 +14,8 @@ export default function Leaderboard() {
   const [sort, setSort] = useState("earnings");
   const [persona, setPersona] = useState("");
   const [offset, setOffset] = useState(0);
+  const [accumulated, setAccumulated] = useState<LeaderboardEntry[]>([]);
+  const filterKey = useRef("");
   const limit = 20;
 
   const params = { period, sort, persona: persona || undefined, limit, offset };
@@ -20,6 +23,35 @@ export default function Leaderboard() {
     query: { refetchInterval: 60000, queryKey: getGetLeaderboardQueryKey(params) },
   });
   const { data: personas } = useGetLeaderboardPersonas({ query: { refetchInterval: 60000, queryKey: getGetLeaderboardPersonasQueryKey() } });
+
+  const currentFilterKey = `${period}-${sort}-${persona}`;
+  useEffect(() => {
+    if (currentFilterKey !== filterKey.current) {
+      filterKey.current = currentFilterKey;
+      setAccumulated([]);
+      setOffset(0);
+    }
+  }, [currentFilterKey]);
+
+  useEffect(() => {
+    if (lb?.data) {
+      if (offset === 0) {
+        setAccumulated(lb.data);
+      } else {
+        setAccumulated((prev) => {
+          const existingAddrs = new Set(prev.map((e) => e.agent_address));
+          const newItems = lb.data.filter((e) => !existingAddrs.has(e.agent_address));
+          return [...prev, ...newItems];
+        });
+      }
+    }
+  }, [lb?.data, offset]);
+
+  const resetAndSet = (setter: (v: string) => void, value: string) => {
+    setter(value);
+    setOffset(0);
+    setAccumulated([]);
+  };
 
   const periods = [
     { value: "today", label: "Today" },
@@ -41,7 +73,7 @@ export default function Leaderboard() {
         {periods.map((p) => (
           <button
             key={p.value}
-            onClick={() => { setPeriod(p.value); setOffset(0); }}
+            onClick={() => resetAndSet(setPeriod, p.value)}
             className={`px-3 py-1.5 rounded text-xs font-mono ${period === p.value ? "bg-primary text-primary-foreground" : "bg-card border border-border text-muted-foreground hover:text-foreground"}`}
             data-testid={`period-${p.value}`}
           >
@@ -52,7 +84,7 @@ export default function Leaderboard() {
         {sorts.map((s) => (
           <button
             key={s.value}
-            onClick={() => { setSort(s.value); setOffset(0); }}
+            onClick={() => resetAndSet(setSort, s.value)}
             className={`px-3 py-1.5 rounded text-xs font-mono ${sort === s.value ? "bg-accent text-accent-foreground" : "bg-card border border-border text-muted-foreground hover:text-foreground"}`}
             data-testid={`sort-${s.value}`}
           >
@@ -61,7 +93,7 @@ export default function Leaderboard() {
         ))}
         <select
           value={persona}
-          onChange={(e) => { setPersona(e.target.value); setOffset(0); }}
+          onChange={(e) => resetAndSet(setPersona, e.target.value)}
           className="bg-card border border-border rounded px-3 py-1.5 text-xs font-mono text-foreground ml-auto"
           data-testid="filter-persona"
         >
@@ -86,7 +118,7 @@ export default function Leaderboard() {
             </tr>
           </thead>
           <tbody>
-            {lb?.data?.map((e) => (
+            {accumulated.map((e) => (
               <tr key={e.agent_address} className="border-b border-border/50 hover:bg-muted/30 text-xs font-mono" data-testid={`lb-row-${e.rank}`}>
                 <td className="px-4 py-2 text-primary font-bold">{e.rank}</td>
                 <td className="px-4 py-2"><AgentLink address={e.agent_address} /></td>

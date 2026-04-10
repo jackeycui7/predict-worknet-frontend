@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Link } from "wouter";
 import {
   useGetActiveMarkets,
@@ -6,7 +6,8 @@ import {
   getGetActiveMarketsQueryKey,
   getGetResolvedMarketsQueryKey,
 } from "@workspace/api-client-react";
-import { formatNumber, formatPct, formatPrice, countdownStr, personaLabel } from "@/lib/format";
+import type { MarketItem } from "@workspace/api-client-react";
+import { formatPct, formatPrice, countdownStr } from "@/lib/format";
 
 function CountdownTimer({ closesAt }: { closesAt: string }) {
   const [display, setDisplay] = useState(countdownStr(closesAt));
@@ -27,6 +28,8 @@ export default function Markets() {
   const [asset, setAsset] = useState("");
   const [window, setWindow] = useState("");
   const [offset, setOffset] = useState(0);
+  const [accumulated, setAccumulated] = useState<MarketItem[]>([]);
+  const filterKey = useRef("");
   const limit = 20;
 
   const { data: active } = useGetActiveMarkets({ query: { refetchInterval: 15000, queryKey: getGetActiveMarketsQueryKey() } });
@@ -34,6 +37,36 @@ export default function Markets() {
     { limit, offset, asset: asset || undefined, window: window || undefined },
     { query: { enabled: tab === "resolved", queryKey: getGetResolvedMarketsQueryKey({ limit, offset, asset: asset || undefined, window: window || undefined }) } }
   );
+
+  const currentFilterKey = `${asset}-${window}`;
+  useEffect(() => {
+    if (currentFilterKey !== filterKey.current) {
+      filterKey.current = currentFilterKey;
+      setAccumulated([]);
+      setOffset(0);
+    }
+  }, [currentFilterKey]);
+
+  useEffect(() => {
+    if (resolved?.data) {
+      if (offset === 0) {
+        setAccumulated(resolved.data);
+      } else {
+        setAccumulated((prev) => {
+          const existingIds = new Set(prev.map((m) => m.id));
+          const newItems = resolved.data.filter((m) => !existingIds.has(m.id));
+          return [...prev, ...newItems];
+        });
+      }
+    }
+  }, [resolved?.data, offset]);
+
+  const resetFilters = useCallback((newAsset: string, newWindow: string) => {
+    setAsset(newAsset);
+    setWindow(newWindow);
+    setOffset(0);
+    setAccumulated([]);
+  }, []);
 
   const assets = ["BTC", "ETH", "SOL", "BNB", "DOGE"];
   const windows = ["15m", "30m", "1h"];
@@ -51,7 +84,7 @@ export default function Markets() {
           Active ({active?.length ?? 0})
         </button>
         <button
-          onClick={() => { setTab("resolved"); setOffset(0); }}
+          onClick={() => { setTab("resolved"); setOffset(0); setAccumulated([]); }}
           className={`px-4 py-2 rounded text-xs font-mono ${tab === "resolved" ? "bg-primary text-primary-foreground" : "bg-card border border-border text-muted-foreground hover:text-foreground"}`}
           data-testid="tab-resolved"
         >
@@ -103,7 +136,7 @@ export default function Markets() {
           <div className="flex gap-2" data-testid="resolved-filters">
             <select
               value={asset}
-              onChange={(e) => { setAsset(e.target.value); setOffset(0); }}
+              onChange={(e) => resetFilters(e.target.value, window)}
               className="bg-card border border-border rounded px-3 py-1.5 text-xs font-mono text-foreground"
               data-testid="filter-asset"
             >
@@ -112,7 +145,7 @@ export default function Markets() {
             </select>
             <select
               value={window}
-              onChange={(e) => { setWindow(e.target.value); setOffset(0); }}
+              onChange={(e) => resetFilters(asset, e.target.value)}
               className="bg-card border border-border rounded px-3 py-1.5 text-xs font-mono text-foreground"
               data-testid="filter-window"
             >
@@ -121,7 +154,7 @@ export default function Markets() {
             </select>
           </div>
           <div className="space-y-2" data-testid="resolved-markets">
-            {resolved?.data?.map((m) => (
+            {accumulated.map((m) => (
               <Link key={m.id} href={`/markets/${m.id}`}>
                 <div className="border border-border rounded p-4 bg-card hover:border-primary/40 cursor-pointer transition-colors" data-testid={`market-${m.id}`}>
                   <div className="flex items-center justify-between mb-2">

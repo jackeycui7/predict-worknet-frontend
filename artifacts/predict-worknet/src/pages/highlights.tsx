@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   useGetHighlights,
   getGetHighlightsQueryKey,
 } from "@workspace/api-client-react";
+import type { HighlightItem } from "@workspace/api-client-react";
 import { formatMultiplier, formatPct, formatPred, relativeTime, personaLabel } from "@/lib/format";
 import { AgentLink, MarketLink } from "@/components/address-link";
 
@@ -28,10 +29,23 @@ function typeIcon(t: string): string {
 
 export default function Highlights() {
   const [type, setType] = useState("");
-  const params = { limit: 20, type: type || undefined };
+  const [visibleCount, setVisibleCount] = useState(20);
+  const prevType = useRef("");
+  const limit = 50;
+  const params = { limit, type: type || undefined };
   const { data } = useGetHighlights(params, {
     query: { refetchInterval: 60000, queryKey: getGetHighlightsQueryKey(params) },
   });
+
+  useEffect(() => {
+    if (type !== prevType.current) {
+      prevType.current = type;
+      setVisibleCount(20);
+    }
+  }, [type]);
+
+  const visible = data?.slice(0, visibleCount) ?? [];
+  const hasMore = data ? visibleCount < data.length : false;
 
   return (
     <div className="p-6 space-y-6" data-testid="highlights-page">
@@ -51,7 +65,7 @@ export default function Highlights() {
       </div>
 
       <div className="space-y-3" data-testid="highlights-list">
-        {data?.map((h, i) => (
+        {visible.map((h, i) => (
           <div key={`${h.type}-${h.timestamp}-${i}`} className="border border-border rounded p-4 bg-card" data-testid={`highlight-${i}`}>
             <div className="flex items-start gap-3">
               <span className="text-primary font-mono text-lg font-bold shrink-0 w-8">{typeIcon(h.type)}</span>
@@ -87,6 +101,15 @@ export default function Highlights() {
           <div className="text-center py-8 text-muted-foreground font-mono text-sm">No highlights yet</div>
         )}
       </div>
+      {hasMore && (
+        <button
+          onClick={() => setVisibleCount((c) => c + 20)}
+          className="w-full py-2 text-xs font-mono text-primary border border-border rounded hover:bg-muted/50"
+          data-testid="load-more-highlights"
+        >
+          Load More
+        </button>
+      )}
     </div>
   );
 }

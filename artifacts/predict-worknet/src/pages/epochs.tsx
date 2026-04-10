@@ -1,14 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   useGetEpochs,
   useGetEpochById,
   getGetEpochsQueryKey,
   getGetEpochByIdQueryKey,
 } from "@workspace/api-client-react";
+import type { EpochSummary } from "@workspace/api-client-react";
 import { formatNumber, formatPct, formatPred, personaLabel } from "@/lib/format";
 import { AgentLink } from "@/components/address-link";
 
-function EpochRow({ epochId, isExpanded, onToggle }: { epochId: number; isExpanded: boolean; onToggle: () => void }) {
+function EpochRow({ epochId, isExpanded }: { epochId: number; isExpanded: boolean }) {
   const { data: detail } = useGetEpochById(epochId, {
     query: { enabled: isExpanded, queryKey: getGetEpochByIdQueryKey(epochId) },
   });
@@ -87,10 +88,25 @@ function EpochRow({ epochId, isExpanded, onToggle }: { epochId: number; isExpand
 
 export default function Epochs() {
   const [offset, setOffset] = useState(0);
+  const [accumulated, setAccumulated] = useState<EpochSummary[]>([]);
   const [expanded, setExpanded] = useState<Set<number>>(new Set());
   const limit = 20;
 
   const { data } = useGetEpochs({ limit, offset }, { query: { queryKey: getGetEpochsQueryKey({ limit, offset }) } });
+
+  useEffect(() => {
+    if (data?.data) {
+      if (offset === 0) {
+        setAccumulated(data.data);
+      } else {
+        setAccumulated((prev) => {
+          const existingIds = new Set(prev.map((e) => e.id));
+          const newItems = data.data.filter((e) => !existingIds.has(e.id));
+          return [...prev, ...newItems];
+        });
+      }
+    }
+  }, [data?.data, offset]);
 
   const toggle = (id: number) => {
     setExpanded((prev) => {
@@ -104,7 +120,7 @@ export default function Epochs() {
     <div className="p-6 space-y-6" data-testid="epochs-page">
       <h1 className="text-xl font-mono font-bold text-foreground">Epochs</h1>
       <div className="space-y-2" data-testid="epochs-list">
-        {data?.data?.map((ep) => (
+        {accumulated.map((ep) => (
           <div key={ep.id} className="border border-border rounded bg-card overflow-hidden" data-testid={`epoch-${ep.id}`}>
             <div
               className="px-4 py-3 flex items-center gap-4 cursor-pointer hover:bg-muted/30 text-xs font-mono"
@@ -121,7 +137,7 @@ export default function Epochs() {
               <span className="text-muted-foreground">Acc: {formatPct(ep.global_accuracy)}</span>
               <span className="ml-auto text-muted-foreground">{expanded.has(ep.id) ? "[-]" : "[+]"}</span>
             </div>
-            <EpochRow epochId={ep.id} isExpanded={expanded.has(ep.id)} onToggle={() => toggle(ep.id)} />
+            <EpochRow epochId={ep.id} isExpanded={expanded.has(ep.id)} />
           </div>
         ))}
       </div>

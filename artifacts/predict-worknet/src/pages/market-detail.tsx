@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRoute } from "wouter";
 import {
   useGetMarketById,
@@ -8,6 +8,7 @@ import {
   getGetMarketAmmHistoryQueryKey,
   getGetMarketPredictionsQueryKey,
 } from "@workspace/api-client-react";
+import type { PredictionItem } from "@workspace/api-client-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { formatPct, formatPrice, formatMultiplier, relativeTime, countdownStr, personaLabel } from "@/lib/format";
 import { AgentLink } from "@/components/address-link";
@@ -18,7 +19,9 @@ export default function MarketDetail() {
 
   const [offset, setOffset] = useState(0);
   const [outcomeFilter, setOutcomeFilter] = useState("");
+  const [accumulated, setAccumulated] = useState<PredictionItem[]>([]);
   const [expandedIdx, setExpandedIdx] = useState<Set<number>>(new Set());
+  const filterKey = useRef("");
   const limit = 20;
 
   const { data: market } = useGetMarketById(id, {
@@ -32,6 +35,30 @@ export default function MarketDetail() {
     { limit, offset, outcome: outcomeFilter || undefined },
     { query: { enabled: !!id, queryKey: getGetMarketPredictionsQueryKey(id, { limit, offset, outcome: outcomeFilter || undefined }) } }
   );
+
+  const currentFilterKey = `${id}-${outcomeFilter}`;
+  useEffect(() => {
+    if (currentFilterKey !== filterKey.current) {
+      filterKey.current = currentFilterKey;
+      setAccumulated([]);
+      setOffset(0);
+      setExpandedIdx(new Set());
+    }
+  }, [currentFilterKey]);
+
+  useEffect(() => {
+    if (preds?.data) {
+      if (offset === 0) {
+        setAccumulated(preds.data);
+      } else {
+        setAccumulated((prev) => {
+          const existingKeys = new Set(prev.map((p) => `${p.agent_address}-${p.submitted_at}`));
+          const newItems = preds.data.filter((p) => !existingKeys.has(`${p.agent_address}-${p.submitted_at}`));
+          return [...prev, ...newItems];
+        });
+      }
+    }
+  }, [preds?.data, offset]);
 
   const [countdown, setCountdown] = useState("");
   useEffect(() => {
@@ -113,7 +140,7 @@ export default function MarketDetail() {
           <h2 className="text-sm font-mono font-bold text-foreground uppercase tracking-wider">Predictions</h2>
           <select
             value={outcomeFilter}
-            onChange={(e) => { setOutcomeFilter(e.target.value); setOffset(0); }}
+            onChange={(e) => { setOutcomeFilter(e.target.value); setOffset(0); setAccumulated([]); }}
             className="bg-card border border-border rounded px-2 py-1 text-xs font-mono text-foreground"
             data-testid="filter-outcome"
           >
@@ -123,7 +150,7 @@ export default function MarketDetail() {
           </select>
         </div>
         <div className="space-y-1" data-testid="predictions-list">
-          {preds?.data?.map((p, i) => {
+          {accumulated.map((p, i) => {
             const expanded = expandedIdx.has(i);
             return (
               <div key={`${p.agent_address}-${p.submitted_at}`} className="border border-border rounded bg-card">

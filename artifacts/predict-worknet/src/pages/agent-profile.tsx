@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRoute } from "wouter";
 import {
   useGetAgentByAddress,
@@ -6,6 +6,7 @@ import {
   getGetAgentByAddressQueryKey,
   getGetAgentPredictionsQueryKey,
 } from "@workspace/api-client-react";
+import type { AgentPredictionItem } from "@workspace/api-client-react";
 import { formatNumber, formatPct, formatPred, formatMultiplier, relativeTime, personaLabel } from "@/lib/format";
 import { MarketLink } from "@/components/address-link";
 
@@ -16,6 +17,8 @@ export default function AgentProfile() {
   const [offset, setOffset] = useState(0);
   const [outcome, setOutcome] = useState("");
   const [asset, setAsset] = useState("");
+  const [accumulated, setAccumulated] = useState<AgentPredictionItem[]>([]);
+  const filterKey = useRef("");
   const limit = 20;
 
   const { data: profile } = useGetAgentByAddress(address, {
@@ -25,6 +28,29 @@ export default function AgentProfile() {
   const { data: preds } = useGetAgentPredictions(address, predParams, {
     query: { enabled: !!address, queryKey: getGetAgentPredictionsQueryKey(address, predParams) },
   });
+
+  const currentFilterKey = `${address}-${outcome}-${asset}`;
+  useEffect(() => {
+    if (currentFilterKey !== filterKey.current) {
+      filterKey.current = currentFilterKey;
+      setAccumulated([]);
+      setOffset(0);
+    }
+  }, [currentFilterKey]);
+
+  useEffect(() => {
+    if (preds?.data) {
+      if (offset === 0) {
+        setAccumulated(preds.data);
+      } else {
+        setAccumulated((prev) => {
+          const existingKeys = new Set(prev.map((p) => `${p.market_id}-${p.submitted_at}`));
+          const newItems = preds.data.filter((p) => !existingKeys.has(`${p.market_id}-${p.submitted_at}`));
+          return [...prev, ...newItems];
+        });
+      }
+    }
+  }, [preds?.data, offset]);
 
   if (!profile) {
     return <div className="p-6 font-mono text-muted-foreground">Loading agent...</div>;
@@ -86,7 +112,7 @@ export default function AgentProfile() {
           <h2 className="text-sm font-mono font-bold text-foreground uppercase tracking-wider">Prediction History</h2>
           <select
             value={outcome}
-            onChange={(e) => { setOutcome(e.target.value); setOffset(0); }}
+            onChange={(e) => { setOutcome(e.target.value); setOffset(0); setAccumulated([]); }}
             className="bg-card border border-border rounded px-2 py-1 text-xs font-mono text-foreground"
             data-testid="filter-outcome"
           >
@@ -97,7 +123,7 @@ export default function AgentProfile() {
           </select>
           <select
             value={asset}
-            onChange={(e) => { setAsset(e.target.value); setOffset(0); }}
+            onChange={(e) => { setAsset(e.target.value); setOffset(0); setAccumulated([]); }}
             className="bg-card border border-border rounded px-2 py-1 text-xs font-mono text-foreground"
             data-testid="filter-asset"
           >
@@ -110,7 +136,7 @@ export default function AgentProfile() {
           </select>
         </div>
         <div className="space-y-1" data-testid="agent-predictions">
-          {preds?.data?.map((p, i) => (
+          {accumulated.map((p, i) => (
             <div key={`${p.market_id}-${p.submitted_at}`} className="border border-border rounded p-3 bg-card text-xs font-mono" data-testid={`pred-${i}`}>
               <div className="flex items-center gap-3 mb-1">
                 <MarketLink id={p.market_id} />
