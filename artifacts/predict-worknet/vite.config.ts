@@ -31,7 +31,7 @@ export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
-    runtimeErrorOverlay(),
+    // runtimeErrorOverlay(), // Disabled: conflicts with wallet extensions (ethereum property)
     ...(process.env.NODE_ENV !== "production" &&
     process.env.REPL_ID !== undefined
       ? [
@@ -62,6 +62,9 @@ export default defineConfig({
     port,
     host: "0.0.0.0",
     allowedHosts: true,
+    hmr: {
+      overlay: false, // Disable overlay to avoid conflict with wallet extensions
+    },
     fs: {
       strict: true,
       deny: ["**/.*"],
