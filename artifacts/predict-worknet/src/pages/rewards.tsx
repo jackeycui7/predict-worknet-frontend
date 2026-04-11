@@ -1,14 +1,18 @@
 import { useState } from "react";
+import { useLocation } from "wouter";
 import { formatNumber, formatPred, formatPct } from "@/lib/format";
 import { useGetEpochs } from "@/lib/api";
 
 export default function Rewards() {
   const [address, setAddress] = useState("");
-  const [searched, setSearched] = useState(false);
+  const [, navigate] = useLocation();
   const { data: epochs } = useGetEpochs({ limit: 5, offset: 0 });
 
   const handleSearch = () => {
-    if (address.trim()) setSearched(true);
+    const addr = address.trim();
+    if (addr) {
+      navigate(`/agents/${addr}`);
+    }
   };
 
   return (
@@ -28,7 +32,8 @@ export default function Rewards() {
             <input
               type="text"
               value={address}
-              onChange={(e) => { setAddress(e.target.value); setSearched(false); }}
+              onChange={(e) => setAddress(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
               placeholder="0x..."
               className="flex-1 px-4 py-2.5 border border-border bg-transparent text-[12px] font-mono text-foreground placeholder:text-foreground/15 focus:outline-none focus:border-foreground transition-colors"
             />
@@ -39,16 +44,9 @@ export default function Rewards() {
               Search
             </button>
           </div>
-          {searched && (
-            <div className="mt-6 pt-6 border-t border-border/40">
-              <div className="text-center py-6">
-                <div className="font-serif-editorial text-[24px] text-foreground/10 mb-2">Coming soon</div>
-                <p className="text-[11px] text-foreground/25 font-light">
-                  Reward queries available after epoch settlement deployment.
-                </p>
-              </div>
-            </div>
-          )}
+          <p className="mt-3 text-[10px] text-foreground/25 font-light">
+            Search redirects to agent profile with full prediction history
+          </p>
         </div>
       </div>
 
