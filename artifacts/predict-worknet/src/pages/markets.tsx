@@ -164,16 +164,16 @@ export default function Markets() {
                   <CountdownTimer closesAt={m.close_at} />
                 </div>
                 <div className="flex items-center gap-2 mb-4">
-                  <span className="text-primary font-semibold text-[13px]">{formatPct(m.orderbook.best_up_price)}</span>
+                  <span className="text-primary font-semibold text-[13px]">{formatPct(m.orderbook?.best_up_price ?? m.implied_up_prob ?? 0.5)}</span>
                   <div className="flex-1 h-[3px] bg-border/60 overflow-hidden">
-                    <div className="h-full bg-primary" style={{ width: `${m.orderbook.best_up_price * 100}%` }} />
+                    <div className="h-full bg-primary" style={{ width: `${(m.orderbook?.best_up_price ?? m.implied_up_prob ?? 0.5) * 100}%` }} />
                   </div>
-                  <span className="text-foreground/30 text-[13px]">{formatPct(m.orderbook.best_down_price)}</span>
+                  <span className="text-foreground/30 text-[13px]">{formatPct(m.orderbook?.best_down_price ?? (1 - (m.implied_up_prob ?? 0.5)))}</span>
                 </div>
                 <div className="flex items-center gap-4 text-[11px] text-foreground/40">
                   <span>Open <span className="text-foreground font-medium">{formatPrice(m.open_price)}</span></span>
-                  <span><span className="text-foreground font-medium">{m.stats.total_orders}</span> orders</span>
-                  <span><span className="text-foreground font-medium">{formatNumber(m.stats.total_tickets_matched)}</span> matched</span>
+                  <span><span className="text-foreground font-medium">{m.stats?.total_orders ?? m.prediction_count ?? 0}</span> orders</span>
+                  <span><span className="text-foreground font-medium">{formatNumber(m.stats?.total_tickets_matched ?? 0)}</span> matched</span>
                 </div>
               </div>
             </Link>
