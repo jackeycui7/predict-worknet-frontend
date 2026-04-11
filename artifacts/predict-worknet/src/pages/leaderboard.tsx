@@ -117,35 +117,62 @@ export default function Leaderboard() {
 
       {/* Multi-agent Equity Curves Chart */}
       {showChart && equityCurves && equityCurves.length > 0 && (() => {
-        // Transform data: add trade index for X-axis, handle string/number formats
+        // Transform data: convert timestamps to epoch ms, handle string/number formats
         const transformedCurves = equityCurves.map((curve: any) => ({
           ...curve,
-          points: curve.points?.map((p: any, idx: number) => ({
-            ...p,
-            tradeIndex: idx + 1,
-            timestamp: typeof p.timestamp === "number" ? p.timestamp * 1000 : p.timestamp,
-            cumulative_pnl: typeof p.cumulative_pnl === "string" ? parseFloat(p.cumulative_pnl) : p.cumulative_pnl,
-          })) ?? [],
+          points: curve.points?.map((p: any) => {
+            const ts = typeof p.timestamp === "number" ? p.timestamp * 1000 : new Date(p.timestamp).getTime();
+            return {
+              ...p,
+              time: ts,
+              cumulative_pnl: typeof p.cumulative_pnl === "string" ? parseFloat(p.cumulative_pnl) : p.cumulative_pnl,
+            };
+          }) ?? [],
         }));
 
-        // Find max trade count for X-axis domain
-        const maxTrades = Math.max(...transformedCurves.map((c: any) => c.points?.length ?? 0), 1);
+        // Merge all points into one dataset for proper time axis
+        const allPoints: { time: number; [key: string]: number }[] = [];
+        const agentAddresses = transformedCurves.map((c: any) => c.agent_address);
+
+        // Collect all unique timestamps
+        const allTimes = new Set<number>();
+        transformedCurves.forEach((curve: any) => {
+          curve.points.forEach((p: any) => allTimes.add(p.time));
+        });
+        const sortedTimes = Array.from(allTimes).sort((a, b) => a - b);
+
+        // Build merged data with all agents' PnL at each timestamp
+        const agentLastPnl: Record<string, number> = {};
+        sortedTimes.forEach((time) => {
+          const point: any = { time };
+          transformedCurves.forEach((curve: any) => {
+            const p = curve.points.find((pt: any) => pt.time === time);
+            if (p) {
+              agentLastPnl[curve.agent_address] = p.cumulative_pnl;
+            }
+            point[curve.agent_address] = agentLastPnl[curve.agent_address] ?? null;
+          });
+          allPoints.push(point);
+        });
+
+        const formatTime = (ts: number) => {
+          const d = new Date(ts);
+          if (isNaN(d.getTime())) return "—";
+          return d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+        };
 
         return (
           <div className="mb-10">
             <div className="border border-border/40 bg-background p-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] text-foreground/40">Cumulative PnL by Trade</span>
-                <span className="text-[10px] text-foreground/30">{maxTrades} trades max</span>
-              </div>
               <ResponsiveContainer width="100%" height={280}>
-                <LineChart margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                <LineChart data={allPoints} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.4} />
                   <XAxis
-                    dataKey="tradeIndex"
+                    dataKey="time"
                     type="number"
-                    domain={[1, maxTrades]}
-                    tickFormatter={(v) => `#${v}`}
+                    scale="time"
+                    domain={["dataMin", "dataMax"]}
+                    tickFormatter={formatTime}
                     tick={{ fontSize: 10, fill: "hsl(var(--foreground))", opacity: 0.4 }}
                     axisLine={{ stroke: "hsl(var(--border))" }}
                   />
@@ -160,9 +187,9 @@ export default function Leaderboard() {
                       border: "1px solid hsl(var(--border))",
                       fontSize: 11,
                     }}
-                    labelFormatter={(v) => `Trade #${v}`}
+                    labelFormatter={(ts) => new Date(ts).toLocaleString()}
                     formatter={(value: any, name: string) => [
-                      `${value >= 0 ? "+" : ""}${Number(value).toFixed(0)} chips`,
+                      value != null ? `${value >= 0 ? "+" : ""}${Number(value).toFixed(0)} chips` : "—",
                       name.slice(0, 10) + "..."
                     ]}
                   />
@@ -171,13 +198,12 @@ export default function Leaderboard() {
                     wrapperStyle={{ fontSize: 10 }}
                     formatter={(value) => value.slice(0, 8) + "..."}
                   />
-                  {transformedCurves.map((curve: any, idx: number) => (
+                  {agentAddresses.map((addr: string, idx: number) => (
                     <Line
-                      key={curve.agent_address}
-                      data={curve.points}
-                      type="monotone"
-                      dataKey="cumulative_pnl"
-                      name={curve.agent_address}
+                      key={addr}
+                      type="stepAfter"
+                      dataKey={addr}
+                      name={addr}
                       stroke={AGENT_COLORS[idx % AGENT_COLORS.length]}
                       strokeWidth={2}
                       dot={false}
