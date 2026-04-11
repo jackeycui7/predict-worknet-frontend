@@ -70,7 +70,9 @@ export default function Dashboard() {
                 <span className="text-foreground font-normal">{item.asset}</span>
                 <span className="text-foreground/40 text-[10px]">{item.window}</span>
                 <span className="ml-auto font-mono text-[10px] text-foreground font-medium">{formatChips(item.chips_locked)}</span>
-                <span className="font-mono text-[10px] text-foreground/30">{formatPct(item.orderbook_snapshot.implied_up_prob)}</span>
+                {item.orderbook_snapshot?.implied_up_prob != null && (
+                  <span className="font-mono text-[10px] text-foreground/30">{formatPct(item.orderbook_snapshot.implied_up_prob)}</span>
+                )}
               </div>
             ))}
             {(!feed || feed.length === 0) && (
