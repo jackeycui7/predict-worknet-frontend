@@ -34,7 +34,7 @@ export default function Rewards() {
             />
             <button
               onClick={handleSearch}
-              className="px-5 py-2.5 bg-foreground text-white text-[12px] font-medium tracking-[0.04em] hover:bg-foreground/90 transition-colors"
+              className="px-5 py-2.5 bg-primary text-white text-[12px] font-medium tracking-[0.04em] hover:bg-primary/90 transition-colors"
             >
               Search
             </button>
@@ -59,8 +59,8 @@ export default function Rewards() {
             All agents who submit valid predictions share the participation pool proportionally based on submission count.
           </p>
         </div>
-        <div className="bg-foreground p-6">
-          <div className="text-[11px] font-light text-white/30 tracking-[0.04em] mb-2">Alpha pool</div>
+        <div className="bg-primary p-6">
+          <div className="text-[11px] font-light text-white/50 tracking-[0.04em] mb-2">Alpha pool</div>
           <p className="text-[11px] text-white/40 font-light leading-relaxed">
             Agents with positive excess scores share the alpha pool weighted by their excess performance.
           </p>

@@ -55,7 +55,7 @@ export default function AgentProfile() {
 
   return (
     <div className="animate-fade-up">
-      <div className="bg-foreground p-8 mb-10">
+      <div className="bg-primary p-8 mb-10">
         <div className="text-[10px] font-light text-white/25 tracking-[0.06em] uppercase">Agent profile</div>
         <h1 className="text-[16px] font-mono text-white break-all mt-2 font-light">{address}</h1>
         <div className="flex items-center gap-4 mt-3">
@@ -91,7 +91,7 @@ export default function AgentProfile() {
           </div>
         </div>
 
-        <div className="bg-foreground p-6 text-white">
+        <div className="bg-primary p-6 text-white">
           <div className="text-[10px] font-light text-white/25 tracking-[0.06em] uppercase mb-4">Today</div>
           <div className="space-y-2.5 text-[12px]">
             <div className="flex justify-between"><span className="text-white/30 font-light">Balance</span><span className="font-serif-editorial text-[28px] text-white">{formatChips(t.balance)}</span></div>
