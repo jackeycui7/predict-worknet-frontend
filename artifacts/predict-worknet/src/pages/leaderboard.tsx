@@ -1,21 +1,32 @@
 import { useState, useEffect, useRef } from "react";
 import {
   useGetLeaderboard,
+  useGetLeaderboardEquityCurves,
 } from "@/lib/api";
 import type { LeaderboardEntry } from "@workspace/api-client-react";
 import { formatPct, formatPred, formatChips, rankChange } from "@/lib/format";
 import { AgentLink } from "@/components/address-link";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine, Legend } from "recharts";
+
+// Colors for different agent lines
+const AGENT_COLORS = [
+  "hsl(var(--primary))",
+  "#10b981", "#f59e0b", "#ef4444", "#8b5cf6",
+  "#06b6d4", "#ec4899", "#14b8a6", "#f97316", "#6366f1"
+];
 
 export default function Leaderboard() {
   const [period, setPeriod] = useState("all");
   const [sort, setSort] = useState("excess");
   const [offset, setOffset] = useState(0);
   const [accumulated, setAccumulated] = useState<LeaderboardEntry[]>([]);
+  const [showChart, setShowChart] = useState(true);
   const filterKey = useRef("");
   const limit = 20;
 
   const params = { period, sort, limit, offset };
   const { data: lb } = useGetLeaderboard(params);
+  const { data: equityCurves } = useGetLeaderboardEquityCurves({ limit: 5 });
 
   const currentFilterKey = `${period}-${sort}`;
   useEffect(() => {
@@ -95,8 +106,65 @@ export default function Leaderboard() {
               </button>
             ))}
           </div>
+          <button
+            onClick={() => setShowChart(!showChart)}
+            className="px-3 py-1.5 text-[11px] tracking-[0.02em] text-foreground/40 hover:text-foreground/70 transition-colors border border-border/40"
+          >
+            {showChart ? "Hide" : "Show"} Chart
+          </button>
         </div>
       </div>
+
+      {/* Multi-agent Equity Curves Chart */}
+      {showChart && equityCurves && equityCurves.length > 0 && (
+        <div className="mb-10">
+          <div className="border border-border/40 bg-background p-4">
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.4} />
+                <XAxis
+                  dataKey="timestamp"
+                  type="category"
+                  allowDuplicatedCategory={false}
+                  tickFormatter={(v) => new Date(v).toLocaleDateString()}
+                  tick={{ fontSize: 10, fill: "hsl(var(--foreground))", opacity: 0.4 }}
+                  axisLine={{ stroke: "hsl(var(--border))" }}
+                />
+                <YAxis
+                  tick={{ fontSize: 10, fill: "hsl(var(--foreground))", opacity: 0.4 }}
+                  axisLine={{ stroke: "hsl(var(--border))" }}
+                  tickFormatter={(v) => v.toFixed(0)}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "hsl(var(--background))",
+                    border: "1px solid hsl(var(--border))",
+                    fontSize: 11,
+                  }}
+                  labelFormatter={(v) => new Date(v).toLocaleString()}
+                />
+                <ReferenceLine y={0} stroke="hsl(var(--foreground))" strokeOpacity={0.2} />
+                <Legend
+                  wrapperStyle={{ fontSize: 10 }}
+                  formatter={(value) => value.slice(0, 8) + "..."}
+                />
+                {equityCurves.map((curve: any, idx: number) => (
+                  <Line
+                    key={curve.agent_address}
+                    data={curve.points}
+                    type="monotone"
+                    dataKey="cumulative_pnl"
+                    name={curve.agent_address}
+                    stroke={AGENT_COLORS[idx % AGENT_COLORS.length]}
+                    strokeWidth={2}
+                    dot={false}
+                  />
+                ))}
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
 
       <div className="border-t border-border/60">
         <table className="w-full">

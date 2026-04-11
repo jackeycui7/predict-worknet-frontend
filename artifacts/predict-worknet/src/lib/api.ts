@@ -13,6 +13,7 @@ import {
   useGetMarketPredictions as _useGetMarketPredictions,
   useGetLeaderboard as _useGetLeaderboard,
   useGetLeaderboardLive as _useGetLeaderboardLive,
+  useGetLeaderboardEquityCurves as _useGetLeaderboardEquityCurves,
   useGetLeaderboardPersonas as _useGetLeaderboardPersonas,
   useGetAgentByAddress as _useGetAgentByAddress,
   useGetAgentEquityCurve as _useGetAgentEquityCurve,
@@ -97,7 +98,7 @@ import {
   mockHighlights,
 } from "./mock-data";
 
-const USE_MOCK = true;
+const USE_MOCK = false;
 
 function useMockQuery<T>(key: readonly unknown[], fn: () => T, interval?: number): UseQueryResult<T> {
   return useQuery({
@@ -173,6 +174,11 @@ export function useGetLeaderboardLive(params?: GetLeaderboardLiveParams, opts?: 
   return _useGetLeaderboardLive(params, opts);
 }
 
+export function useGetLeaderboardEquityCurves(params?: { limit?: number }, opts?: any) {
+  // No mock for equity curves - always use real API
+  return _useGetLeaderboardEquityCurves(params, opts);
+}
+
 export function useGetLeaderboardPersonas(opts?: any) {
   if (USE_MOCK) return useMockQuery(getGetLeaderboardPersonasQueryKey(), () => mockPersonas(), 60000);
   return _useGetLeaderboardPersonas(opts);
@@ -221,6 +227,7 @@ export {
   getGetMarketPredictionsQueryKey,
   getGetLeaderboardQueryKey,
   getGetLeaderboardLiveQueryKey,
+  getGetLeaderboardEquityCurvesQueryKey,
   getGetLeaderboardPersonasQueryKey,
   getGetAgentByAddressQueryKey,
   getGetAgentEquityCurveQueryKey,

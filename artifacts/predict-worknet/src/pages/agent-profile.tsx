@@ -3,10 +3,12 @@ import { useRoute } from "wouter";
 import {
   useGetAgentByAddress,
   useGetAgentPredictions,
+  useGetAgentEquityCurve,
 } from "@/lib/api";
 import type { AgentPredictionItem } from "@workspace/api-client-react";
 import { formatNumber, formatPct, formatPred, formatChips, relativeTime, personaLabel } from "@/lib/format";
 import { MarketLink } from "@/components/address-link";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
 
 export default function AgentProfile() {
   const [, params] = useRoute("/agents/:address");
@@ -20,6 +22,7 @@ export default function AgentProfile() {
   const limit = 20;
 
   const { data: profile } = useGetAgentByAddress(address);
+  const { data: equityCurve } = useGetAgentEquityCurve(address);
   const predParams = { limit, offset, outcome: outcome || undefined, asset: asset || undefined };
   const { data: preds } = useGetAgentPredictions(address, predParams);
 
@@ -104,6 +107,53 @@ export default function AgentProfile() {
           </div>
         </div>
       </div>
+
+      {/* Equity Curve Chart */}
+      {equityCurve && equityCurve.points && equityCurve.points.length > 0 && (
+        <div className="mb-12">
+          <div className="flex items-center justify-between mb-4">
+            <span className="section-label">Equity Curve</span>
+            <span className={`text-[13px] font-medium ${equityCurve.final_pnl >= 0 ? "text-primary" : "text-foreground/40"}`}>
+              {equityCurve.final_pnl >= 0 ? "+" : ""}{equityCurve.final_pnl.toFixed(0)} chips ({equityCurve.total_trades} trades)
+            </span>
+          </div>
+          <div className="border border-border/40 bg-background p-4">
+            <ResponsiveContainer width="100%" height={240}>
+              <LineChart data={equityCurve.points} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.4} />
+                <XAxis
+                  dataKey="timestamp"
+                  tickFormatter={(v) => new Date(v).toLocaleDateString()}
+                  tick={{ fontSize: 10, fill: "hsl(var(--foreground))", opacity: 0.4 }}
+                  axisLine={{ stroke: "hsl(var(--border))" }}
+                />
+                <YAxis
+                  tick={{ fontSize: 10, fill: "hsl(var(--foreground))", opacity: 0.4 }}
+                  axisLine={{ stroke: "hsl(var(--border))" }}
+                  tickFormatter={(v) => v.toFixed(0)}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "hsl(var(--background))",
+                    border: "1px solid hsl(var(--border))",
+                    fontSize: 11,
+                  }}
+                  labelFormatter={(v) => new Date(v).toLocaleString()}
+                  formatter={(value: number) => [value.toFixed(2) + " chips", "PnL"]}
+                />
+                <ReferenceLine y={0} stroke="hsl(var(--foreground))" strokeOpacity={0.2} />
+                <Line
+                  type="monotone"
+                  dataKey="cumulative_pnl"
+                  stroke="hsl(var(--primary))"
+                  strokeWidth={2}
+                  dot={false}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
 
       <div>
         <div className="flex items-center gap-4 mb-4">
