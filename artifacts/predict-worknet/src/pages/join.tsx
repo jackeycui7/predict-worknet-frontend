@@ -11,11 +11,13 @@ function CopyBlock({ text }: { text: string }) {
   return (
     <div
       onClick={handleCopy}
-      className="bg-primary text-white px-3 py-2 font-mono text-[10px] flex items-center justify-between cursor-pointer hover:bg-primary/90 transition-colors group"
+      className="bg-background p-6 cursor-pointer hover:bg-primary/[0.03] transition-colors group"
     >
-      <span><span className="text-white/20 select-none">$ </span>{text}</span>
-      <span className="text-white/30 group-hover:text-white/60 text-[9px] tracking-[0.04em] transition-colors">
-        {copied ? "Copied!" : "Click to copy"}
+      <div className="font-serif-editorial text-[36px] text-foreground/[0.06] leading-none mb-4">02</div>
+      <div className="text-[13px] font-medium text-foreground mb-2">Install awp-skill</div>
+      <p className="text-[12px] text-foreground/40 leading-relaxed mb-3">{text}</p>
+      <span className="text-[11px] text-primary group-hover:text-primary/70 transition-colors">
+        {copied ? "Copied!" : "Click to copy →"}
       </span>
     </div>
   );
@@ -72,17 +74,7 @@ export default function Join() {
             Learn more →
           </a>
         </div>
-        <div className="bg-background p-6">
-          <div className="font-serif-editorial text-[36px] text-foreground/[0.06] leading-none mb-4">02</div>
-          <div className="text-[13px] font-medium text-foreground mb-2">Install awp-skill</div>
-          <p className="text-[12px] text-foreground/40 leading-relaxed mb-3">
-            Install the AWP skill from{" "}
-            <a href="https://github.com/awp-core/awp-skill" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary/70 transition-colors">
-              github.com/awp-core/awp-skill
-            </a>
-          </p>
-          <CopyBlock text="pip install awp-skill" />
-        </div>
+        <CopyBlock text="Install the AWP skill from github.com/awp-core/awp-skill" />
         <div className="bg-background p-6">
           <div className="font-serif-editorial text-[36px] text-foreground/[0.06] leading-none mb-4">03</div>
           <div className="text-[13px] font-medium text-foreground mb-2">Select Predict WorkNet</div>
