@@ -52,8 +52,8 @@ export default function Dashboard() {
           <div className="flex items-center gap-3 mb-4">
             <span className="section-label">Live feed</span>
             <span className="flex items-center gap-1">
-              <span className="w-[5px] h-[5px] rounded-full bg-foreground/30 animate-pulse-live" />
-              <span className="text-[10px] text-foreground/25 font-light">{feed?.length ?? 0}</span>
+              <span className="w-[5px] h-[5px] rounded-full bg-primary animate-pulse-live" />
+              <span className="text-[10px] text-foreground/40 font-light">{feed?.length ?? 0}</span>
             </span>
           </div>
           <div className="border-t border-border/60">
@@ -62,19 +62,19 @@ export default function Dashboard() {
                 key={`feed-${i}`}
                 className={`py-2 border-b border-border/40 text-[12px] flex items-center gap-3 hover:bg-foreground/[0.02] transition-colors ${i < 3 ? "animate-feed-slide" : ""}`}
               >
-                <span className="text-foreground/25 w-12 shrink-0 font-mono text-[10px] font-light">{relativeTime(item.submitted_at)}</span>
+                <span className="text-foreground/40 w-12 shrink-0 font-mono text-[10px]">{relativeTime(item.submitted_at)}</span>
                 <AgentLink address={item.agent_address} />
-                <span className={`font-medium text-[10px] tracking-[0.06em] ${item.direction === "up" ? "text-foreground" : "text-foreground/40"}`}>
+                <span className={`font-medium text-[10px] tracking-[0.06em] ${item.direction === "up" ? "text-primary" : "text-foreground/40"}`}>
                   {item.direction.toUpperCase()}
                 </span>
                 <span className="text-foreground font-normal">{item.asset}</span>
-                <span className="text-foreground/25 text-[10px] font-light">{item.window}</span>
+                <span className="text-foreground/40 text-[10px]">{item.window}</span>
                 <span className="ml-auto font-mono text-[10px] text-foreground font-medium">{formatChips(item.chips_locked)}</span>
-                <span className="font-mono text-[10px] text-foreground/25 font-light">{formatPct(item.orderbook_snapshot.implied_up_prob)}</span>
+                <span className="font-mono text-[10px] text-foreground/30">{formatPct(item.orderbook_snapshot.implied_up_prob)}</span>
               </div>
             ))}
             {(!feed || feed.length === 0) && (
-              <div className="py-8 text-center text-foreground/20 text-[13px] font-light">
+              <div className="py-8 text-center text-foreground/30 text-[13px]">
                 Waiting for predictions...
               </div>
             )}
@@ -82,7 +82,7 @@ export default function Dashboard() {
           {feed && feed.length > 6 && (
             <button
               onClick={() => setFeedOpen(!feedOpen)}
-              className="mt-2 text-[11px] font-light text-foreground/30 hover:text-foreground/60 transition-colors tracking-[0.02em]"
+              className="mt-2 text-[11px] text-primary hover:text-primary/70 transition-colors tracking-[0.02em]"
             >
               {feedOpen ? "Collapse" : `Show all ${feed.length} entries`}
             </button>
@@ -97,7 +97,7 @@ export default function Dashboard() {
             <div className="flex items-baseline gap-3 mb-5">
               <span className="font-serif-editorial text-[36px] tracking-[-0.02em] text-foreground leading-[1]">{epoch?.date ?? "—"}</span>
               {epoch && (
-                <span className="text-[10px] font-light text-foreground/30 tracking-[0.06em]">
+                <span className="text-[10px] text-foreground/40 tracking-[0.06em]">
                   {epoch.status === "in_progress" ? "in progress" : epoch.status}
                 </span>
               )}
@@ -107,20 +107,20 @@ export default function Dashboard() {
             </div>
             <div className="grid grid-cols-3 gap-4 mb-6">
               <div>
-                <div className="text-[10px] font-light text-foreground/25 mb-1 tracking-[0.04em]">Time left</div>
-                <div className="text-[14px] font-light text-foreground">{hoursLeft.toFixed(1)}h</div>
+                <div className="text-[10px] text-foreground/40 mb-1 tracking-[0.04em]">Time left</div>
+                <div className="text-[14px] text-foreground">{hoursLeft.toFixed(1)}h</div>
               </div>
               <div>
-                <div className="text-[10px] font-light text-foreground/25 mb-1 tracking-[0.04em]">Markets</div>
-                <div className="text-[14px] font-light text-foreground">{epoch ? `${epoch.markets_resolved}/${epoch.markets_created}` : "—"}</div>
+                <div className="text-[10px] text-foreground/40 mb-1 tracking-[0.04em]">Markets</div>
+                <div className="text-[14px] text-foreground">{epoch ? `${epoch.markets_resolved}/${epoch.markets_created}` : "—"}</div>
               </div>
               <div>
-                <div className="text-[10px] font-light text-foreground/25 mb-1 tracking-[0.04em]">Accuracy</div>
-                <div className="text-[14px] font-light text-foreground">{epoch ? formatPct(epoch.resolved_stats.global_accuracy) : "—"}</div>
+                <div className="text-[10px] text-foreground/40 mb-1 tracking-[0.04em]">Accuracy</div>
+                <div className="text-[14px] text-foreground">{epoch ? formatPct(epoch.resolved_stats.global_accuracy) : "—"}</div>
               </div>
             </div>
             <Link href="/join">
-              <button className="w-full py-3 bg-foreground text-white text-[12px] font-medium tracking-[0.04em] hover:bg-foreground/90 transition-colors cursor-pointer">
+              <button className="w-full py-3 bg-primary text-white text-[12px] font-medium tracking-[0.04em] hover:bg-primary/90 transition-colors cursor-pointer">
                 Join now
               </button>
             </Link>
@@ -134,9 +134,9 @@ export default function Dashboard() {
 function MetricCell({ label, value, sub, subColor, last }: { label: string; value: string; sub?: string; subColor?: string; last?: boolean }) {
   return (
     <div className={`py-5 pr-6 ${!last ? "border-r border-border/40" : ""}`}>
-      <div className="text-[10px] font-light text-foreground/25 tracking-[0.06em] uppercase mb-2">{label}</div>
+      <div className="text-[11px] font-medium text-foreground/70 tracking-[0.04em] uppercase mb-2">{label}</div>
       <div className="font-serif-editorial text-[32px] tracking-[-0.02em] text-foreground leading-[1] mb-1">{value}</div>
-      {sub && <div className={`text-[11px] font-light ${subColor || "text-foreground/25"}`}>{sub}</div>}
+      {sub && <div className={`text-[11px] ${subColor || "text-foreground/40"}`}>{sub}</div>}
     </div>
   );
 }

@@ -15,7 +15,7 @@ function CountdownTimer({ closesAt }: { closesAt: string }) {
   }, [closesAt]);
   const isClosed = display === "CLOSED";
   return (
-    <span className={`font-mono text-[11px] font-medium tracking-wide ${isClosed ? "text-foreground/30" : "text-foreground"}`}>
+    <span className={`font-mono text-[11px] font-medium tracking-wide ${isClosed ? "text-foreground/30" : "text-primary"}`}>
       {display}
     </span>
   );
@@ -83,7 +83,7 @@ export default function Markets() {
 
   return (
     <div className="animate-fade-up">
-      <div className="flex items-baseline justify-between mb-10">
+      <div className="flex items-baseline justify-between mb-8">
         <h1 className="font-serif-editorial text-[48px] tracking-[-0.03em] text-foreground leading-[1]">Markets</h1>
         <div className="flex items-center gap-4">
           <div className="flex gap-0">
@@ -92,7 +92,7 @@ export default function Markets() {
               className={`px-4 py-1.5 text-[12px] tracking-[0.02em] transition-colors ${
                 tab === "active"
                   ? "text-foreground font-medium border-b-2 border-foreground"
-                  : "text-foreground/30 font-light hover:text-foreground/60"
+                  : "text-foreground/30 hover:text-foreground/60"
               }`}
             >
               Active ({active?.length ?? 0})
@@ -102,7 +102,7 @@ export default function Markets() {
               className={`px-4 py-1.5 text-[12px] tracking-[0.02em] transition-colors ${
                 tab === "resolved"
                   ? "text-foreground font-medium border-b-2 border-foreground"
-                  : "text-foreground/30 font-light hover:text-foreground/60"
+                  : "text-foreground/30 hover:text-foreground/60"
               }`}
             >
               Resolved
@@ -124,8 +124,8 @@ export default function Markets() {
                           : "text-foreground/25 hover:text-foreground/50"
                       }`}
                     >
-                      <span className="text-[8px] font-light tracking-wider">{d.dayLabel}</span>
-                      <span className="text-[12px] font-light leading-tight">{d.label}</span>
+                      <span className="text-[8px] tracking-wider">{d.dayLabel}</span>
+                      <span className="text-[12px] leading-tight">{d.label}</span>
                     </button>
                   );
                 })}
@@ -133,7 +133,7 @@ export default function Markets() {
               <select
                 value={asset}
                 onChange={(e) => { setAsset(e.target.value); setOffset(0); setAccumulated([]); }}
-                className="bg-transparent border border-border px-2.5 py-1.5 text-[11px] font-light text-foreground"
+                className="bg-transparent border border-border px-2.5 py-1.5 text-[11px] text-foreground"
               >
                 <option value="">All assets</option>
                 {assets.map((a) => <option key={a} value={a}>{a}</option>)}
@@ -141,7 +141,7 @@ export default function Markets() {
               <select
                 value={window}
                 onChange={(e) => { setWindow(e.target.value); setOffset(0); setAccumulated([]); }}
-                className="bg-transparent border border-border px-2.5 py-1.5 text-[11px] font-light text-foreground"
+                className="bg-transparent border border-border px-2.5 py-1.5 text-[11px] text-foreground"
               >
                 <option value="">All windows</option>
                 {windows.map((w) => <option key={w} value={w}>{w}</option>)}
@@ -152,69 +152,74 @@ export default function Markets() {
       </div>
 
       {tab === "active" && (
-        <div className="border-t border-border/60">
-          {active?.map((m, i) => (
+        <div className="grid grid-cols-3 gap-3 animate-fade-up">
+          {active?.map((m) => (
             <Link key={m.id} href={`/markets/${m.id}`}>
-              <div className={`py-4 flex items-center gap-6 cursor-pointer hover:bg-foreground/[0.02] transition-colors text-[12px] ${i < (active.length - 1) ? "border-b border-border/40" : ""}`}>
-                <div className="flex items-baseline gap-2 w-32">
-                  <span className="font-serif-editorial text-[24px] text-foreground leading-[1]">{m.asset}</span>
-                  <span className="text-[10px] font-light text-foreground/25">{m.window}</span>
-                </div>
-                <div className="flex items-center gap-2 flex-1">
-                  <span className="text-foreground font-medium">{formatPct(m.orderbook.best_up_price)}</span>
-                  <div className="flex-1 h-[1px] bg-border/60 relative max-w-[200px]">
-                    <div className="absolute top-0 left-0 h-full bg-foreground" style={{ width: `${m.orderbook.best_up_price * 100}%` }} />
+              <div className="border border-border/60 p-5 cursor-pointer hover:border-primary/30 hover:bg-primary/[0.02] transition-all h-full">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-[18px] font-semibold text-foreground tracking-tight">{m.asset}</span>
+                    <span className="text-[10px] text-foreground/40">{m.window}</span>
                   </div>
-                  <span className="text-foreground/30 font-light">{formatPct(m.orderbook.best_down_price)}</span>
+                  <CountdownTimer closesAt={m.close_at} />
                 </div>
-                <div className="flex items-center gap-6 text-foreground/30 font-light">
-                  <span>Open {formatPrice(m.open_price)}</span>
-                  <span>{m.stats.total_orders} orders</span>
-                  <span>{formatNumber(m.stats.total_tickets_matched)} matched</span>
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="text-primary font-semibold text-[13px]">{formatPct(m.orderbook.best_up_price)}</span>
+                  <div className="flex-1 h-[3px] bg-border/60 overflow-hidden">
+                    <div className="h-full bg-primary" style={{ width: `${m.orderbook.best_up_price * 100}%` }} />
+                  </div>
+                  <span className="text-foreground/30 text-[13px]">{formatPct(m.orderbook.best_down_price)}</span>
                 </div>
-                <CountdownTimer closesAt={m.close_at} />
+                <div className="flex items-center gap-4 text-[11px] text-foreground/40">
+                  <span>Open <span className="text-foreground font-medium">{formatPrice(m.open_price)}</span></span>
+                  <span><span className="text-foreground font-medium">{m.stats.total_orders}</span> orders</span>
+                  <span><span className="text-foreground font-medium">{formatNumber(m.stats.total_tickets_matched)}</span> matched</span>
+                </div>
               </div>
             </Link>
           ))}
           {(!active || active.length === 0) && (
-            <div className="text-center py-16 text-foreground/20 text-[13px] font-light">No active markets</div>
+            <div className="col-span-3 text-center py-16 text-foreground/30 text-[13px]">No active markets</div>
           )}
         </div>
       )}
 
       {tab === "resolved" && (
-        <div className="border-t border-border/60">
-          {accumulated.map((m, i) => (
+        <div className="grid grid-cols-3 gap-3 animate-fade-up">
+          {accumulated.map((m) => (
             <Link key={m.id} href={`/markets/${m.id}`}>
-              <div className={`py-4 flex items-center gap-6 cursor-pointer hover:bg-foreground/[0.02] transition-colors text-[12px] ${i < (accumulated.length - 1) ? "border-b border-border/40" : ""}`}>
-                <div className="flex items-baseline gap-2 w-32">
-                  <span className="font-serif-editorial text-[24px] text-foreground leading-[1]">{m.asset}</span>
-                  <span className="text-[10px] font-light text-foreground/25">{m.window}</span>
+              <div className="border border-border/60 p-5 cursor-pointer hover:border-foreground/20 hover:bg-foreground/[0.02] transition-all h-full">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-[18px] font-semibold text-foreground tracking-tight">{m.asset}</span>
+                    <span className="text-[10px] text-foreground/40">{m.window}</span>
+                  </div>
+                  <span className={`text-[11px] font-semibold tracking-[0.06em] ${m.outcome === "up" ? "text-primary" : "text-foreground/40"}`}>
+                    {m.outcome?.toUpperCase()}
+                  </span>
                 </div>
-                <span className={`text-[11px] font-medium tracking-[0.06em] w-12 ${m.outcome === "up" ? "text-foreground" : "text-foreground/40"}`}>
-                  {m.outcome?.toUpperCase()}
-                </span>
-                <div className="flex items-center gap-6 text-foreground/30 font-light flex-1">
-                  <span>Open {formatPrice(m.open_price)}</span>
-                  {m.resolve_price != null && <span>Close {formatPrice(m.resolve_price)}</span>}
-                  <span>{m.stats.total_orders} orders</span>
-                  <span>{formatNumber(m.stats.total_tickets_matched)} matched</span>
+                <div className="flex items-center gap-4 text-[11px] text-foreground/40">
+                  <span>Open <span className="text-foreground font-medium">{formatPrice(m.open_price)}</span></span>
+                  {m.resolve_price != null && <span>Close <span className="text-foreground font-medium">{formatPrice(m.resolve_price)}</span></span>}
+                  <span><span className="text-foreground font-medium">{m.stats.total_orders}</span> orders</span>
                 </div>
               </div>
             </Link>
           ))}
           {accumulated.length === 0 && (
-            <div className="text-center py-16 text-foreground/20 text-[13px] font-light">
+            <div className="col-span-3 text-center py-16 text-foreground/30 text-[13px]">
               {selectedDate ? `No resolved markets for ${selectedDate}` : "No resolved markets found"}
             </div>
           )}
           {resolved?.pagination?.has_more && (
-            <button
-              onClick={() => setOffset((o) => o + limit)}
-              className="w-full mt-6 py-2.5 text-[12px] font-light text-foreground border-t border-border/60 hover:bg-foreground/[0.02] transition-colors tracking-[0.04em]"
-            >
-              Load more
-            </button>
+            <div className="col-span-3">
+              <button
+                onClick={() => setOffset((o) => o + limit)}
+                className="w-full mt-3 py-2.5 text-[12px] text-primary border border-primary/30 hover:bg-primary hover:text-white transition-colors tracking-[0.04em]"
+              >
+                Load more
+              </button>
+            </div>
           )}
         </div>
       )}

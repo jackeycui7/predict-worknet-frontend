@@ -94,7 +94,7 @@
   --popover-foreground: 0 0% 7%;
   --popover-border: 0 0% 92%;
 
-  --primary: 0 0% 7%;
+  --primary: 228 72% 52%;
   --primary-foreground: 0 0% 100%;
 
   --secondary: 0 0% 96%;
@@ -254,11 +254,11 @@
 }
 
 .section-label {
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.12em;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgba(0, 0, 0, 0.35);
+  color: rgba(0, 0, 0, 0.5);
 }
 
 .epoch-progress-track {
@@ -268,6 +268,6 @@
 }
 .epoch-progress-fill {
   height: 100%;
-  background: hsl(0 0% 7%);
+  background: hsl(228 72% 52%);
   transition: width 1s ease;
 }
