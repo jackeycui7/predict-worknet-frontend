@@ -118,7 +118,7 @@ export default function Dashboard() {
               </div>
               <div>
                 <div className="text-[10px] text-foreground/40 mb-1 tracking-[0.04em]">Accuracy</div>
-                <div className="text-[14px] text-foreground">{epoch ? formatPct(epoch.resolved_stats.global_accuracy) : "—"}</div>
+                <div className="text-[14px] text-foreground">{epoch?.resolved_stats?.global_accuracy != null ? formatPct(epoch.resolved_stats.global_accuracy) : "—"}</div>
               </div>
             </div>
             <Link href="/join">
