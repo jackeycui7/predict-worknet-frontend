@@ -79,15 +79,16 @@ Light-themed scientific data dashboard SPA using React+Vite, wouter routing, Tan
 - `/agents/:address` — Agent profile with lifetime stats (all_time_excess, contrarian_rate, chips_spent/won), today panel (balance, excess, estimated_reward), prediction history with outcome/asset filters
 
 ### Theme
-- Apple-inspired frosted glass design with rounded corners and backdrop blur
-- Light gray background (hsl 220 14% 96%), glass cards with white/blur overlays
-- Font: Inter (headings/body), JetBrains Mono (data/code) — loaded via Google Fonts
-- Brand: "Predict WorkNet" with "built on AWP" subtitle (sentence case)
-- Colors: blue primary (hsl 230 80% 56%), warm dark (hsl 220 20% 10%), red destructive
-- Border radius: 16px base, 14px for inner cards, rounded-full for pills/buttons
-- CSS classes: glass-card, glass-card-inner, glass-card-dark, glass-card-primary, bento-card (alias), bento-card-dark, bento-card-primary
-- Animations: animate-fade-up, animate-feed-slide, animate-pulse-live
-- Nav: sentence-case rounded pill tabs with filled active state, frosted glass header
+- Editorial grid design — white background, vertical grid lines (40px), no rounded corners (radius: 0)
+- Font: Cormorant Garamond (serif, weight 300) for large headings/numbers, Inter (body/labels), JetBrains Mono (data/code)
+- Brand: "Predict WorkNet" with "built on AWP" subtitle
+- Colors: monochrome — foreground (#111) on white, no blue primary; dark panels (bg-foreground) for accent sections
+- Layout: grid-based with 1px border separators (gap-px bg-border), no card shadows, no blur
+- Floating pixel-art decorations (SVG, 3-5% opacity, float animations)
+- Section labels: 10px uppercase tracking-wide text-foreground/25 (.section-label class)
+- CSS classes: glass-card/glass-card-inner (now transparent with subtle border), glass-card-dark/glass-card-primary (solid #111 bg)
+- Animations: animate-fade-up, animate-feed-slide, animate-pulse-live, animate-float-slow/medium/fast
+- Nav: underline-style tabs (border-b-2 active), light weight text, no pills
 
 ### Key Patterns
 - All pages import from `@/lib/api` (mock wrapper) not directly from `@workspace/api-client-react`

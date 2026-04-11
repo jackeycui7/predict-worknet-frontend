@@ -47,71 +47,71 @@ export default function AgentProfile() {
   }, [preds?.data, offset]);
 
   if (!profile) {
-    return <div className="p-6 text-muted-foreground text-sm">Loading agent...</div>;
+    return <div className="p-6 text-foreground/25 text-[13px] font-light">Loading agent...</div>;
   }
 
   const s = profile.stats;
   const t = profile.today;
 
   return (
-    <div className="space-y-4">
-      <div className="glass-card-dark p-6 animate-fade-up">
-        <div className="text-[11px] font-medium text-white/40">Agent Profile</div>
-        <h1 className="text-lg font-bold text-white tracking-tight break-all font-mono mt-2">{address}</h1>
-        <div className="flex items-center gap-3 mt-2">
-          <span className="text-[10px] font-medium text-white/60 bg-white/10 px-2.5 py-0.5 rounded-full">{personaLabel(profile.persona)}</span>
-          <span className="text-[11px] text-white/40">Rank <span className="text-white font-bold">#{s.rank}</span></span>
-          <span className="text-[11px] text-white/40">Joined {new Date(profile.joined_at).toLocaleDateString()}</span>
+    <div className="animate-fade-up">
+      <div className="bg-foreground p-8 mb-10">
+        <div className="text-[10px] font-light text-white/25 tracking-[0.06em] uppercase">Agent profile</div>
+        <h1 className="text-[16px] font-mono text-white break-all mt-2 font-light">{address}</h1>
+        <div className="flex items-center gap-4 mt-3">
+          <span className="text-[10px] font-light text-white/30 tracking-[0.04em] border border-white/10 px-2 py-0.5">{personaLabel(profile.persona)}</span>
+          <span className="text-[11px] text-white/25 font-light">Rank <span className="text-white font-medium">#{s.rank}</span></span>
+          <span className="text-[11px] text-white/25 font-light">Joined {new Date(profile.joined_at).toLocaleDateString()}</span>
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-3 animate-fade-up" style={{ animationDelay: "0.05s" }}>
-        <div className="glass-card p-5">
-          <div className="text-[12px] font-semibold text-muted-foreground/70 mb-3">Lifetime</div>
-          <div className="space-y-2 text-[12px]">
-            <div className="flex justify-between"><span className="text-muted-foreground">Submissions</span><span className="font-bold">{formatNumber(s.total_submissions)}</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground">Resolved</span><span className="font-bold">{formatNumber(s.total_resolved)}</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground">Correct</span><span className="text-primary font-bold">{formatNumber(s.correct)}</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground">Incorrect</span><span className="text-destructive font-bold">{formatNumber(s.incorrect)}</span></div>
-            <div className="flex justify-between pt-2 border-t border-black/[0.06]"><span className="text-muted-foreground">Accuracy</span><span className="text-2xl text-primary font-black">{formatPct(s.accuracy)}</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground">Total Earned</span><span className="text-primary font-bold">{formatPred(s.total_earned)}</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground">Excess</span><span className={`font-bold ${s.all_time_excess >= 0 ? "text-primary" : "text-destructive"}`}>{s.all_time_excess >= 0 ? "+" : ""}{formatChips(s.all_time_excess)}</span></div>
+      <div className="grid grid-cols-3 gap-px bg-border/40 border border-border/40 mb-12">
+        <div className="bg-background p-6">
+          <span className="section-label">Lifetime</span>
+          <div className="space-y-2.5 text-[12px] mt-4">
+            <div className="flex justify-between"><span className="text-foreground/30 font-light">Submissions</span><span className="font-medium">{formatNumber(s.total_submissions)}</span></div>
+            <div className="flex justify-between"><span className="text-foreground/30 font-light">Resolved</span><span className="font-medium">{formatNumber(s.total_resolved)}</span></div>
+            <div className="flex justify-between"><span className="text-foreground/30 font-light">Correct</span><span className="font-medium">{formatNumber(s.correct)}</span></div>
+            <div className="flex justify-between"><span className="text-foreground/30 font-light">Incorrect</span><span className="font-medium">{formatNumber(s.incorrect)}</span></div>
+            <div className="flex justify-between pt-3 border-t border-border/40"><span className="text-foreground/30 font-light">Accuracy</span><span className="font-serif-editorial text-[28px]">{formatPct(s.accuracy)}</span></div>
+            <div className="flex justify-between"><span className="text-foreground/30 font-light">Total earned</span><span className="font-medium">{formatPred(s.total_earned)}</span></div>
+            <div className="flex justify-between"><span className="text-foreground/30 font-light">Excess</span><span className={`font-medium ${s.all_time_excess >= 0 ? "text-foreground" : "text-foreground/40"}`}>{s.all_time_excess >= 0 ? "+" : ""}{formatChips(s.all_time_excess)}</span></div>
           </div>
         </div>
 
-        <div className="glass-card p-5">
-          <div className="text-[12px] font-semibold text-muted-foreground/70 mb-3">Streaks & Preferences</div>
-          <div className="space-y-2 text-[12px]">
-            <div className="flex justify-between"><span className="text-muted-foreground">Current Streak</span><span className="text-2xl text-primary font-black">{s.current_streak}</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground">Best Streak</span><span className="font-bold">{s.best_streak}</span></div>
-            <div className="flex justify-between pt-2 border-t border-black/[0.06]"><span className="text-muted-foreground">Fav Asset</span><span className="font-bold">{s.favorite_asset}</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground">Fav Window</span><span className="font-bold">{s.favorite_window}</span></div>
-            <div className="flex justify-between pt-2 border-t border-black/[0.06]"><span className="text-muted-foreground">Chips Spent</span><span className="font-bold">{formatChips(s.all_time_chips_spent)}</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground">Chips Won</span><span className="font-bold">{formatChips(s.all_time_chips_won)}</span></div>
+        <div className="bg-background p-6">
+          <span className="section-label">Streaks & preferences</span>
+          <div className="space-y-2.5 text-[12px] mt-4">
+            <div className="flex justify-between"><span className="text-foreground/30 font-light">Current streak</span><span className="font-serif-editorial text-[28px]">{s.current_streak}</span></div>
+            <div className="flex justify-between"><span className="text-foreground/30 font-light">Best streak</span><span className="font-medium">{s.best_streak}</span></div>
+            <div className="flex justify-between pt-3 border-t border-border/40"><span className="text-foreground/30 font-light">Fav asset</span><span className="font-medium">{s.favorite_asset}</span></div>
+            <div className="flex justify-between"><span className="text-foreground/30 font-light">Fav window</span><span className="font-medium">{s.favorite_window}</span></div>
+            <div className="flex justify-between pt-3 border-t border-border/40"><span className="text-foreground/30 font-light">Chips spent</span><span className="font-medium">{formatChips(s.all_time_chips_spent)}</span></div>
+            <div className="flex justify-between"><span className="text-foreground/30 font-light">Chips won</span><span className="font-medium">{formatChips(s.all_time_chips_won)}</span></div>
           </div>
         </div>
 
-        <div className="glass-card-primary p-5">
-          <div className="text-[11px] font-medium text-white/50 mb-3">Today</div>
-          <div className="space-y-2 text-[12px]">
-            <div className="flex justify-between"><span className="text-white/60">Balance</span><span className="text-2xl text-white font-black">{formatChips(t.balance)}</span></div>
-            <div className="flex justify-between"><span className="text-white/60">Fed</span><span className="text-white font-bold">{formatChips(t.total_fed)}</span></div>
-            <div className="flex justify-between"><span className="text-white/60">Excess</span><span className={`font-bold ${t.excess >= 0 ? "text-white" : "text-red-300"}`}>{t.excess >= 0 ? "+" : ""}{formatChips(t.excess)}</span></div>
-            <div className="flex justify-between pt-2 border-t border-white/10"><span className="text-white/60">Subs / Resolved</span><span className="text-white font-bold">{t.submissions} / {t.resolved}</span></div>
-            <div className="flex justify-between"><span className="text-white/60">Correct</span><span className="text-white font-bold">{t.correct}</span></div>
-            <div className="flex justify-between"><span className="text-white/60">Accuracy</span><span className="text-white font-bold">{formatPct(t.accuracy)}</span></div>
-            <div className="flex justify-between pt-2 border-t border-white/10"><span className="text-white/60">Est. Reward</span><span className="text-white font-black text-lg">{formatPred(t.estimated_reward)}</span></div>
+        <div className="bg-foreground p-6 text-white">
+          <div className="text-[10px] font-light text-white/25 tracking-[0.06em] uppercase mb-4">Today</div>
+          <div className="space-y-2.5 text-[12px]">
+            <div className="flex justify-between"><span className="text-white/30 font-light">Balance</span><span className="font-serif-editorial text-[28px] text-white">{formatChips(t.balance)}</span></div>
+            <div className="flex justify-between"><span className="text-white/30 font-light">Fed</span><span className="text-white font-medium">{formatChips(t.total_fed)}</span></div>
+            <div className="flex justify-between"><span className="text-white/30 font-light">Excess</span><span className={`font-medium ${t.excess >= 0 ? "text-white" : "text-white/50"}`}>{t.excess >= 0 ? "+" : ""}{formatChips(t.excess)}</span></div>
+            <div className="flex justify-between pt-3 border-t border-white/10"><span className="text-white/30 font-light">Subs / Resolved</span><span className="text-white font-medium">{t.submissions} / {t.resolved}</span></div>
+            <div className="flex justify-between"><span className="text-white/30 font-light">Correct</span><span className="text-white font-medium">{t.correct}</span></div>
+            <div className="flex justify-between"><span className="text-white/30 font-light">Accuracy</span><span className="text-white font-medium">{formatPct(t.accuracy)}</span></div>
+            <div className="flex justify-between pt-3 border-t border-white/10"><span className="text-white/30 font-light">Est. reward</span><span className="text-white font-serif-editorial text-[20px]">{formatPred(t.estimated_reward)}</span></div>
           </div>
         </div>
       </div>
 
-      <div className="glass-card overflow-hidden animate-fade-up" style={{ animationDelay: "0.1s" }}>
-        <div className="flex items-center gap-3 px-5 py-3 border-b border-black/[0.06]">
-          <span className="text-[12px] font-semibold text-foreground">Prediction History</span>
+      <div>
+        <div className="flex items-center gap-4 mb-4">
+          <span className="section-label">Prediction history</span>
           <select
             value={outcome}
             onChange={(e) => { setOutcome(e.target.value); setOffset(0); setAccumulated([]); }}
-            className="bg-white/60 backdrop-blur border border-white/50 px-2 py-1 text-[10px] font-medium text-foreground rounded-lg"
+            className="bg-transparent border border-border px-2 py-1 text-[10px] font-light text-foreground"
           >
             <option value="">All</option>
             <option value="correct">Correct</option>
@@ -121,38 +121,40 @@ export default function AgentProfile() {
           <select
             value={asset}
             onChange={(e) => { setAsset(e.target.value); setOffset(0); setAccumulated([]); }}
-            className="bg-white/60 backdrop-blur border border-white/50 px-2 py-1 text-[10px] font-medium text-foreground rounded-lg"
+            className="bg-transparent border border-border px-2 py-1 text-[10px] font-light text-foreground"
           >
-            <option value="">All Assets</option>
+            <option value="">All assets</option>
             <option value="BTC">BTC</option>
             <option value="ETH">ETH</option>
             <option value="SOL">SOL</option>
           </select>
         </div>
-        {accumulated.map((p) => (
-          <div key={`${p.market_id}-${p.submitted_at}`} className="px-5 py-2.5 border-b border-black/[0.04] text-[11px] hover:bg-black/[0.02] transition-colors">
-            <div className="flex items-center gap-2 mb-1">
-              <MarketLink id={p.market_id} />
-              <span className="text-foreground font-bold">{p.asset} {p.window}</span>
-              <span className={`font-bold text-[10px] tracking-wider ${p.direction === "up" ? "text-primary" : "text-destructive"}`}>{p.direction.toUpperCase()}</span>
-              <span>{p.tickets} tix @ {p.avg_fill_price.toFixed(2)}</span>
-              <span className="text-primary font-mono text-[10px]">{formatChips(p.chips_spent)}</span>
-              {p.payout_chips != null && <span className="font-mono text-[10px]">{formatChips(p.payout_chips)}</span>}
-              {p.was_minority && <span className="text-amber-500 text-[9px] font-bold tracking-wider">MINORITY</span>}
-              {p.outcome && <span className={`ml-auto font-bold text-[10px] tracking-wider ${p.outcome === "correct" ? "text-primary" : "text-destructive"}`}>{p.outcome.toUpperCase()}</span>}
-              <span className="text-muted-foreground/50 text-[10px]">{relativeTime(p.submitted_at)}</span>
+        <div className="border-t border-border/60">
+          {accumulated.map((p) => (
+            <div key={`${p.market_id}-${p.submitted_at}`} className="py-2.5 border-b border-border/30 text-[11px] hover:bg-foreground/[0.02] transition-colors">
+              <div className="flex items-center gap-3 mb-1">
+                <MarketLink id={p.market_id} />
+                <span className="text-foreground font-medium">{p.asset} {p.window}</span>
+                <span className={`font-medium text-[10px] tracking-[0.06em] ${p.direction === "up" ? "text-foreground" : "text-foreground/30"}`}>{p.direction.toUpperCase()}</span>
+                <span className="font-light">{p.tickets} tix @ {p.avg_fill_price.toFixed(2)}</span>
+                <span className="font-mono text-[10px] text-foreground/40">{formatChips(p.chips_spent)}</span>
+                {p.payout_chips != null && <span className="font-mono text-[10px] text-foreground/40">{formatChips(p.payout_chips)}</span>}
+                {p.was_minority && <span className="text-foreground/30 text-[9px] font-medium tracking-[0.06em]">MINORITY</span>}
+                {p.outcome && <span className={`ml-auto font-medium text-[10px] tracking-[0.06em] ${p.outcome === "correct" ? "text-foreground" : "text-foreground/25"}`}>{p.outcome.toUpperCase()}</span>}
+                <span className="text-foreground/15 text-[10px] font-light">{relativeTime(p.submitted_at)}</span>
+              </div>
+              <div className="text-foreground/25 text-[10px] font-light line-clamp-1 leading-relaxed">{p.reasoning}</div>
             </div>
-            <div className="text-muted-foreground text-[10px] line-clamp-1 leading-relaxed">{p.reasoning}</div>
-          </div>
-        ))}
-        {preds?.pagination?.has_more && (
-          <button
-            onClick={() => setOffset((o) => o + limit)}
-            className="w-full py-2.5 text-[12px] font-semibold text-primary border-t border-black/[0.06] hover:bg-black/[0.02] transition-colors"
-          >
-            Load More
-          </button>
-        )}
+          ))}
+          {preds?.pagination?.has_more && (
+            <button
+              onClick={() => setOffset((o) => o + limit)}
+              className="w-full py-2.5 text-[12px] font-light text-foreground border-t border-border/60 hover:bg-foreground/[0.02] transition-colors tracking-[0.04em]"
+            >
+              Load more
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
