@@ -87,9 +87,9 @@ export default function MarketDetail() {
             <div className="flex justify-between"><span className="text-foreground/30 font-light">Open price</span><span className="font-medium">{formatPrice(market.open_price)}</span></div>
             {market.resolve_price != null && <div className="flex justify-between"><span className="text-foreground/30 font-light">Close price</span><span className="font-medium">{formatPrice(market.resolve_price)}</span></div>}
             {market.outcome && <div className="flex justify-between"><span className="text-foreground/30 font-light">Outcome</span><span className={`font-medium ${market.outcome === "up" ? "text-foreground" : "text-foreground/40"}`}>{market.outcome.toUpperCase()}</span></div>}
-            <div className="flex justify-between"><span className="text-foreground/30 font-light">Total orders</span><span className="font-medium">{market.stats.total_orders}</span></div>
-            <div className="flex justify-between"><span className="text-foreground/30 font-light">Tickets matched</span><span className="font-medium">{formatNumber(market.stats.total_tickets_matched)}</span></div>
-            <div className="flex justify-between"><span className="text-foreground/30 font-light">Up / Down</span><span className="font-medium">{market.stats.up_count} / {market.stats.down_count}</span></div>
+            <div className="flex justify-between"><span className="text-foreground/30 font-light">Total orders</span><span className="font-medium">{market.stats?.total_orders ?? market.prediction_count ?? 0}</span></div>
+            <div className="flex justify-between"><span className="text-foreground/30 font-light">Tickets matched</span><span className="font-medium">{formatNumber(market.stats?.total_tickets_matched ?? 0)}</span></div>
+            <div className="flex justify-between"><span className="text-foreground/30 font-light">Up / Down</span><span className="font-medium">{market.stats?.up_count ?? market.up_tickets_filled ?? 0} / {market.stats?.down_count ?? market.down_tickets_filled ?? 0}</span></div>
           </div>
         </div>
         <div className="bg-background p-6">
@@ -97,16 +97,16 @@ export default function MarketDetail() {
           <div className="space-y-3 mt-4">
             <div className="flex justify-between items-baseline">
               <span className="text-[11px] text-foreground/30 font-light">Best UP</span>
-              <span className="font-serif-editorial text-[32px] text-foreground">{formatPct(market.orderbook.best_up_price)}</span>
+              <span className="font-serif-editorial text-[32px] text-foreground">{formatPct(market.orderbook?.best_up_price ?? 0.5)}</span>
             </div>
             <div className="flex justify-between items-baseline">
               <span className="text-[11px] text-foreground/30 font-light">Best DOWN</span>
-              <span className="font-serif-editorial text-[32px] text-foreground/40">{formatPct(market.orderbook.best_down_price)}</span>
+              <span className="font-serif-editorial text-[32px] text-foreground/40">{formatPct(market.orderbook?.best_down_price ?? 0.5)}</span>
             </div>
             <div className="pt-3 border-t border-border/40 space-y-2 text-[12px]">
-              <div className="flex justify-between"><span className="text-foreground/30 font-light">Spread</span><span className="font-medium">{formatPct(market.orderbook.spread)}</span></div>
-              <div className="flex justify-between"><span className="text-foreground/30 font-light">UP depth</span><span className="font-medium">{formatNumber(market.orderbook.up_depth_10)} tix</span></div>
-              <div className="flex justify-between"><span className="text-foreground/30 font-light">DOWN depth</span><span className="font-medium">{formatNumber(market.orderbook.down_depth_10)} tix</span></div>
+              <div className="flex justify-between"><span className="text-foreground/30 font-light">Spread</span><span className="font-medium">{formatPct(market.orderbook?.spread ?? 0)}</span></div>
+              <div className="flex justify-between"><span className="text-foreground/30 font-light">UP depth</span><span className="font-medium">{formatNumber(market.orderbook?.up_depth_10 ?? 0)} tix</span></div>
+              <div className="flex justify-between"><span className="text-foreground/30 font-light">DOWN depth</span><span className="font-medium">{formatNumber(market.orderbook?.down_depth_10 ?? 0)} tix</span></div>
             </div>
           </div>
         </div>
