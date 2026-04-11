@@ -117,26 +117,35 @@ export default function Leaderboard() {
 
       {/* Multi-agent Equity Curves Chart */}
       {showChart && equityCurves && equityCurves.length > 0 && (() => {
-        // Transform data to handle string/number formats
+        // Transform data: add trade index for X-axis, handle string/number formats
         const transformedCurves = equityCurves.map((curve: any) => ({
           ...curve,
-          points: curve.points?.map((p: any) => ({
+          points: curve.points?.map((p: any, idx: number) => ({
             ...p,
+            tradeIndex: idx + 1,
             timestamp: typeof p.timestamp === "number" ? p.timestamp * 1000 : p.timestamp,
             cumulative_pnl: typeof p.cumulative_pnl === "string" ? parseFloat(p.cumulative_pnl) : p.cumulative_pnl,
           })) ?? [],
         }));
+
+        // Find max trade count for X-axis domain
+        const maxTrades = Math.max(...transformedCurves.map((c: any) => c.points?.length ?? 0), 1);
+
         return (
           <div className="mb-10">
             <div className="border border-border/40 bg-background p-4">
-              <ResponsiveContainer width="100%" height={300}>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[10px] text-foreground/40">Cumulative PnL by Trade</span>
+                <span className="text-[10px] text-foreground/30">{maxTrades} trades max</span>
+              </div>
+              <ResponsiveContainer width="100%" height={280}>
                 <LineChart margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.4} />
                   <XAxis
-                    dataKey="timestamp"
-                    type="category"
-                    allowDuplicatedCategory={false}
-                    tickFormatter={(v) => { const d = new Date(v); return isNaN(d.getTime()) ? "—" : d.toLocaleDateString(); }}
+                    dataKey="tradeIndex"
+                    type="number"
+                    domain={[1, maxTrades]}
+                    tickFormatter={(v) => `#${v}`}
                     tick={{ fontSize: 10, fill: "hsl(var(--foreground))", opacity: 0.4 }}
                     axisLine={{ stroke: "hsl(var(--border))" }}
                   />
@@ -151,9 +160,13 @@ export default function Leaderboard() {
                       border: "1px solid hsl(var(--border))",
                       fontSize: 11,
                     }}
-                    labelFormatter={(v) => { const d = new Date(v); return isNaN(d.getTime()) ? "—" : d.toLocaleString(); }}
+                    labelFormatter={(v) => `Trade #${v}`}
+                    formatter={(value: any, name: string) => [
+                      `${value >= 0 ? "+" : ""}${Number(value).toFixed(0)} chips`,
+                      name.slice(0, 10) + "..."
+                    ]}
                   />
-                  <ReferenceLine y={0} stroke="hsl(var(--foreground))" strokeOpacity={0.2} />
+                  <ReferenceLine y={0} stroke="hsl(var(--foreground))" strokeOpacity={0.3} strokeDasharray="3 3" />
                   <Legend
                     wrapperStyle={{ fontSize: 10 }}
                     formatter={(value) => value.slice(0, 8) + "..."}
@@ -168,6 +181,7 @@ export default function Leaderboard() {
                       stroke={AGENT_COLORS[idx % AGENT_COLORS.length]}
                       strokeWidth={2}
                       dot={false}
+                      connectNulls
                     />
                   ))}
                 </LineChart>
