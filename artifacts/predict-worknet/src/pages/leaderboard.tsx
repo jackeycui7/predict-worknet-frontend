@@ -38,13 +38,15 @@ export default function Leaderboard() {
   }, [currentFilterKey]);
 
   useEffect(() => {
-    if (lb?.data) {
+    // Handle nested response: { success, data: { data: [...], pagination } }
+    const entries = Array.isArray(lb?.data) ? lb.data : lb?.data?.data;
+    if (entries) {
       if (offset === 0) {
-        setAccumulated(lb.data);
+        setAccumulated(entries);
       } else {
         setAccumulated((prev) => {
           const existingAddrs = new Set(prev.map((e) => e.agent_address));
-          const newItems = lb.data.filter((e) => !existingAddrs.has(e.agent_address));
+          const newItems = entries.filter((e: any) => !existingAddrs.has(e.agent_address));
           return [...prev, ...newItems];
         });
       }
@@ -247,7 +249,7 @@ export default function Leaderboard() {
           </tbody>
         </table>
       </div>
-      {lb?.pagination?.has_more && (
+      {(lb?.pagination?.has_more || lb?.data?.pagination?.has_more) && (
         <button
           onClick={() => setOffset((o) => o + limit)}
           className="w-full mt-6 py-2.5 text-[12px] text-primary border-t border-border/60 hover:bg-primary/[0.03] transition-colors tracking-[0.04em]"
