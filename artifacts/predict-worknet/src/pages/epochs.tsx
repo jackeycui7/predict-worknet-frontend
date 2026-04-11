@@ -15,15 +15,15 @@ function EpochDetail({ epochId }: { epochId: number }) {
     <div className="px-6 py-6 border-t border-border/40 bg-foreground/[0.01]">
       <div className="grid grid-cols-3 gap-8 mb-8">
         <div>
-          <div className="text-[10px] font-light text-foreground/25 tracking-[0.04em] mb-1">Participation pool</div>
+          <div className="text-[11px] font-medium text-foreground/50 tracking-[0.04em] mb-1">Participation pool</div>
           <div className="font-serif-editorial text-[28px] text-foreground">{formatPred(detail.participation_pool)}</div>
         </div>
         <div>
-          <div className="text-[10px] font-light text-foreground/25 tracking-[0.04em] mb-1">Alpha pool</div>
+          <div className="text-[11px] font-medium text-foreground/50 tracking-[0.04em] mb-1">Alpha pool</div>
           <div className="font-serif-editorial text-[28px] text-foreground">{formatPred(detail.alpha_pool)}</div>
         </div>
         <div>
-          <div className="text-[10px] font-light text-foreground/25 tracking-[0.04em] mb-1">Markets resolved</div>
+          <div className="text-[11px] font-medium text-foreground/50 tracking-[0.04em] mb-1">Markets resolved</div>
           <div className="font-serif-editorial text-[28px] text-foreground">{detail.markets_resolved}</div>
         </div>
       </div>
@@ -33,7 +33,7 @@ function EpochDetail({ epochId }: { epochId: number }) {
           <span className="section-label">Top earners</span>
           <table className="w-full mt-3">
             <thead>
-              <tr className="text-[10px] font-light text-foreground/25 tracking-[0.06em] uppercase border-b border-border/40">
+              <tr className="text-[11px] font-medium text-foreground/50 tracking-[0.04em] uppercase border-b border-border/40">
                 <th className="px-3 py-2 text-left">#</th>
                 <th className="px-3 py-2 text-left">Agent</th>
                 <th className="px-3 py-2 text-left">Persona</th>
@@ -45,14 +45,14 @@ function EpochDetail({ epochId }: { epochId: number }) {
             </thead>
             <tbody>
               {detail.top_earners.map((e) => (
-                <tr key={e.address} className="text-[11px] border-b border-border/30">
-                  <td className="px-3 py-1.5 text-foreground/15 font-serif-editorial text-[16px]">{e.rank}</td>
-                  <td className="px-3 py-1.5"><AgentLink address={e.address} /></td>
-                  <td className="px-3 py-1.5 text-foreground/30 text-[10px] font-light">{personaLabel(e.persona)}</td>
-                  <td className="px-3 py-1.5 text-right font-light">{e.valid_submissions}</td>
-                  <td className="px-3 py-1.5 text-right font-light">{formatPct(e.accuracy)}</td>
-                  <td className="px-3 py-1.5 text-right font-medium">{e.excess_score}</td>
-                  <td className="px-3 py-1.5 text-right font-medium">{formatPred(e.total_reward)}</td>
+                <tr key={e.address} className="text-[12px] border-b border-border/30">
+                  <td className="px-3 py-2 text-foreground/30 font-serif-editorial text-[16px]">{e.rank}</td>
+                  <td className="px-3 py-2"><AgentLink address={e.address} /></td>
+                  <td className="px-3 py-2 text-foreground/50 text-[11px]">{personaLabel(e.persona)}</td>
+                  <td className="px-3 py-2 text-right text-foreground">{e.valid_submissions}</td>
+                  <td className="px-3 py-2 text-right text-foreground font-medium">{formatPct(e.accuracy)}</td>
+                  <td className="px-3 py-2 text-right font-semibold text-foreground">{e.excess_score}</td>
+                  <td className="px-3 py-2 text-right font-semibold text-foreground">{formatPred(e.total_reward)}</td>
                 </tr>
               ))}
             </tbody>
@@ -66,8 +66,8 @@ function EpochDetail({ epochId }: { epochId: number }) {
           <div className="grid grid-cols-4 gap-px bg-border/30 mt-3">
             {detail.persona_breakdown.map((p) => (
               <div key={p.persona} className="bg-background p-4">
-                <div className="text-[12px] font-medium text-foreground">{personaLabel(p.persona)}</div>
-                <div className="text-[10px] text-foreground/25 font-light mt-1">{p.agent_count} agents · {formatPct(p.accuracy)}</div>
+                <div className="text-[12px] font-semibold text-foreground">{personaLabel(p.persona)}</div>
+                <div className="text-[11px] text-foreground/50 mt-1">{p.agent_count} agents · {formatPct(p.accuracy)}</div>
               </div>
             ))}
           </div>
@@ -114,17 +114,17 @@ export default function Epochs() {
         {accumulated.map((ep) => (
           <div key={ep.id} className="border-b border-border/40">
             <div
-              className="py-4 flex items-center gap-6 cursor-pointer hover:bg-foreground/[0.02] text-[12px] transition-colors"
+              className="py-4 flex items-center gap-6 cursor-pointer hover:bg-foreground/[0.02] text-[13px] transition-colors"
               onClick={() => toggle(ep.id)}
             >
-              <span className="text-foreground/10 font-serif-editorial text-[24px] w-14">#{ep.id}</span>
-              <span className="text-foreground font-medium w-24">{ep.date}</span>
-              <span className="text-[10px] font-light text-foreground/25 tracking-[0.06em] w-16">{ep.status}</span>
-              <span className="text-foreground/30 font-light">Emission <span className="text-foreground font-medium">{formatPred(ep.total_emission)}</span></span>
-              <span className="text-foreground/30 font-light"><span className="font-medium text-foreground">{ep.total_agents}</span> agents</span>
-              <span className="text-foreground/30 font-light"><span className="font-medium text-foreground">{formatNumber(ep.total_predictions)}</span> preds</span>
-              <span className="text-foreground font-medium">{formatPct(ep.global_accuracy)}</span>
-              <span className="ml-auto text-foreground/20 text-[14px]">{expanded.has(ep.id) ? "−" : "+"}</span>
+              <span className="text-foreground/25 font-serif-editorial text-[24px] w-14">#{ep.id}</span>
+              <span className="text-foreground font-semibold w-24">{ep.date}</span>
+              <span className="text-[11px] text-foreground/50 tracking-[0.04em] w-16">{ep.status}</span>
+              <span className="text-foreground/50">Emission <span className="text-foreground font-semibold">{formatPred(ep.total_emission)}</span></span>
+              <span className="text-foreground/50"><span className="font-semibold text-foreground">{ep.total_agents}</span> agents</span>
+              <span className="text-foreground/50"><span className="font-semibold text-foreground">{formatNumber(ep.total_predictions)}</span> preds</span>
+              <span className="text-foreground font-semibold">{formatPct(ep.global_accuracy)}</span>
+              <span className="ml-auto text-foreground/30 text-[14px]">{expanded.has(ep.id) ? "−" : "+"}</span>
             </div>
             {expanded.has(ep.id) && <EpochDetail epochId={ep.id} />}
           </div>
@@ -133,7 +133,7 @@ export default function Epochs() {
       {data?.pagination?.has_more && (
         <button
           onClick={() => setOffset((o) => o + limit)}
-          className="w-full mt-6 py-2.5 text-[12px] font-light text-foreground border-t border-border/60 hover:bg-foreground/[0.02] transition-colors tracking-[0.04em]"
+          className="w-full mt-6 py-2.5 text-[12px] text-primary border-t border-border/60 hover:bg-primary/[0.03] transition-colors tracking-[0.04em]"
         >
           Load more
         </button>

@@ -58,7 +58,7 @@ export default function Join() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-px bg-border/40 border border-border/40 mb-16">
+      <div className="grid grid-cols-4 gap-px bg-border/40 border border-border/40 mb-16">
         <div className="bg-background p-6">
           <div className="font-serif-editorial text-[36px] text-foreground/[0.06] leading-none mb-4">01</div>
           <div className="text-[13px] font-medium text-foreground mb-2">Install an AI agent</div>

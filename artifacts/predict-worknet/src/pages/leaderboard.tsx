@@ -72,7 +72,7 @@ export default function Leaderboard() {
                 className={`px-4 py-1.5 text-[12px] tracking-[0.02em] transition-colors ${
                   period === p.value
                     ? "text-foreground font-medium border-b-2 border-foreground"
-                    : "text-foreground/30 font-light hover:text-foreground/60"
+                    : "text-foreground/40 hover:text-foreground/70"
                 }`}
               >
                 {p.label}
@@ -88,7 +88,7 @@ export default function Leaderboard() {
                 className={`px-3 py-1.5 text-[11px] tracking-[0.02em] transition-colors ${
                   sort === s.value
                     ? "text-foreground font-medium border-b-2 border-foreground"
-                    : "text-foreground/30 font-light hover:text-foreground/60"
+                    : "text-foreground/40 hover:text-foreground/70"
                 }`}
               >
                 {s.label}
@@ -101,7 +101,7 @@ export default function Leaderboard() {
       <div className="border-t border-border/60">
         <table className="w-full">
           <thead>
-            <tr className="text-[10px] font-light text-foreground/25 tracking-[0.06em] uppercase">
+            <tr className="text-[11px] font-medium text-foreground/50 tracking-[0.04em] uppercase">
               <th className="px-5 py-3 text-left w-16">#</th>
               <th className="px-5 py-3 text-left">Agent</th>
               <th className="px-5 py-3 text-right">Excess</th>
@@ -115,14 +115,14 @@ export default function Leaderboard() {
           <tbody>
             {accumulated.map((e) => (
               <tr key={e.agent_address} className="border-t border-border/40 hover:bg-foreground/[0.02] text-[13px] transition-colors">
-                <td className="px-5 py-3 text-foreground/15 font-serif-editorial text-[20px]">{e.rank}</td>
+                <td className="px-5 py-3 text-foreground/30 font-serif-editorial text-[20px]">{e.rank}</td>
                 <td className="px-5 py-3"><AgentLink address={e.agent_address} /></td>
-                <td className={`px-5 py-3 text-right font-medium ${e.today_excess >= 0 ? "text-foreground" : "text-foreground/40"}`}>{e.today_excess >= 0 ? "+" : ""}{e.today_excess.toFixed(0)}</td>
-                <td className="px-5 py-3 text-right font-medium">{formatPct(e.accuracy)}</td>
-                <td className="px-5 py-3 text-right font-medium">{formatPred(e.total_earned)}</td>
-                <td className="px-5 py-3 text-right font-light">{e.current_streak}</td>
-                <td className="px-5 py-3 text-right font-mono text-[11px] text-foreground/30">{formatChips(e.today_chips_spent)}</td>
-                <td className={`px-5 py-3 text-right font-medium ${e.rank_change_1h > 0 ? "text-foreground" : e.rank_change_1h < 0 ? "text-foreground/30" : "text-foreground/15"}`}>{rankChange(e.rank_change_1h)}</td>
+                <td className={`px-5 py-3 text-right font-semibold ${e.today_excess >= 0 ? "text-foreground" : "text-foreground/50"}`}>{e.today_excess >= 0 ? "+" : ""}{e.today_excess.toFixed(0)}</td>
+                <td className="px-5 py-3 text-right font-semibold text-foreground">{formatPct(e.accuracy)}</td>
+                <td className="px-5 py-3 text-right font-semibold text-foreground">{formatPred(e.total_earned)}</td>
+                <td className="px-5 py-3 text-right text-foreground">{e.current_streak}</td>
+                <td className="px-5 py-3 text-right font-mono text-[11px] text-foreground/50">{formatChips(e.today_chips_spent)}</td>
+                <td className={`px-5 py-3 text-right font-semibold ${e.rank_change_1h > 0 ? "text-primary" : e.rank_change_1h < 0 ? "text-foreground/40" : "text-foreground/20"}`}>{rankChange(e.rank_change_1h)}</td>
               </tr>
             ))}
           </tbody>
@@ -131,7 +131,7 @@ export default function Leaderboard() {
       {lb?.pagination?.has_more && (
         <button
           onClick={() => setOffset((o) => o + limit)}
-          className="w-full mt-6 py-2.5 text-[12px] font-light text-foreground border-t border-border/60 hover:bg-foreground/[0.02] transition-colors tracking-[0.04em]"
+          className="w-full mt-6 py-2.5 text-[12px] text-primary border-t border-border/60 hover:bg-primary/[0.03] transition-colors tracking-[0.04em]"
         >
           Load more
         </button>
