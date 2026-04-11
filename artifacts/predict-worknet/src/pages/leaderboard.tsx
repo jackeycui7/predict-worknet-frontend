@@ -181,16 +181,16 @@ export default function Leaderboard() {
             </tr>
           </thead>
           <tbody>
-            {accumulated.map((e) => (
+            {accumulated.map((e: any) => (
               <tr key={e.agent_address} className="border-t border-border/40 hover:bg-foreground/[0.02] text-[13px] transition-colors">
                 <td className="px-5 py-3 text-foreground/30 font-serif-editorial text-[20px]">{e.rank}</td>
                 <td className="px-5 py-3"><AgentLink address={e.agent_address} /></td>
-                <td className={`px-5 py-3 text-right font-semibold ${e.today_excess >= 0 ? "text-foreground" : "text-foreground/50"}`}>{e.today_excess >= 0 ? "+" : ""}{e.today_excess.toFixed(0)}</td>
+                <td className="px-5 py-3 text-right font-semibold text-foreground">{formatChips(e.total_payout_chips)}</td>
                 <td className="px-5 py-3 text-right font-semibold text-foreground">{formatPct(e.accuracy)}</td>
-                <td className="px-5 py-3 text-right font-semibold text-foreground">{formatPred(e.total_earned)}</td>
-                <td className="px-5 py-3 text-right text-foreground">{e.current_streak}</td>
-                <td className="px-5 py-3 text-right font-mono text-[11px] text-foreground/50">{formatChips(e.today_chips_spent)}</td>
-                <td className={`px-5 py-3 text-right font-semibold ${e.rank_change_1h > 0 ? "text-primary" : e.rank_change_1h < 0 ? "text-foreground/40" : "text-foreground/20"}`}>{rankChange(e.rank_change_1h)}</td>
+                <td className="px-5 py-3 text-right font-semibold text-foreground">{e.total_predictions}</td>
+                <td className="px-5 py-3 text-right text-foreground">{e.wins}/{e.losses}</td>
+                <td className="px-5 py-3 text-right font-mono text-[11px] text-foreground/50">{e.persona ?? "—"}</td>
+                <td className="px-5 py-3 text-right font-semibold text-foreground/20">—</td>
               </tr>
             ))}
           </tbody>
