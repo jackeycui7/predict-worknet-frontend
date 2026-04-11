@@ -116,55 +116,66 @@ export default function Leaderboard() {
       </div>
 
       {/* Multi-agent Equity Curves Chart */}
-      {showChart && equityCurves && equityCurves.length > 0 && (
-        <div className="mb-10">
-          <div className="border border-border/40 bg-background p-4">
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.4} />
-                <XAxis
-                  dataKey="timestamp"
-                  type="category"
-                  allowDuplicatedCategory={false}
-                  tickFormatter={(v) => new Date(v).toLocaleDateString()}
-                  tick={{ fontSize: 10, fill: "hsl(var(--foreground))", opacity: 0.4 }}
-                  axisLine={{ stroke: "hsl(var(--border))" }}
-                />
-                <YAxis
-                  tick={{ fontSize: 10, fill: "hsl(var(--foreground))", opacity: 0.4 }}
-                  axisLine={{ stroke: "hsl(var(--border))" }}
-                  tickFormatter={(v) => v.toFixed(0)}
-                />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "hsl(var(--background))",
-                    border: "1px solid hsl(var(--border))",
-                    fontSize: 11,
-                  }}
-                  labelFormatter={(v) => new Date(v).toLocaleString()}
-                />
-                <ReferenceLine y={0} stroke="hsl(var(--foreground))" strokeOpacity={0.2} />
-                <Legend
-                  wrapperStyle={{ fontSize: 10 }}
-                  formatter={(value) => value.slice(0, 8) + "..."}
-                />
-                {equityCurves.map((curve: any, idx: number) => (
-                  <Line
-                    key={curve.agent_address}
-                    data={curve.points}
-                    type="monotone"
-                    dataKey="cumulative_pnl"
-                    name={curve.agent_address}
-                    stroke={AGENT_COLORS[idx % AGENT_COLORS.length]}
-                    strokeWidth={2}
-                    dot={false}
+      {showChart && equityCurves && equityCurves.length > 0 && (() => {
+        // Transform data to handle string/number formats
+        const transformedCurves = equityCurves.map((curve: any) => ({
+          ...curve,
+          points: curve.points?.map((p: any) => ({
+            ...p,
+            timestamp: typeof p.timestamp === "number" ? p.timestamp * 1000 : p.timestamp,
+            cumulative_pnl: typeof p.cumulative_pnl === "string" ? parseFloat(p.cumulative_pnl) : p.cumulative_pnl,
+          })) ?? [],
+        }));
+        return (
+          <div className="mb-10">
+            <div className="border border-border/40 bg-background p-4">
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.4} />
+                  <XAxis
+                    dataKey="timestamp"
+                    type="category"
+                    allowDuplicatedCategory={false}
+                    tickFormatter={(v) => { const d = new Date(v); return isNaN(d.getTime()) ? "—" : d.toLocaleDateString(); }}
+                    tick={{ fontSize: 10, fill: "hsl(var(--foreground))", opacity: 0.4 }}
+                    axisLine={{ stroke: "hsl(var(--border))" }}
                   />
-                ))}
-              </LineChart>
-            </ResponsiveContainer>
+                  <YAxis
+                    tick={{ fontSize: 10, fill: "hsl(var(--foreground))", opacity: 0.4 }}
+                    axisLine={{ stroke: "hsl(var(--border))" }}
+                    tickFormatter={(v) => (typeof v === "number" ? v.toFixed(0) : String(v))}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "hsl(var(--background))",
+                      border: "1px solid hsl(var(--border))",
+                      fontSize: 11,
+                    }}
+                    labelFormatter={(v) => { const d = new Date(v); return isNaN(d.getTime()) ? "—" : d.toLocaleString(); }}
+                  />
+                  <ReferenceLine y={0} stroke="hsl(var(--foreground))" strokeOpacity={0.2} />
+                  <Legend
+                    wrapperStyle={{ fontSize: 10 }}
+                    formatter={(value) => value.slice(0, 8) + "..."}
+                  />
+                  {transformedCurves.map((curve: any, idx: number) => (
+                    <Line
+                      key={curve.agent_address}
+                      data={curve.points}
+                      type="monotone"
+                      dataKey="cumulative_pnl"
+                      name={curve.agent_address}
+                      stroke={AGENT_COLORS[idx % AGENT_COLORS.length]}
+                      strokeWidth={2}
+                      dot={false}
+                    />
+                  ))}
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       <div className="border-t border-border/60">
         <table className="w-full">
