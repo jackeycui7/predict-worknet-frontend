@@ -82,30 +82,30 @@ export default function Markets() {
   const last7 = getLast7Days();
 
   return (
-    <div className="p-4 space-y-4">
+    <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <h1 className="text-xl font-bold tracking-tight text-foreground uppercase">Markets</h1>
-          <div className="flex gap-0 ml-2">
+          <h1 className="text-xl font-bold tracking-tight text-foreground">Markets</h1>
+          <div className="flex gap-1 ml-2">
             <button
               onClick={() => setTab("active")}
-              className={`px-3 py-1 text-[11px] font-medium tracking-[0.04em] border transition-colors ${
+              className={`px-3.5 py-1.5 text-[12px] font-medium rounded-full transition-colors ${
                 tab === "active"
-                  ? "bg-foreground text-white border-foreground"
-                  : "bg-white text-muted-foreground border-border hover:text-foreground"
+                  ? "bg-foreground text-white"
+                  : "text-muted-foreground hover:text-foreground hover:bg-black/[0.04]"
               }`}
             >
-              ACTIVE ({active?.length ?? 0})
+              Active ({active?.length ?? 0})
             </button>
             <button
               onClick={() => { setTab("resolved"); setOffset(0); setAccumulated([]); }}
-              className={`px-3 py-1 text-[11px] font-medium tracking-[0.04em] border border-l-0 transition-colors ${
+              className={`px-3.5 py-1.5 text-[12px] font-medium rounded-full transition-colors ${
                 tab === "resolved"
-                  ? "bg-foreground text-white border-foreground"
-                  : "bg-white text-muted-foreground border-border hover:text-foreground"
+                  ? "bg-foreground text-white"
+                  : "text-muted-foreground hover:text-foreground hover:bg-black/[0.04]"
               }`}
             >
-              RESOLVED
+              Resolved
             </button>
           </div>
         </div>
@@ -119,10 +119,10 @@ export default function Markets() {
                   <button
                     key={d.date}
                     onClick={() => setSelectedDate(isSelected ? "" : d.date)}
-                    className={`flex flex-col items-center w-10 py-1.5 text-center transition-colors border ${
+                    className={`flex flex-col items-center w-10 py-1.5 text-center transition-colors rounded-lg ${
                       isSelected
-                        ? "bg-primary text-white border-primary"
-                        : "bg-white text-foreground border-border hover:border-foreground/30"
+                        ? "bg-primary text-white"
+                        : "text-foreground hover:bg-black/[0.04]"
                     }`}
                   >
                     <span className={`text-[9px] font-medium tracking-wider ${isSelected ? "text-white/70" : "text-muted-foreground"}`}>
@@ -136,17 +136,17 @@ export default function Markets() {
             <select
               value={asset}
               onChange={(e) => { setAsset(e.target.value); setOffset(0); setAccumulated([]); }}
-              className="bg-white border border-border px-2.5 py-1.5 text-[11px] font-medium text-foreground tracking-[0.04em]"
+              className="bg-white/60 backdrop-blur border border-white/50 px-2.5 py-1.5 text-[11px] font-medium text-foreground rounded-lg"
             >
-              <option value="">ALL ASSETS</option>
+              <option value="">All Assets</option>
               {assets.map((a) => <option key={a} value={a}>{a}</option>)}
             </select>
             <select
               value={window}
               onChange={(e) => { setWindow(e.target.value); setOffset(0); setAccumulated([]); }}
-              className="bg-white border border-border px-2.5 py-1.5 text-[11px] font-medium text-foreground tracking-[0.04em]"
+              className="bg-white/60 backdrop-blur border border-white/50 px-2.5 py-1.5 text-[11px] font-medium text-foreground rounded-lg"
             >
-              <option value="">ALL WINDOWS</option>
+              <option value="">All Windows</option>
               {windows.map((w) => <option key={w} value={w}>{w}</option>)}
             </select>
           </div>
@@ -154,21 +154,21 @@ export default function Markets() {
       </div>
 
       {tab === "active" && (
-        <div className="grid grid-cols-2 gap-[1px] bg-border animate-fade-up">
+        <div className="grid grid-cols-2 gap-3 animate-fade-up">
           {active?.map((m) => (
             <Link key={m.id} href={`/markets/${m.id}`}>
-              <div className="bento-card p-5 cursor-pointer h-full">
+              <div className="glass-card p-5 cursor-pointer h-full hover:shadow-md transition-shadow">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <span className="text-lg font-bold text-foreground tracking-tight">{m.asset}</span>
-                    <span className="text-[9px] font-mono text-muted-foreground bg-muted px-1.5 py-0.5">{m.window}</span>
+                    <span className="text-[9px] font-mono text-muted-foreground bg-muted px-1.5 py-0.5 rounded">{m.window}</span>
                   </div>
                   <CountdownTimer closesAt={m.close_at} />
                 </div>
                 <div className="flex items-center gap-2 mb-3">
                   <span className="text-primary font-bold text-sm">{formatPct(m.orderbook.best_up_price)}</span>
-                  <div className="flex-1 h-[4px] bg-muted overflow-hidden">
-                    <div className="h-full bg-primary" style={{ width: `${m.orderbook.best_up_price * 100}%` }} />
+                  <div className="flex-1 h-[4px] bg-muted overflow-hidden rounded-full">
+                    <div className="h-full bg-primary rounded-full" style={{ width: `${m.orderbook.best_up_price * 100}%` }} />
                   </div>
                   <span className="text-destructive font-bold text-sm">{formatPct(m.orderbook.best_down_price)}</span>
                 </div>
@@ -181,21 +181,21 @@ export default function Markets() {
             </Link>
           ))}
           {(!active || active.length === 0) && (
-            <div className="bento-card col-span-2 text-center py-16 text-muted-foreground text-sm">No active markets</div>
+            <div className="glass-card col-span-2 text-center py-16 text-muted-foreground text-sm">No active markets</div>
           )}
         </div>
       )}
 
       {tab === "resolved" && (
         <div className="animate-fade-up">
-          <div className="grid grid-cols-2 gap-[1px] bg-border">
+          <div className="grid grid-cols-2 gap-3">
             {accumulated.map((m) => (
               <Link key={m.id} href={`/markets/${m.id}`}>
-                <div className="bento-card p-5 cursor-pointer h-full">
+                <div className="glass-card p-5 cursor-pointer h-full hover:shadow-md transition-shadow">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
                       <span className="text-lg font-bold text-foreground tracking-tight">{m.asset}</span>
-                      <span className="text-[9px] font-mono text-muted-foreground bg-muted px-1.5 py-0.5">{m.window}</span>
+                      <span className="text-[9px] font-mono text-muted-foreground bg-muted px-1.5 py-0.5 rounded">{m.window}</span>
                     </div>
                     <span className={`text-sm font-bold ${m.outcome === "up" ? "text-primary" : "text-destructive"}`}>
                       {m.outcome?.toUpperCase()}
@@ -212,14 +212,14 @@ export default function Markets() {
             ))}
           </div>
           {accumulated.length === 0 && (
-            <div className="bento-card text-center py-16 text-muted-foreground text-sm">
+            <div className="glass-card text-center py-16 text-muted-foreground text-sm">
               {selectedDate ? `No resolved markets for ${selectedDate}` : "No resolved markets found"}
             </div>
           )}
           {resolved?.pagination?.has_more && (
             <button
               onClick={() => setOffset((o) => o + limit)}
-              className="w-full mt-4 py-2 text-[11px] font-semibold tracking-[0.06em] text-primary border border-primary hover:bg-primary hover:text-white transition-colors uppercase"
+              className="w-full mt-4 py-2.5 text-[12px] font-semibold text-primary border border-primary/30 hover:bg-primary hover:text-white transition-colors rounded-xl"
             >
               Load More
             </button>

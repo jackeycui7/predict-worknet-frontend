@@ -1,0 +1,114 @@
+Make a project wth the design below. If a project has already been started, add this design to the project as a new view and connect it to the rest of my application.
+
+Ensure the visual characteristics, layout, and interactions in the design are preserved with perfect fidelity.
+
+```
+<html lang="en" vid="0"><head vid="1">
+    <meta charset="UTF-8" vid="2">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" vid="3">
+    <title vid="4">Stephanie - Portfolio</title>
+    <script src="https://cdn.tailwindcss.com/3.4.17" vid="5"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&amp;family=Inter:wght@300;400;500&amp;display=swap" rel="stylesheet" vid="6">
+    <style vid="7">
+        :root {
+            --bg-color: #ffffff; 
+            --grid-color: rgba(0, 0, 0, 0.05);
+            --text-color: #111111;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Inter', sans-serif;
+            overflow: hidden; 
+        }
+
+        .font-serif-editorial {
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 300;
+        }
+
+        
+        .bg-grid {
+            background-size: 40px 100%;
+            background-image: 
+                linear-gradient(to right, var(--grid-color) 1px, transparent 1px);
+        }
+
+        
+        @keyframes float-slow {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        @keyframes float-medium {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        @keyframes float-fast {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .animate-float-slow { animation: float-slow 6s ease-in-out infinite; }
+        .animate-float-medium { animation: float-medium 5s ease-in-out infinite; }
+        .animate-float-fast { animation: float-fast 4s ease-in-out infinite; }
+        
+        
+        .delay-100 { animation-delay: 100ms; }
+        .delay-300 { animation-delay: 300ms; }
+        .delay-500 { animation-delay: 500ms; }
+        .delay-700 { animation-delay: 700ms; }
+        .delay-1000 { animation-delay: 1000ms; }
+
+        
+        .pixel-art {
+            image-rendering: pixelated;
+            shape-rendering: crispEdges;
+        }
+    </style>
+</head>
+<body class="h-screen w-full relative flex flex-col selection:bg-gray-200 selection:text-black" vid="8">
+
+    
+    <div class="absolute inset-0 z-0 bg-grid pointer-events-none" vid="9"></div>
+
+    
+    
+    <div class="absolute inset-0 z-0 overflow-hidden pointer-events-none" vid="10">
+        
+        
+        <div class="absolute top-[15%] left-[10%] w-8 h-8 animate-float-medium delay-100 opacity-[0.06]" vid="11">
+            
+            <svg viewBox="0 0 12 16" class="w-full h-full pixel-art grayscale brightness-0" vid="12">
+                <rect x="4" y="0" width="4" height="4" fill="#FF3333" vid="13"></rect> 
+                <rect x="4" y="8" width="4" height="4" fill="#FF3333" vid="14"></rect> 
+                <rect x="0" y="4" width="4" height="4" fill="#FF3333" vid="15"></rect> 
+                <rect x="8" y="4" width="4" height="4" fill="#FF3333" vid="16"></rect> 
+                <rect x="4" y="4" width="4" height="4" fill="#FFD700" vid="17"></rect> 
+                <rect x="4" y="12" width="4" height="4" fill="#228B22" vid="18"></rect> 
+            </svg>
+        </div>
+        
+        <div class="absolute top-[8%] left-[25%] w-6 h-6 animate-float-slow delay-500 opacity-[0.04]" vid="19">
+            
+            <svg viewBox="0 0 12 16" class="w-full h-full pixel-art grayscale brightness-0" vid="20">
+                <rect x="4" y="0" width="4" height="4" fill="#FFD700" vid="21"></rect>
+                <rect x="4" y="8" width="4" height="4" fill="#FFD700" vid="22"></rect>
+                <rect x="0" y="4" width="4" height="4" fill="#FFD700" vid="23"></rect>
+                <rect x="8" y="4" width="4" height="4" fill="#FFD700" vid="24"></rect>
+                <rect x="4" y="4" width="4" height="4" fill="#8B4513" vid="25"></rect>
+                <rect x="4" y="12" width="4" height="4" fill="#228B22" vid="26"></rect>
+            </svg>
+        </div>
+
+        
+        <div class="absolute top-[20%] right-[15%] w-10 h-10 animate-float-fast delay-300 opacity-[0.05]" vid="27">
+            
+            <svg viewBox="0 0 12 20" class="w-full h-full pixel-art grayscale brightness-0" vid="28">
+                <rect x="4" y="0" width="4" height="4" fill="#FF3333" vid="29"></rect>
+                <rect x="4" y="8" width="4" height="4" fill="#FF3333" vid="30"></rect>
+                <rect x="0" y="4" width="4" height="4" fill="#FF3333" vid="31"></rect>
+                <rect x="8" y="4" width="4" height="4" fill="#FF3333" vid="32"></rect>
+                <rect x="4" y="4" width...

@@ -68,7 +68,7 @@ This allows full UI development without a running backend.
 Light-themed scientific data dashboard SPA using React+Vite, wouter routing, TanStack Query, Recharts.
 
 ### Pages
-- `/` — Dashboard: epoch progress bar, "Predict WorkNet." gradient hero, 4 key metrics (Active 24h, Registered, Open Markets, Predictions 24h), live feed center with epoch leaders + hot markets side panels
+- `/` — Dashboard: glass bento grid with hero ("The first AI-native prediction market."), 6 metric cards (Registered, Active 24h, Open Markets, $PRED Price, Predictions Today), Live Feed (3-col), epoch progress bar + Join Now button below
 - `/markets` — Active markets in 2-col bento grid with countdown timers + probability bars, resolved tab with 7-day date selector (inline day buttons) + asset/window dropdowns + client-side date filtering
 - `/markets/:id` — Market detail with orderbook panel (best prices, spread, depth), CLOB summary (tickets filled, chips settled), price history chart (CLOB fills), prediction list with expandable reasoning
 - `/leaderboard` — Agent ranking table with period/sort/persona filters, excess/rank_change_1h columns, persona comparison cards (60s poll)
@@ -79,15 +79,15 @@ Light-themed scientific data dashboard SPA using React+Vite, wouter routing, Tan
 - `/agents/:address` — Agent profile with lifetime stats (all_time_excess, contrarian_rate, chips_spent/won), today panel (balance, excess, estimated_reward), prediction history with outcome/asset filters
 
 ### Theme
-- Editorial/magazine bento-grid style inspired by KERNEL_PANIC reference
-- Pure white background, dark cards (bento-card-dark), blue accent cards (bento-card-primary)
+- Apple-inspired frosted glass design with rounded corners and backdrop blur
+- Light gray background (hsl 220 14% 96%), glass cards with white/blur overlays
 - Font: Inter (headings/body), JetBrains Mono (data/code) — loaded via Google Fonts
-- Brand: "PREDICT WORKNET" with "BUILT ON AWP" subtitle (all uppercase)
-- Colors: blue primary (hsl 230 80% 56%), warm dark (hsl 220 20% 8%), red destructive
-- Sharp zero-radius edges, bento-card borders, 1px gap grids
-- CSS classes: bento-card, bento-card-dark, bento-card-primary, section-label, epoch-progress-track
+- Brand: "Predict WorkNet" with "built on AWP" subtitle (sentence case)
+- Colors: blue primary (hsl 230 80% 56%), warm dark (hsl 220 20% 10%), red destructive
+- Border radius: 16px base, 14px for inner cards, rounded-full for pills/buttons
+- CSS classes: glass-card, glass-card-inner, glass-card-dark, glass-card-primary, bento-card (alias), bento-card-dark, bento-card-primary
 - Animations: animate-fade-up, animate-feed-slide, animate-pulse-live
-- Nav: uppercase button-style tabs with filled active state, LIVE indicator with separator
+- Nav: sentence-case rounded pill tabs with filled active state, frosted glass header
 
 ### Key Patterns
 - All pages import from `@/lib/api` (mock wrapper) not directly from `@workspace/api-client-react`
