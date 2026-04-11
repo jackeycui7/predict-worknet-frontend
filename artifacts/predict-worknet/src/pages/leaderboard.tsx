@@ -1,26 +1,23 @@
 import { useState, useEffect, useRef } from "react";
 import {
   useGetLeaderboard,
-  useGetLeaderboardPersonas,
 } from "@/lib/api";
 import type { LeaderboardEntry } from "@workspace/api-client-react";
-import { formatNumber, formatPct, formatPred, formatChips, personaLabel, rankChange } from "@/lib/format";
+import { formatPct, formatPred, formatChips, rankChange } from "@/lib/format";
 import { AgentLink } from "@/components/address-link";
 
 export default function Leaderboard() {
   const [period, setPeriod] = useState("all");
   const [sort, setSort] = useState("excess");
-  const [persona, setPersona] = useState("");
   const [offset, setOffset] = useState(0);
   const [accumulated, setAccumulated] = useState<LeaderboardEntry[]>([]);
   const filterKey = useRef("");
   const limit = 20;
 
-  const params = { period, sort, persona: persona || undefined, limit, offset };
+  const params = { period, sort, limit, offset };
   const { data: lb } = useGetLeaderboard(params);
-  const { data: personas } = useGetLeaderboardPersonas();
 
-  const currentFilterKey = `${period}-${sort}-${persona}`;
+  const currentFilterKey = `${period}-${sort}`;
   useEffect(() => {
     if (currentFilterKey !== filterKey.current) {
       filterKey.current = currentFilterKey;
@@ -98,14 +95,6 @@ export default function Leaderboard() {
               </button>
             ))}
           </div>
-          <select
-            value={persona}
-            onChange={(e) => resetAndSet(setPersona, e.target.value)}
-            className="bg-transparent border border-border px-2.5 py-1.5 text-[11px] font-light text-foreground"
-          >
-            <option value="">All personas</option>
-            {personas?.map((p) => <option key={p.persona} value={p.persona}>{personaLabel(p.persona)}</option>)}
-          </select>
         </div>
       </div>
 
@@ -113,29 +102,27 @@ export default function Leaderboard() {
         <table className="w-full">
           <thead>
             <tr className="text-[10px] font-light text-foreground/25 tracking-[0.06em] uppercase">
-              <th className="px-4 py-3 text-left w-10">#</th>
-              <th className="px-4 py-3 text-left">Agent</th>
-              <th className="px-4 py-3 text-left">Persona</th>
-              <th className="px-4 py-3 text-right">Excess</th>
-              <th className="px-4 py-3 text-right">Acc</th>
-              <th className="px-4 py-3 text-right">Earned</th>
-              <th className="px-4 py-3 text-right">Streak</th>
-              <th className="px-4 py-3 text-right">Chips</th>
-              <th className="px-4 py-3 text-right">1h</th>
+              <th className="px-5 py-3 text-left w-16">#</th>
+              <th className="px-5 py-3 text-left">Agent</th>
+              <th className="px-5 py-3 text-right">Excess</th>
+              <th className="px-5 py-3 text-right">Accuracy</th>
+              <th className="px-5 py-3 text-right">Earned</th>
+              <th className="px-5 py-3 text-right">Streak</th>
+              <th className="px-5 py-3 text-right">Chips</th>
+              <th className="px-5 py-3 text-right w-16">1h</th>
             </tr>
           </thead>
           <tbody>
             {accumulated.map((e) => (
-              <tr key={e.agent_address} className="border-t border-border/40 hover:bg-foreground/[0.02] text-[12px] transition-colors">
-                <td className="px-4 py-2.5 text-foreground/15 font-serif-editorial text-[20px]">{e.rank}</td>
-                <td className="px-4 py-2.5"><AgentLink address={e.agent_address} /></td>
-                <td className="px-4 py-2.5 text-foreground/30 text-[10px] font-light">{personaLabel(e.persona)}</td>
-                <td className={`px-4 py-2.5 text-right font-medium ${e.today_excess >= 0 ? "text-foreground" : "text-foreground/40"}`}>{e.today_excess >= 0 ? "+" : ""}{e.today_excess.toFixed(0)}</td>
-                <td className="px-4 py-2.5 text-right font-medium">{formatPct(e.accuracy)}</td>
-                <td className="px-4 py-2.5 text-right font-medium">{formatPred(e.total_earned)}</td>
-                <td className="px-4 py-2.5 text-right font-light">{e.current_streak}</td>
-                <td className="px-4 py-2.5 text-right font-mono text-[10px] text-foreground/30">{formatChips(e.today_chips_spent)}</td>
-                <td className={`px-4 py-2.5 text-right font-medium ${e.rank_change_1h > 0 ? "text-foreground" : e.rank_change_1h < 0 ? "text-foreground/30" : "text-foreground/15"}`}>{rankChange(e.rank_change_1h)}</td>
+              <tr key={e.agent_address} className="border-t border-border/40 hover:bg-foreground/[0.02] text-[13px] transition-colors">
+                <td className="px-5 py-3 text-foreground/15 font-serif-editorial text-[20px]">{e.rank}</td>
+                <td className="px-5 py-3"><AgentLink address={e.agent_address} /></td>
+                <td className={`px-5 py-3 text-right font-medium ${e.today_excess >= 0 ? "text-foreground" : "text-foreground/40"}`}>{e.today_excess >= 0 ? "+" : ""}{e.today_excess.toFixed(0)}</td>
+                <td className="px-5 py-3 text-right font-medium">{formatPct(e.accuracy)}</td>
+                <td className="px-5 py-3 text-right font-medium">{formatPred(e.total_earned)}</td>
+                <td className="px-5 py-3 text-right font-light">{e.current_streak}</td>
+                <td className="px-5 py-3 text-right font-mono text-[11px] text-foreground/30">{formatChips(e.today_chips_spent)}</td>
+                <td className={`px-5 py-3 text-right font-medium ${e.rank_change_1h > 0 ? "text-foreground" : e.rank_change_1h < 0 ? "text-foreground/30" : "text-foreground/15"}`}>{rankChange(e.rank_change_1h)}</td>
               </tr>
             ))}
           </tbody>
@@ -148,33 +135,6 @@ export default function Leaderboard() {
         >
           Load more
         </button>
-      )}
-
-      {personas && personas.length > 0 && (
-        <div className="mt-16">
-          <span className="section-label">Persona comparison</span>
-          <div className="grid grid-cols-2 gap-px bg-border/40 border border-border/40 mt-5">
-            {personas.map((p) => (
-              <div key={p.persona} className="bg-background p-6">
-                <div className="font-serif-editorial text-[20px] text-foreground mb-3">{personaLabel(p.persona)}</div>
-                <div className="grid grid-cols-3 gap-4">
-                  <div>
-                    <div className="text-[10px] font-light text-foreground/25 tracking-[0.04em] mb-1">Agents</div>
-                    <div className="font-serif-editorial text-[24px] text-foreground">{p.agent_count}</div>
-                  </div>
-                  <div>
-                    <div className="text-[10px] font-light text-foreground/25 tracking-[0.04em] mb-1">Subs</div>
-                    <div className="font-serif-editorial text-[24px] text-foreground">{formatNumber(p.today_submissions)}</div>
-                  </div>
-                  <div>
-                    <div className="text-[10px] font-light text-foreground/25 tracking-[0.04em] mb-1">Accuracy</div>
-                    <div className="font-serif-editorial text-[24px] text-foreground">{formatPct(p.today_accuracy)}</div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
       )}
     </div>
   );
