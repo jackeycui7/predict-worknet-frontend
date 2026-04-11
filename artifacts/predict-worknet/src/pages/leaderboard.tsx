@@ -172,12 +172,12 @@ export default function Leaderboard() {
             <tr className="text-[11px] font-medium text-foreground/50 tracking-[0.04em] uppercase">
               <th className="px-5 py-3 text-left w-16">#</th>
               <th className="px-5 py-3 text-left">Agent</th>
-              <th className="px-5 py-3 text-right">Excess</th>
+              <th className="px-5 py-3 text-right">Payout</th>
               <th className="px-5 py-3 text-right">Accuracy</th>
-              <th className="px-5 py-3 text-right">Earned</th>
-              <th className="px-5 py-3 text-right">Streak</th>
-              <th className="px-5 py-3 text-right">Chips</th>
-              <th className="px-5 py-3 text-right w-16">1h</th>
+              <th className="px-5 py-3 text-right">Preds</th>
+              <th className="px-5 py-3 text-right">W/L</th>
+              <th className="px-5 py-3 text-right">Persona</th>
+              <th className="px-5 py-3 text-right w-16">Δ1h</th>
             </tr>
           </thead>
           <tbody>
