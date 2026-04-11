@@ -1,23 +1,38 @@
-export function formatNumber(n: number): string {
-  return n.toLocaleString("en-US");
+export function formatNumber(n: number | string | null | undefined): string {
+  if (n == null) return "0";
+  const num = typeof n === "string" ? parseFloat(n) : n;
+  if (isNaN(num)) return "0";
+  return num.toLocaleString("en-US");
 }
 
-export function formatPct(v: number): string {
-  return `${(v * 100).toFixed(1)}%`;
+export function formatPct(v: number | string | null | undefined): string {
+  if (v == null) return "0%";
+  const n = typeof v === "string" ? parseFloat(v) : v;
+  if (isNaN(n)) return "0%";
+  return `${(n * 100).toFixed(1)}%`;
 }
 
-export function formatChips(v: number): string {
-  if (Math.abs(v) >= 1000) return `${(v / 1000).toFixed(1)}k`;
-  return v.toFixed(0);
+export function formatChips(v: number | string | null | undefined): string {
+  if (v == null) return "0";
+  const n = typeof v === "string" ? parseFloat(v) : v;
+  if (isNaN(n)) return "0";
+  if (Math.abs(n) >= 1000) return `${(n / 1000).toFixed(1)}k`;
+  return n.toFixed(0);
 }
 
-export function formatPred(v: number): string {
-  return `${formatNumber(Math.round(v))} $PRED`;
+export function formatPred(v: number | string | null | undefined): string {
+  if (v == null) return "0 $PRED";
+  const n = typeof v === "string" ? parseFloat(v) : v;
+  if (isNaN(n)) return "0 $PRED";
+  return `${formatNumber(Math.round(n))} $PRED`;
 }
 
-export function formatPrice(v: number): string {
-  if (v >= 1000) return `$${formatNumber(Math.round(v * 100) / 100)}`;
-  return `$${v.toFixed(4)}`;
+export function formatPrice(v: number | string | null | undefined): string {
+  if (v == null) return "$0";
+  const n = typeof v === "string" ? parseFloat(v) : v;
+  if (isNaN(n)) return "$0";
+  if (n >= 1000) return `$${formatNumber(Math.round(n * 100) / 100)}`;
+  return `$${n.toFixed(4)}`;
 }
 
 export function truncateAddress(addr: string): string {
