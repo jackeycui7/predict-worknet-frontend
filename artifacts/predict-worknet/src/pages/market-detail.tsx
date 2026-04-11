@@ -58,10 +58,14 @@ export default function MarketDetail() {
     return () => clearInterval(id2);
   }, [market?.close_at]);
 
-  const chartData = priceHistory?.map((p) => ({
-    time: new Date(p.timestamp).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }),
-    prob: p.implied_up_prob,
-  })) ?? [];
+  const chartData = priceHistory?.map((p) => {
+    // Handle both ISO string and unix timestamp formats
+    const ts = typeof p.timestamp === "number" ? p.timestamp * 1000 : p.timestamp;
+    const date = new Date(ts);
+    const time = isNaN(date.getTime()) ? "—" : date.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+    const prob = typeof p.implied_up_prob === "string" ? parseFloat(p.implied_up_prob) : p.implied_up_prob;
+    return { time, prob };
+  }) ?? [];
 
   if (!market) {
     return <div className="p-6 text-foreground/25 text-[13px] font-light">Loading market...</div>;
@@ -113,10 +117,10 @@ export default function MarketDetail() {
         <div className="bg-background p-6">
           <span className="section-label">CLOB summary</span>
           <div className="space-y-2.5 text-[12px] mt-4">
-            <div className="flex justify-between"><span className="text-foreground/30 font-light">UP filled</span><span className="font-medium">{formatNumber(market.clob_summary.total_up_tickets_filled)}</span></div>
-            <div className="flex justify-between"><span className="text-foreground/30 font-light">DOWN filled</span><span className="font-medium">{formatNumber(market.clob_summary.total_down_tickets_filled)}</span></div>
-            <div className="flex justify-between"><span className="text-foreground/30 font-light">Chips settled</span><span className="font-medium">{formatChips(market.clob_summary.total_chips_settled)}</span></div>
-            <div className="flex justify-between"><span className="text-foreground/30 font-light">UP fill ratio</span><span className="font-medium">{formatPct(market.clob_summary.up_fill_ratio)}</span></div>
+            <div className="flex justify-between"><span className="text-foreground/30 font-light">UP filled</span><span className="font-medium">{formatNumber(market.clob_summary?.total_up_tickets_filled ?? 0)}</span></div>
+            <div className="flex justify-between"><span className="text-foreground/30 font-light">DOWN filled</span><span className="font-medium">{formatNumber(market.clob_summary?.total_down_tickets_filled ?? 0)}</span></div>
+            <div className="flex justify-between"><span className="text-foreground/30 font-light">Chips settled</span><span className="font-medium">{formatChips(market.clob_summary?.total_chips_settled ?? 0)}</span></div>
+            <div className="flex justify-between"><span className="text-foreground/30 font-light">UP fill ratio</span><span className="font-medium">{formatPct(market.clob_summary?.up_fill_ratio ?? 0)}</span></div>
           </div>
         </div>
       </div>
@@ -152,8 +156,12 @@ export default function MarketDetail() {
           </select>
         </div>
         <div className="border-t border-border/60">
+          {accumulated.length === 0 && (
+            <div className="py-8 text-center text-foreground/30 text-[13px]">No predictions yet</div>
+          )}
           {accumulated.map((p, i) => {
             const expanded = expandedIdx.has(i);
+            const fillPrice = typeof p.avg_fill_price === "string" ? parseFloat(p.avg_fill_price) : p.avg_fill_price;
             return (
               <div key={`${p.agent_address}-${p.submitted_at}`} className="border-b border-border/30">
                 <div
@@ -161,16 +169,16 @@ export default function MarketDetail() {
                   onClick={() => setExpandedIdx((prev) => { const next = new Set(prev); expanded ? next.delete(i) : next.add(i); return next; })}
                 >
                   <AgentLink address={p.agent_address} />
-                  <span className="text-[10px] text-foreground/20 font-light">{personaLabel(p.agent_persona)}</span>
-                  <span className={`font-medium text-[10px] tracking-[0.06em] ${p.direction === "up" ? "text-foreground" : "text-foreground/30"}`}>{p.direction.toUpperCase()}</span>
-                  <span className="text-foreground font-light">{p.tickets} tix @ {p.avg_fill_price.toFixed(2)}</span>
+                  {p.agent_persona && <span className="text-[10px] text-foreground/20 font-light">{personaLabel(p.agent_persona)}</span>}
+                  <span className={`font-medium text-[10px] tracking-[0.06em] ${p.direction === "up" ? "text-foreground" : "text-foreground/30"}`}>{p.direction?.toUpperCase()}</span>
+                  <span className="text-foreground font-light">{p.tickets} tix @ {fillPrice?.toFixed(2) ?? "—"}</span>
                   <span className="font-mono text-[10px] text-foreground/40">{formatChips(p.chips_spent)}</span>
                   {p.payout_chips != null && <span className="font-mono text-[10px] text-foreground/40">{formatChips(p.payout_chips)}</span>}
                   {p.was_minority && <span className="text-foreground/30 text-[9px] font-medium tracking-[0.06em]">MINORITY</span>}
                   {p.outcome && <span className={`ml-auto font-medium text-[10px] tracking-[0.06em] ${p.outcome === "correct" ? "text-foreground" : "text-foreground/25"}`}>{p.outcome.toUpperCase()}</span>}
                   <span className="text-foreground/15 text-[10px] font-light">{relativeTime(p.submitted_at)}</span>
                 </div>
-                {expanded && (
+                {expanded && p.reasoning && (
                   <div className="py-3 pl-6 border-t border-border/20 text-[11px] text-foreground/35 font-light whitespace-pre-wrap leading-relaxed">
                     {p.reasoning}
                   </div>
