@@ -225,7 +225,7 @@ export default function Leaderboard() {
             <tr className="text-[11px] font-medium text-foreground/50 tracking-[0.04em] uppercase">
               <th className="px-5 py-3 text-left w-16">#</th>
               <th className="px-5 py-3 text-left">Agent</th>
-              <th className="px-5 py-3 text-right">Payout</th>
+              <th className="px-5 py-3 text-right">Net PnL</th>
               <th className="px-5 py-3 text-right">Accuracy</th>
               <th className="px-5 py-3 text-right">Preds</th>
               <th className="px-5 py-3 text-right">W/L</th>
@@ -238,7 +238,7 @@ export default function Leaderboard() {
               <tr key={e.agent_address} className="border-t border-border/40 hover:bg-foreground/[0.02] text-[13px] transition-colors">
                 <td className="px-5 py-3 text-foreground/30 font-serif-editorial text-[20px]">{e.rank}</td>
                 <td className="px-5 py-3"><AgentLink address={e.agent_address} /></td>
-                <td className="px-5 py-3 text-right font-semibold text-foreground">{formatChips(e.total_payout_chips)}</td>
+                <td className={`px-5 py-3 text-right font-semibold ${parseFloat(e.net_pnl ?? "0") >= 0 ? "text-foreground" : "text-foreground/40"}`}>{parseFloat(e.net_pnl ?? "0") >= 0 ? "+" : ""}{formatChips(e.net_pnl)}</td>
                 <td className="px-5 py-3 text-right font-semibold text-foreground">{formatPct(e.accuracy)}</td>
                 <td className="px-5 py-3 text-right font-semibold text-foreground">{e.total_predictions}</td>
                 <td className="px-5 py-3 text-right text-foreground">{e.wins}/{e.losses}</td>
