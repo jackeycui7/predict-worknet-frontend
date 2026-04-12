@@ -16,26 +16,26 @@ const AGENT_COLORS = [
 ];
 
 export default function Leaderboard() {
-  const [period, setPeriod] = useState("all");
-  const [sort, setSort] = useState("excess");
   const [offset, setOffset] = useState(0);
   const [accumulated, setAccumulated] = useState<LeaderboardEntry[]>([]);
   const [showChart, setShowChart] = useState(true);
-  const filterKey = useRef("");
   const limit = 20;
 
-  const params = { period, sort, limit, offset };
+  // Leaderboard now shows current epoch only (today)
+  const params = { limit, offset };
   const { data: lb } = useGetLeaderboard(params);
   const { data: equityCurves } = useGetLeaderboardEquityCurves({ limit: 5 });
 
-  const currentFilterKey = `${period}-${sort}`;
+  // Get epoch date from response
+  const epochDate = (lb as any)?.epoch_date || (lb?.data as any)?.epoch_date;
+
   useEffect(() => {
-    if (currentFilterKey !== filterKey.current) {
-      filterKey.current = currentFilterKey;
+    // Reset when offset changes back to 0
+    if (offset === 0) {
       setAccumulated([]);
       setOffset(0);
     }
-  }, [currentFilterKey]);
+  }, [offset]);
 
   useEffect(() => {
     // Handle nested response: { success, data: { data: [...], pagination } }
@@ -53,61 +53,16 @@ export default function Leaderboard() {
     }
   }, [lb?.data, offset]);
 
-  const resetAndSet = (setter: (v: string) => void, value: string) => {
-    setter(value);
-    setOffset(0);
-    setAccumulated([]);
-  };
-
-  const periods = [
-    { value: "today", label: "Today" },
-    { value: "week", label: "Week" },
-    { value: "all", label: "All time" },
-  ];
-  const sorts = [
-    { value: "excess", label: "Excess" },
-    { value: "accuracy", label: "Accuracy" },
-    { value: "streak", label: "Streak" },
-    { value: "submissions", label: "Subs" },
-    { value: "total_earned", label: "Earned" },
-  ];
-
   return (
     <div className="animate-fade-up">
       <div className="flex items-baseline justify-between mb-10">
-        <h1 className="font-serif-editorial text-[48px] tracking-[-0.03em] text-foreground leading-[1]">Leaderboard</h1>
+        <div>
+          <h1 className="font-serif-editorial text-[48px] tracking-[-0.03em] text-foreground leading-[1]">Leaderboard</h1>
+          <p className="text-[12px] text-foreground/40 mt-1">
+            Current epoch: {epochDate || "—"} (resets daily at UTC 00:00)
+          </p>
+        </div>
         <div className="flex items-center gap-4">
-          <div className="flex gap-0">
-            {periods.map((p) => (
-              <button
-                key={p.value}
-                onClick={() => resetAndSet(setPeriod, p.value)}
-                className={`px-4 py-1.5 text-[12px] tracking-[0.02em] transition-colors ${
-                  period === p.value
-                    ? "text-foreground font-medium border-b-2 border-foreground"
-                    : "text-foreground/40 hover:text-foreground/70"
-                }`}
-              >
-                {p.label}
-              </button>
-            ))}
-          </div>
-          <span className="text-foreground/10">|</span>
-          <div className="flex gap-0">
-            {sorts.map((s) => (
-              <button
-                key={s.value}
-                onClick={() => resetAndSet(setSort, s.value)}
-                className={`px-3 py-1.5 text-[11px] tracking-[0.02em] transition-colors ${
-                  sort === s.value
-                    ? "text-foreground font-medium border-b-2 border-foreground"
-                    : "text-foreground/40 hover:text-foreground/70"
-                }`}
-              >
-                {s.label}
-              </button>
-            ))}
-          </div>
           <button
             onClick={() => setShowChart(!showChart)}
             className="px-3 py-1.5 text-[11px] tracking-[0.02em] text-foreground/40 hover:text-foreground/70 transition-colors border border-border/40"
