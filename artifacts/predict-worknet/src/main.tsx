@@ -4,6 +4,6 @@ import App from "./App";
 import "./index.css";
 
 // Connect to real backend
-setBaseUrl("https://predict-server-production-fe90.up.railway.app");
+setBaseUrl("https://api.agentpredict.work");
 
 createRoot(document.getElementById("root")!).render(<App />);
