@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { formatNumber, formatPred, formatPct } from "@/lib/format";
+import { formatNumber, formatPct } from "@/lib/format";
 import { useGetEpochs } from "@/lib/api";
 
 export default function Rewards() {
@@ -96,7 +96,7 @@ export default function Rewards() {
                 <tr key={ep.id} className="border-b border-border/30 text-[12px] hover:bg-foreground/[0.02] transition-colors">
                   <td className="px-4 py-2.5 font-medium">#{ep.id}</td>
                   <td className="px-4 py-2.5 font-light">{ep.date}</td>
-                  <td className="px-4 py-2.5 text-right font-mono text-[11px] font-light">{formatPred(ep.total_emission)}</td>
+                  <td className="px-4 py-2.5 text-right font-mono text-[11px] font-light text-foreground/30">—</td>
                   <td className="px-4 py-2.5 text-right font-light">{ep.total_agents}</td>
                   <td className="px-4 py-2.5 text-right font-medium">{formatPct(ep.global_accuracy)}</td>
                   <td className="px-4 py-2.5 text-right text-[10px] font-light text-foreground/30 tracking-[0.06em]">{ep.status}</td>

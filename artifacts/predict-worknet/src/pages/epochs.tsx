@@ -4,7 +4,7 @@ import {
   useGetEpochById,
 } from "@/lib/api";
 import type { EpochSummary } from "@workspace/api-client-react";
-import { formatNumber, formatPct, formatPred, personaLabel } from "@/lib/format";
+import { formatNumber, formatPct, personaLabel } from "@/lib/format";
 import { AgentLink } from "@/components/address-link";
 
 function EpochDetail({ epochId }: { epochId: number }) {
@@ -13,15 +13,8 @@ function EpochDetail({ epochId }: { epochId: number }) {
 
   return (
     <div className="px-6 py-6 border-t border-border/40 bg-foreground/[0.01]">
-      <div className="grid grid-cols-3 gap-8 mb-8">
-        <div>
-          <div className="text-[11px] font-medium text-foreground/50 tracking-[0.04em] mb-1">Participation pool</div>
-          <div className="font-serif-editorial text-[28px] text-foreground">{formatPred(detail.participation_pool)}</div>
-        </div>
-        <div>
-          <div className="text-[11px] font-medium text-foreground/50 tracking-[0.04em] mb-1">Alpha pool</div>
-          <div className="font-serif-editorial text-[28px] text-foreground">{formatPred(detail.alpha_pool)}</div>
-        </div>
+      <div className="mb-8">
+        {/* $PRED pools hidden for now */}
         <div>
           <div className="text-[11px] font-medium text-foreground/50 tracking-[0.04em] mb-1">Markets resolved</div>
           <div className="font-serif-editorial text-[28px] text-foreground">{detail.markets_resolved}</div>
@@ -40,7 +33,7 @@ function EpochDetail({ epochId }: { epochId: number }) {
                 <th className="px-3 py-2 text-right">Subs</th>
                 <th className="px-3 py-2 text-right">Acc</th>
                 <th className="px-3 py-2 text-right">Excess</th>
-                <th className="px-3 py-2 text-right">Reward</th>
+{/* Reward column hidden for now */}
               </tr>
             </thead>
             <tbody>
@@ -52,7 +45,7 @@ function EpochDetail({ epochId }: { epochId: number }) {
                   <td className="px-3 py-2 text-right text-foreground">{e.valid_submissions}</td>
                   <td className="px-3 py-2 text-right text-foreground font-medium">{formatPct(e.accuracy)}</td>
                   <td className="px-3 py-2 text-right font-semibold text-foreground">{e.excess_score}</td>
-                  <td className="px-3 py-2 text-right font-semibold text-foreground">{formatPred(e.total_reward)}</td>
+                  {/* $PRED reward hidden for now */}
                 </tr>
               ))}
             </tbody>
@@ -120,7 +113,7 @@ export default function Epochs() {
               <span className="text-foreground/25 font-serif-editorial text-[24px] w-14">#{ep.id}</span>
               <span className="text-foreground font-semibold w-24">{ep.date}</span>
               <span className="text-[11px] text-foreground/50 tracking-[0.04em] w-16">{ep.status}</span>
-              <span className="text-foreground/50">Emission <span className="text-foreground font-semibold">{formatPred(ep.total_emission)}</span></span>
+              {/* $PRED emission hidden for now */}
               <span className="text-foreground/50"><span className="font-semibold text-foreground">{ep.total_agents}</span> agents</span>
               <span className="text-foreground/50"><span className="font-semibold text-foreground">{formatNumber(ep.total_predictions)}</span> preds</span>
               <span className="text-foreground font-semibold">{formatPct(ep.global_accuracy)}</span>
