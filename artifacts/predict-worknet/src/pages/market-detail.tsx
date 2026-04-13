@@ -4,6 +4,7 @@ import {
   useGetMarketById,
   useGetMarketPriceHistory,
   useGetMarketPredictions,
+  useGetMarketOrderbook,
 } from "@/lib/api";
 import type { PredictionItem } from "@workspace/api-client-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
@@ -24,6 +25,7 @@ export default function MarketDetail() {
   const { data: market } = useGetMarketById(id);
   const { data: priceHistory } = useGetMarketPriceHistory(id);
   const { data: preds } = useGetMarketPredictions(id, { limit, offset, outcome: outcomeFilter || undefined });
+  const { data: orderbook } = useGetMarketOrderbook(id, { query: { refetchInterval: 5000 } });
 
   const currentFilterKey = `${id}-${outcomeFilter}`;
   useEffect(() => {
@@ -98,20 +100,49 @@ export default function MarketDetail() {
         </div>
         <div className="bg-background p-6">
           <span className="section-label">Order book</span>
-          <div className="space-y-3 mt-4">
-            <div className="flex justify-between items-baseline">
-              <span className="text-[11px] text-foreground/30 font-light">Best UP</span>
-              <span className="font-serif-editorial text-[32px] text-foreground">{formatPct(market.orderbook?.best_up_price ?? 0.5)}</span>
+          {orderbook?.last_fill_price != null && (
+            <div className="mt-3 mb-4 text-center">
+              <span className="text-[10px] text-foreground/30 font-light">Last trade</span>
+              <span className="ml-2 font-serif-editorial text-[24px] text-foreground">{formatPct(orderbook.last_fill_price)}</span>
             </div>
-            <div className="flex justify-between items-baseline">
-              <span className="text-[11px] text-foreground/30 font-light">Best DOWN</span>
-              <span className="font-serif-editorial text-[32px] text-foreground/40">{formatPct(market.orderbook?.best_down_price ?? 0.5)}</span>
+          )}
+          <div className="grid grid-cols-2 gap-4 mt-4">
+            {/* UP bids */}
+            <div>
+              <div className="text-[10px] text-foreground/40 font-light mb-2 tracking-[0.06em]">UP BIDS</div>
+              {(!orderbook?.up_bids || orderbook.up_bids.length === 0) ? (
+                <div className="text-[11px] text-foreground/20 font-light py-2">No orders</div>
+              ) : (
+                <div className="space-y-1">
+                  {orderbook.up_bids.slice(0, 5).map((level, i) => (
+                    <div key={i} className="flex justify-between text-[11px]">
+                      <span className="font-medium">{formatPct(level.price)}</span>
+                      <span className="text-foreground/40 font-light">{formatNumber(level.tickets)} tix</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-            <div className="pt-3 border-t border-border/40 space-y-2 text-[12px]">
-              <div className="flex justify-between"><span className="text-foreground/30 font-light">Spread</span><span className="font-medium">{formatPct(market.orderbook?.spread ?? 0)}</span></div>
-              <div className="flex justify-between"><span className="text-foreground/30 font-light">UP depth</span><span className="font-medium">{formatNumber(market.orderbook?.up_depth_10 ?? 0)} tix</span></div>
-              <div className="flex justify-between"><span className="text-foreground/30 font-light">DOWN depth</span><span className="font-medium">{formatNumber(market.orderbook?.down_depth_10 ?? 0)} tix</span></div>
+            {/* DOWN bids */}
+            <div>
+              <div className="text-[10px] text-foreground/40 font-light mb-2 tracking-[0.06em]">DOWN BIDS</div>
+              {(!orderbook?.down_bids || orderbook.down_bids.length === 0) ? (
+                <div className="text-[11px] text-foreground/20 font-light py-2">No orders</div>
+              ) : (
+                <div className="space-y-1">
+                  {orderbook.down_bids.slice(0, 5).map((level, i) => (
+                    <div key={i} className="flex justify-between text-[11px]">
+                      <span className="font-medium">{formatPct(level.price)}</span>
+                      <span className="text-foreground/40 font-light">{formatNumber(level.tickets)} tix</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
+          </div>
+          <div className="pt-3 mt-3 border-t border-border/40 space-y-2 text-[12px]">
+            <div className="flex justify-between"><span className="text-foreground/30 font-light">Spread</span><span className="font-medium">{market.orderbook?.spread != null ? formatPct(market.orderbook.spread) : "—"}</span></div>
+            <div className="flex justify-between"><span className="text-foreground/30 font-light">Implied UP</span><span className="font-medium">{orderbook?.implied_up_prob != null ? formatPct(orderbook.implied_up_prob) : "—"}</span></div>
           </div>
         </div>
         <div className="bg-background p-6">
