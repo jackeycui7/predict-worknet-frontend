@@ -39,11 +39,10 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="grid grid-cols-5 border-t border-border/60 mb-10">
+      <div className="grid grid-cols-4 border-t border-border/60 mb-10">
         <MetricCell label="Registered" value={formatNumber(stats?.total_agents_all_time ?? 0)} sub="total agents" />
         <MetricCell label="Active 24h" value={formatNumber(stats?.active_agents_24h ?? 0)} sub={`${stats?.active_agents_1h ?? 0} this hour`} />
         <MetricCell label="Open markets" value={formatNumber(stats?.open_markets ?? 0)} sub={`${stats?.resolved_today ?? 0} resolved today`} />
-        <MetricCell label="$PRED" value="$0.042" sub="+2.4%" subColor="text-foreground/60" />
         <MetricCell label="Predictions" value={formatNumber(stats?.predictions_24h ?? 0)} sub="today" last />
       </div>
 
