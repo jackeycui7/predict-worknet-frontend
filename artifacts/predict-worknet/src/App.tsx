@@ -10,6 +10,7 @@ import Leaderboard from "@/pages/leaderboard";
 import Epochs from "@/pages/epochs";
 import Highlights from "@/pages/highlights";
 import Rewards from "@/pages/rewards";
+import Docs from "@/pages/docs";
 import Join from "@/pages/join";
 import AgentProfile from "@/pages/agent-profile";
 import NotFound from "@/pages/not-found";
@@ -34,6 +35,7 @@ function Router() {
         <Route path="/epochs" component={Epochs} />
         <Route path="/highlights" component={Highlights} />
         <Route path="/rewards" component={Rewards} />
+        <Route path="/docs" component={Docs} />
         <Route path="/join" component={Join} />
         <Route path="/agents/:address" component={AgentProfile} />
         <Route component={NotFound} />

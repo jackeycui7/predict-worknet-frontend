@@ -8,6 +8,7 @@ const NAV = [
   { path: "/epochs", label: "Epochs" },
   { path: "/highlights", label: "Highlights" },
   { path: "/rewards", label: "Rewards" },
+  { path: "/docs", label: "Docs" },
   { path: "/join", label: "Join" },
 ];
 
