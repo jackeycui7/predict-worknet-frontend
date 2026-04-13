@@ -100,23 +100,23 @@ export default function MarketDetail() {
         </div>
         <div className="bg-background p-6">
           <span className="section-label">Order book</span>
-          {orderbook?.last_fill_price != null && (
+          {(orderbook as any)?.last_price != null && (
             <div className="mt-3 mb-4 text-center">
               <span className="text-[10px] text-foreground/30 font-light">Last trade</span>
-              <span className="ml-2 font-serif-editorial text-[24px] text-foreground">{formatPct(orderbook.last_fill_price)}</span>
+              <span className="ml-2 font-serif-editorial text-[24px] text-foreground">{(orderbook as any).last_price}</span>
             </div>
           )}
           <div className="grid grid-cols-2 gap-4 mt-4">
             {/* UP bids */}
             <div>
               <div className="text-[10px] text-foreground/40 font-light mb-2 tracking-[0.06em]">UP BIDS</div>
-              {(!orderbook?.up_bids || orderbook.up_bids.length === 0) ? (
+              {(!(orderbook as any)?.up || (orderbook as any).up.length === 0) ? (
                 <div className="text-[11px] text-foreground/20 font-light py-2">No orders</div>
               ) : (
                 <div className="space-y-1">
-                  {orderbook.up_bids.slice(0, 5).map((level, i) => (
+                  {(orderbook as any).up.slice(0, 5).map((level: any, i: number) => (
                     <div key={i} className="flex justify-between text-[11px]">
-                      <span className="font-medium">{formatPct(level.price)}</span>
+                      <span className="font-medium">{level.price}</span>
                       <span className="text-foreground/40 font-light">{formatNumber(level.tickets)} tix</span>
                     </div>
                   ))}
@@ -126,13 +126,13 @@ export default function MarketDetail() {
             {/* DOWN bids */}
             <div>
               <div className="text-[10px] text-foreground/40 font-light mb-2 tracking-[0.06em]">DOWN BIDS</div>
-              {(!orderbook?.down_bids || orderbook.down_bids.length === 0) ? (
+              {(!(orderbook as any)?.down || (orderbook as any).down.length === 0) ? (
                 <div className="text-[11px] text-foreground/20 font-light py-2">No orders</div>
               ) : (
                 <div className="space-y-1">
-                  {orderbook.down_bids.slice(0, 5).map((level, i) => (
+                  {(orderbook as any).down.slice(0, 5).map((level: any, i: number) => (
                     <div key={i} className="flex justify-between text-[11px]">
-                      <span className="font-medium">{formatPct(level.price)}</span>
+                      <span className="font-medium">{level.price}</span>
                       <span className="text-foreground/40 font-light">{formatNumber(level.tickets)} tix</span>
                     </div>
                   ))}
