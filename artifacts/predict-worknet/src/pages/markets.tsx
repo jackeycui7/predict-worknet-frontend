@@ -192,26 +192,47 @@ export default function Markets() {
 
       {tab === "resolved" && (
         <div className="grid grid-cols-3 gap-3 animate-fade-up">
-          {accumulated.map((m) => (
-            <Link key={m.id} href={`/markets/${m.id}`}>
-              <div className="border border-border/60 p-5 cursor-pointer hover:border-foreground/20 hover:bg-foreground/[0.02] transition-all h-full">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-[18px] font-semibold text-foreground tracking-tight">{m.asset}</span>
-                    <span className="text-[10px] text-foreground/40">{m.window}</span>
+          {accumulated.map((m) => {
+            const lastPrice = parseFloat((m as any).last_price ?? "0");
+            const hasLastPrice = (m as any).last_price != null;
+            const marketLeanedUp = lastPrice > 0.5;
+            const correct = hasLastPrice && m.outcome != null && (
+              (marketLeanedUp && m.outcome === "up") ||
+              (!marketLeanedUp && m.outcome === "down")
+            );
+            const incorrect = hasLastPrice && m.outcome != null && !correct;
+
+            return (
+              <Link key={m.id} href={`/markets/${m.id}`}>
+                <div className="border border-border/60 p-5 cursor-pointer hover:border-foreground/20 hover:bg-foreground/[0.02] transition-all h-full">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-[18px] font-semibold text-foreground tracking-tight">{m.asset}</span>
+                      <span className="text-[10px] text-foreground/40">{m.window}</span>
+                    </div>
+                    <span className={`text-[11px] font-semibold tracking-[0.06em] ${m.outcome === "up" ? "text-primary" : "text-foreground/40"}`}>
+                      {m.outcome?.toUpperCase()}
+                    </span>
                   </div>
-                  <span className={`text-[11px] font-semibold tracking-[0.06em] ${m.outcome === "up" ? "text-primary" : "text-foreground/40"}`}>
-                    {m.outcome?.toUpperCase()}
-                  </span>
+                  <div className="flex items-center gap-4 text-[11px] text-foreground/40">
+                    <span>Open <span className="text-foreground font-medium">{formatPrice(m.open_price)}</span></span>
+                    {m.resolve_price != null && <span>Close <span className="text-foreground font-medium">{formatPrice(m.resolve_price)}</span></span>}
+                    <span><span className="text-foreground font-medium">{m.stats.total_orders}</span> orders</span>
+                  </div>
+                  {hasLastPrice && (
+                    <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/30">
+                      <span className="text-[10px] text-foreground/30">
+                        Market leaned <span className="text-foreground/60">{marketLeanedUp ? "UP" : "DOWN"}</span>
+                        <span className="ml-1 text-foreground/40">({formatPct(lastPrice)})</span>
+                      </span>
+                      {correct && <span className="text-[10px] font-medium text-green-600 tracking-[0.04em]">CORRECT ✓</span>}
+                      {incorrect && <span className="text-[10px] font-medium text-foreground/30 tracking-[0.04em]">WRONG ✗</span>}
+                    </div>
+                  )}
                 </div>
-                <div className="flex items-center gap-4 text-[11px] text-foreground/40">
-                  <span>Open <span className="text-foreground font-medium">{formatPrice(m.open_price)}</span></span>
-                  {m.resolve_price != null && <span>Close <span className="text-foreground font-medium">{formatPrice(m.resolve_price)}</span></span>}
-                  <span><span className="text-foreground font-medium">{m.stats.total_orders}</span> orders</span>
-                </div>
-              </div>
-            </Link>
-          ))}
+              </Link>
+            );
+          })}
           {accumulated.length === 0 && (
             <div className="col-span-3 text-center py-16 text-foreground/30 text-[13px]">
               {selectedDate ? `No resolved markets for ${selectedDate}` : "No resolved markets found"}
