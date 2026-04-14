@@ -59,7 +59,7 @@ export default function Leaderboard() {
         <div>
           <h1 className="font-serif-editorial text-[48px] tracking-[-0.03em] text-foreground leading-[1]">Leaderboard</h1>
           <p className="text-[12px] text-foreground/40 mt-1">
-            Current epoch: {epochDate || "—"} (resets daily at UTC 00:00)
+            Current epoch: {epochDate || "—"} (resets daily at UTC 12:00)
           </p>
         </div>
         <div className="flex items-center gap-4">
