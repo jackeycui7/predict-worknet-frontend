@@ -164,14 +164,19 @@ export default function Markets() {
                   <CountdownTimer closesAt={m.close_at} />
                 </div>
                 <div className="flex items-center gap-2 mb-4">
-                  {(m.orderbook?.best_up_price != null || m.implied_up_prob != null) ? (
-                    <>
-                      <span className="text-primary font-semibold text-[13px]">{formatPct(m.orderbook?.best_up_price ?? m.implied_up_prob ?? 0.5)}</span>
-                      <div className="flex-1 h-[3px] bg-border/60 overflow-hidden">
-                        <div className="h-full bg-primary" style={{ width: `${(m.orderbook?.best_up_price ?? m.implied_up_prob ?? 0.5) * 100}%` }} />
-                      </div>
-                      <span className="text-foreground/30 text-[13px]">{formatPct(m.orderbook?.best_down_price ?? (1 - (m.implied_up_prob ?? 0.5)))}</span>
-                    </>
+                  {((m as any).last_price != null || m.implied_up_prob != null) ? (
+                    (() => {
+                      const prob = parseFloat((m as any).last_price ?? String(m.implied_up_prob));
+                      return (
+                        <>
+                          <span className="text-primary font-semibold text-[13px]">{formatPct(prob)}</span>
+                          <div className="flex-1 h-[3px] bg-border/60 overflow-hidden">
+                            <div className="h-full bg-primary" style={{ width: `${prob * 100}%` }} />
+                          </div>
+                          <span className="text-foreground/30 text-[13px]">{formatPct(1 - prob)}</span>
+                        </>
+                      );
+                    })()
                   ) : (
                     <span className="text-foreground/20 text-[11px] font-light">No orders yet</span>
                   )}
