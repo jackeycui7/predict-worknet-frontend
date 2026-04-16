@@ -4,7 +4,7 @@ import {
   useGetEpochById,
 } from "@/lib/api";
 import type { EpochSummary } from "@workspace/api-client-react";
-import { formatNumber, formatPct, personaLabel } from "@/lib/format";
+import { formatNumber, formatPct, formatPred, formatAwp, personaLabel } from "@/lib/format";
 import { AgentLink } from "@/components/address-link";
 
 function EpochDetail({ epochId }: { epochId: number }) {
@@ -13,12 +13,25 @@ function EpochDetail({ epochId }: { epochId: number }) {
 
   return (
     <div className="px-6 py-6 border-t border-border/40 bg-foreground/[0.01]">
-      <div className="mb-8">
-        {/* $PRED pools hidden for now */}
+      {/* Pool totals — only shown for settled epochs. Unsettled epochs have
+          no final emission figure and we do not expose a projection. */}
+      <div className={`grid gap-6 mb-8 ${(detail as any).total_emission ? 'grid-cols-3' : 'grid-cols-1'}`}>
         <div>
           <div className="text-[11px] font-medium text-foreground/50 tracking-[0.04em] mb-1">Markets resolved</div>
           <div className="font-serif-editorial text-[28px] text-foreground">{detail.markets_resolved}</div>
         </div>
+        {(detail as any).total_emission && (
+          <div>
+            <div className="text-[11px] font-medium text-foreground/50 tracking-[0.04em] mb-1">$PRED distributed</div>
+            <div className="font-serif-editorial text-[28px] text-foreground">{formatPred((detail as any).total_emission)}</div>
+          </div>
+        )}
+        {(detail as any).awp_emission && (
+          <div>
+            <div className="text-[11px] font-medium text-foreground/50 tracking-[0.04em] mb-1">AWP distributed</div>
+            <div className="font-serif-editorial text-[28px] text-foreground">{formatAwp((detail as any).awp_emission)}</div>
+          </div>
+        )}
       </div>
 
       {detail.top_earners.length > 0 && (
@@ -33,7 +46,8 @@ function EpochDetail({ epochId }: { epochId: number }) {
                 <th className="px-3 py-2 text-right">Subs</th>
                 <th className="px-3 py-2 text-right">Acc</th>
                 <th className="px-3 py-2 text-right">Excess</th>
-{/* Reward column hidden for now */}
+                <th className="px-3 py-2 text-right">$PRED</th>
+                <th className="px-3 py-2 text-right">AWP</th>
               </tr>
             </thead>
             <tbody>
@@ -45,7 +59,12 @@ function EpochDetail({ epochId }: { epochId: number }) {
                   <td className="px-3 py-2 text-right text-foreground">{e.valid_submissions}</td>
                   <td className="px-3 py-2 text-right text-foreground font-medium">{formatPct(e.accuracy)}</td>
                   <td className="px-3 py-2 text-right font-semibold text-foreground">{e.excess_score}</td>
-                  {/* $PRED reward hidden for now */}
+                  <td className="px-3 py-2 text-right font-mono text-[11px] font-medium text-foreground">
+                    {(e as any).total_reward ? formatPred((e as any).total_reward) : "—"}
+                  </td>
+                  <td className="px-3 py-2 text-right font-mono text-[11px] font-medium text-foreground">
+                    {(e as any).awp_amount ? formatAwp((e as any).awp_amount) : "—"}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -113,7 +132,12 @@ export default function Epochs() {
               <span className="text-foreground/25 font-serif-editorial text-[24px] w-14">#{ep.id}</span>
               <span className="text-foreground font-semibold w-24">{ep.date}</span>
               <span className="text-[11px] text-foreground/50 tracking-[0.04em] w-16">{ep.status}</span>
-              {/* $PRED emission hidden for now */}
+              {/* Emission only shown for settled epochs — no projection. */}
+              {(ep as any).total_emission ? (
+                <span className="text-foreground/50 font-mono text-[11px]"><span className="font-semibold text-foreground">{formatPred((ep as any).total_emission)}</span></span>
+              ) : (
+                <span className="text-foreground/20 font-mono text-[11px] w-24">—</span>
+              )}
               <span className="text-foreground/50"><span className="font-semibold text-foreground">{ep.total_agents}</span> agents</span>
               <span className="text-foreground/50"><span className="font-semibold text-foreground">{formatNumber(ep.total_predictions)}</span> preds</span>
               <span className="text-foreground font-semibold">{formatPct(ep.global_accuracy)}</span>

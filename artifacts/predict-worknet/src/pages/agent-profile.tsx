@@ -6,7 +6,7 @@ import {
   useGetAgentEquityCurve,
 } from "@/lib/api";
 import type { AgentPredictionItem } from "@workspace/api-client-react";
-import { formatNumber, formatPct, formatChips, relativeTime, personaLabel } from "@/lib/format";
+import { formatNumber, formatPct, formatChips, formatPred, formatAwp, relativeTime, personaLabel } from "@/lib/format";
 import { MarketLink } from "@/components/address-link";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
 
@@ -77,7 +77,12 @@ export default function AgentProfile() {
             <div className="flex justify-between"><span className="text-foreground/30 font-light">Correct</span><span className="font-medium">{formatNumber(s.correct)}</span></div>
             <div className="flex justify-between"><span className="text-foreground/30 font-light">Incorrect</span><span className="font-medium">{formatNumber(s.incorrect)}</span></div>
             <div className="flex justify-between pt-3 border-t border-border/40"><span className="text-foreground/30 font-light">Accuracy</span><span className="font-serif-editorial text-[28px]">{formatPct(s.accuracy)}</span></div>
-{/* $PRED rewards hidden for now */}
+            {(s as any).total_earned && parseFloat(String((s as any).total_earned)) > 0 && (
+              <div className="flex justify-between pt-3 border-t border-border/40"><span className="text-foreground/30 font-light">$PRED earned</span><span className="font-mono text-[12px] font-medium">{formatPred((s as any).total_earned)}</span></div>
+            )}
+            {(s as any).total_awp_earned && parseFloat(String((s as any).total_awp_earned)) > 0 && (
+              <div className="flex justify-between"><span className="text-foreground/30 font-light">AWP earned</span><span className="font-mono text-[12px] font-medium">{formatAwp((s as any).total_awp_earned)}</span></div>
+            )}
             <div className="flex justify-between"><span className="text-foreground/30 font-light">Excess</span><span className={`font-medium ${parseFloat(String(s.all_time_excess ?? 0)) >= 0 ? "text-foreground" : "text-foreground/40"}`}>{parseFloat(String(s.all_time_excess ?? 0)) >= 0 ? "+" : ""}{formatChips(s.all_time_excess)}</span></div>
           </div>
         </div>
@@ -103,7 +108,6 @@ export default function AgentProfile() {
             <div className="flex justify-between pt-3 border-t border-white/10"><span className="text-white/30 font-light">Subs / Resolved</span><span className="text-white font-medium">{t.submissions} / {t.resolved}</span></div>
             <div className="flex justify-between"><span className="text-white/30 font-light">Correct</span><span className="text-white font-medium">{t.correct}</span></div>
             <div className="flex justify-between"><span className="text-white/30 font-light">Accuracy</span><span className="text-white font-medium">{formatPct(t.accuracy)}</span></div>
-{/* $PRED rewards hidden for now */}
           </div>
         </div>
       </div>

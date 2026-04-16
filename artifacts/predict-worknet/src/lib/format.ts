@@ -20,11 +20,22 @@ export function formatChips(v: number | string | null | undefined): string {
   return n.toFixed(0);
 }
 
-export function formatPred(v: number | string | null | undefined): string {
-  if (v == null) return "0 $PRED";
+// Token amount formatters. Values smaller than 1 keep 4 decimals so tail
+// recipients (e.g. 0.015 $PRED) don't collapse to "0".
+function formatToken(v: number | string | null | undefined): string {
+  if (v == null) return "0";
   const n = typeof v === "string" ? parseFloat(v) : v;
-  if (isNaN(n)) return "0 $PRED";
-  return `${formatNumber(Math.round(n))} $PRED`;
+  if (isNaN(n)) return "0";
+  if (Math.abs(n) > 0 && Math.abs(n) < 1) return n.toFixed(4);
+  return formatNumber(Math.round(n));
+}
+
+export function formatPred(v: number | string | null | undefined): string {
+  return `${formatToken(v)} $PRED`;
+}
+
+export function formatAwp(v: number | string | null | undefined): string {
+  return `${formatToken(v)} AWP`;
 }
 
 export function formatPrice(v: number | string | null | undefined): string {
