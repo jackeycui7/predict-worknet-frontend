@@ -129,7 +129,7 @@ export default function Epochs() {
               className="py-4 flex items-center gap-6 cursor-pointer hover:bg-foreground/[0.02] text-[13px] transition-colors"
               onClick={() => toggle(ep.id)}
             >
-              <span className="text-foreground/25 font-serif-editorial text-[24px] w-14">#{ep.id}</span>
+              <span className="text-foreground/25 font-serif-editorial text-[24px] w-14">#{ep.id - 4}</span>
               <span className="text-foreground font-semibold w-24">{ep.date}</span>
               <span className="text-[11px] text-foreground/50 tracking-[0.04em] w-16">{ep.status}</span>
               {/* Emission only shown for settled epochs — no projection. */}

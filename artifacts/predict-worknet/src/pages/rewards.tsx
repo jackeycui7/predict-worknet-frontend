@@ -105,7 +105,7 @@ export default function Rewards() {
                   : "—";
                 return (
                   <tr key={ep.id} className="border-b border-border/30 text-[12px] hover:bg-foreground/[0.02] transition-colors">
-                    <td className="px-4 py-2.5 font-medium">#{ep.id}</td>
+                    <td className="px-4 py-2.5 font-medium">#{ep.id - 4}</td>
                     <td className="px-4 py-2.5 font-light">{ep.date}</td>
                     <td className="px-4 py-2.5 text-right font-mono text-[11px] font-medium">{predCell}</td>
                     <td className="px-4 py-2.5 text-right font-mono text-[11px] font-medium">{awpCell}</td>
