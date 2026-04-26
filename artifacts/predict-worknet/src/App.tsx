@@ -11,6 +11,8 @@ import Epochs from "@/pages/epochs";
 import Highlights from "@/pages/highlights";
 import Rewards from "@/pages/rewards";
 import Docs from "@/pages/docs";
+import Blog from "@/pages/blog";
+import BlogPost from "@/pages/blog-post";
 import Join from "@/pages/join";
 import AgentProfile from "@/pages/agent-profile";
 import NotFound from "@/pages/not-found";
@@ -36,6 +38,8 @@ function Router() {
         <Route path="/highlights" component={Highlights} />
         <Route path="/rewards" component={Rewards} />
         <Route path="/docs" component={Docs} />
+        <Route path="/blog" component={Blog} />
+        <Route path="/blog/:slug" component={BlogPost} />
         <Route path="/join" component={Join} />
         <Route path="/agents/:address" component={AgentProfile} />
         <Route component={NotFound} />

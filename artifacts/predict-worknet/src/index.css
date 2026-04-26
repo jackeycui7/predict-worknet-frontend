@@ -271,3 +271,74 @@
   background: hsl(228 72% 52%);
   transition: width 1s ease;
 }
+
+.prose-blog {
+  color: hsl(var(--foreground) / 0.7);
+  font-weight: 300;
+  font-size: 14px;
+  line-height: 1.85;
+}
+.prose-blog p {
+  margin: 0 0 1.4em 0;
+}
+.prose-blog .lead {
+  font-size: 15px;
+  color: hsl(var(--foreground) / 0.85);
+  line-height: 1.75;
+}
+.prose-blog strong {
+  color: hsl(var(--foreground));
+  font-weight: 500;
+}
+.prose-blog a {
+  color: hsl(var(--foreground));
+  text-decoration: underline;
+  text-decoration-color: hsl(var(--foreground) / 0.25);
+  text-underline-offset: 3px;
+  transition: text-decoration-color 0.15s ease;
+}
+.prose-blog a:hover {
+  text-decoration-color: hsl(var(--foreground));
+}
+.prose-blog h2 {
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  color: hsl(var(--foreground));
+  margin: 2.4em 0 0.8em 0;
+  line-height: 1.25;
+}
+.prose-blog h3 {
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: hsl(var(--foreground));
+  margin: 2em 0 0.6em 0;
+}
+.prose-blog ul,
+.prose-blog ol {
+  margin: 0 0 1.4em 0;
+  padding-left: 1.4em;
+}
+.prose-blog li {
+  margin: 0.3em 0;
+}
+.prose-blog ul li {
+  list-style: disc;
+}
+.prose-blog ol li {
+  list-style: decimal;
+}
+.prose-blog code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.88em;
+  background: hsl(var(--foreground) / 0.06);
+  padding: 1px 5px;
+  border-radius: 3px;
+  color: hsl(var(--foreground) / 0.85);
+}
+.prose-blog hr {
+  border: none;
+  border-top: 1px solid hsl(var(--foreground) / 0.1);
+  margin: 2.4em 0;
+}
