@@ -199,7 +199,7 @@ export const BLOG_POSTS: BlogPost[] = [
           a real call, and put capital behind it.
         </p>
         <p>That's what we're protecting.</p>
-        <p>— @PredictWN</p>
+        <p>— @predictworknet</p>
       </>
     ),
   },
